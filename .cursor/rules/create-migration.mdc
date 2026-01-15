@@ -1,0 +1,96 @@
+---
+description: Guidelines for writing Supabase database migrations
+alwaysApply: false
+---
+
+# Database: Create migration
+
+This project uses migrations provided by the Supabase CLI. Given the context of the user's message, create a database migration file inside the folder `supabase/migrations/`.
+
+The file MUST be named in the format `YYYYMMDDHHmmss_short_description.sql` with proper casing for months, minutes, and seconds in UTC time.
+
+## Guidelines
+
+- Include header comments documenting the migration's purpose and affected elements
+- Write all SQL in lowercase
+- Add extensive comments for destructive operations like drops or truncations
+- Enable Row Level Security (RLS) on all new tables
+
+## RLS Policy Standards
+
+RLS policies should be granular: one policy for `select`, one for `insert` etc) and for each supabase role (`anon` and `authenticated`). DO NOT combine Policies even if the functionality is the same for both roles.
+
+Public tables may use policies that return `true`, while sensitive data requires more restrictive access controls. Each policy needs accompanying comments explaining its security rationale.
+
+## Example Migration
+
+```sql
+-- Migration: Create profiles table
+-- Description: Creates a profiles table with RLS policies for authenticated users
+-- Affected tables: profiles
+
+-- Create the profiles table
+create table public.profiles (
+  id bigint generated always as identity primary key,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  display_name text,
+  avatar_url text,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+-- Add table comment
+comment on table public.profiles is 'User profile information linked to auth.users';
+
+-- Create index on user_id for faster lookups
+create index profiles_user_id_idx on public.profiles(user_id);
+
+-- Enable RLS
+alter table public.profiles enable row level security;
+
+-- RLS Policies for authenticated users
+-- Select: Users can view their own profile
+create policy "Users can view own profile"
+on public.profiles
+for select
+to authenticated
+using ((select auth.uid()) = user_id);
+
+-- Insert: Users can create their own profile
+create policy "Users can create own profile"
+on public.profiles
+for insert
+to authenticated
+with check ((select auth.uid()) = user_id);
+
+-- Update: Users can update their own profile
+create policy "Users can update own profile"
+on public.profiles
+for update
+to authenticated
+using ((select auth.uid()) = user_id)
+with check ((select auth.uid()) = user_id);
+
+-- Delete: Users can delete their own profile
+create policy "Users can delete own profile"
+on public.profiles
+for delete
+to authenticated
+using ((select auth.uid()) = user_id);
+
+-- Create trigger for updated_at
+create trigger update_profiles_updated_at
+  before update on public.profiles
+  for each row execute function public.update_updated_at();
+```
+
+## Destructive Operations
+
+When writing migrations that include destructive operations, always add warnings:
+
+```sql
+-- WARNING: This migration drops the old_table table
+-- All data in this table will be permanently deleted
+-- Ensure you have a backup before running this migration
+drop table if exists public.old_table;
+```

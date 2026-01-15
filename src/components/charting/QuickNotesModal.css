@@ -1,0 +1,131 @@
+/**
+ * Quick Notes Modal CSS
+ * Exact copy from HDFlowsheet reference (index.html lines 4674-4780)
+ * Colors adjusted to green to match user's theme
+ */
+
+/* Quick Notes Modal */
+.quick-notes-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-notes-overlay.active {
+    display: flex;
+}
+
+.quick-notes-modal {
+    background: white;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 500px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.quick-notes-header {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quick-notes-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quick-notes-patient {
+    font-size: 0.85em;
+    opacity: 0.9;
+    margin-top: 4px;
+}
+
+.quick-notes-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.quick-notes-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.quick-notes-body {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.quick-notes-textarea {
+    width: 100%;
+    min-height: 200px;
+    padding: 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1em;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.quick-notes-textarea:focus {
+    outline: none;
+    border-color: #22c55e;
+}
+
+.quick-notes-footer {
+    padding: 15px 20px;
+    background: #f9fafb;
+    border-top: 2px solid #e5e7eb;
+    border-radius: 0 0 12px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quick-notes-hint {
+    font-size: 0.85em;
+    color: #6b7280;
+}
+
+.quick-notes-save {
+    padding: 10px 20px;
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-notes-save:hover {
+    background: #16a34a;
+}

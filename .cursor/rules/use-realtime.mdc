@@ -1,0 +1,217 @@
+---
+description: Guidelines for using Supabase Realtime
+alwaysApply: false
+---
+
+# Supabase Realtime
+
+You are an expert developer assistant specializing in Supabase Realtime implementations.
+
+## Implementation Rules
+
+### Do
+- Use `broadcast` for all realtime events (database changes via triggers, messaging, notifications, game state)
+- Use `presence` sparingly for user state tracking (online status, user counters)
+- Create indexes for all columns used in RLS policies
+- Use topic names that correlate with concepts and tables: `scope:entity` (e.g., `room:123:messages`)
+- Use snake_case for event names: `entity_action` (e.g., `message_created`)
+- Include unsubscribe/cleanup logic in all implementations
+- Set `private: true` for channels using database triggers or RLS policies
+- Give preference to use private channels over public channels (better security and control)
+- Implement proper error handling and reconnection logic
+
+### Don't
+- Use `postgres_changes` for new applications (single-threaded, doesn't scale well)
+- Create multiple subscriptions without proper cleanup
+- Write complex RLS queries without proper indexing
+- Use generic event names like "update" or "change"
+- Subscribe directly in render functions without state management
+- Use database functions (`realtime.send`, `realtime.broadcast_changes`) in client code
+
+## Function Selection Decision Table
+
+| Use Case | Recommended Function | Why Not postgres_changes |
+|----------|---------------------|--------------------------|
+| Custom payloads with business logic | `broadcast` | More flexible, better performance |
+| Database change notifications | `broadcast` via database triggers | More scalable, customizable payloads |
+| High-frequency updates | `broadcast` with minimal payload | Better throughput and control |
+| User presence/status tracking | `presence` (sparingly) | Specialized for state synchronization |
+| Client to client communication | `broadcast` without triggers | More flexible, better performance |
+
+## Client Setup Patterns
+
+```javascript
+// Basic setup
+const supabase = createClient('URL', 'ANON_KEY')
+
+// Channel configuration
+const channel = supabase.channel('room:123:messages', {
+  config: {
+    broadcast: { self: true, ack: true },
+    presence: { key: 'user-session-id', enabled: true },
+    private: true  // Required for RLS authorization
+  }
+})
+```
+
+## React Pattern
+
+```javascript
+const channelRef = useRef(null)
+
+useEffect(() => {
+  // Check if already subscribed to prevent multiple subscriptions
+  if (channelRef.current?.state === 'subscribed') return
+  const channel = supabase.channel('room:123:messages', {
+    config: { private: true }
+  })
+  channelRef.current = channel
+
+  // Set auth before subscribing
+  await supabase.realtime.setAuth()
+
+  channel
+    .on('broadcast', { event: 'message_created' }, handleMessage)
+    .on('broadcast', { event: 'user_joined' }, handleUserJoined)
+    .subscribe()
+
+  return () => {
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current)
+      channelRef.current = null
+    }
+  }
+}, [roomId])
+```
+
+## Database Triggers
+
+### Using realtime.broadcast_changes (Recommended for database changes)
+
+```sql
+create or replace function public.room_messages_broadcast_trigger()
+returns trigger
+security definer
+language plpgsql
+as $$
+begin
+  perform realtime.broadcast_changes(
+    'room:' || coalesce(new.room_id, old.room_id)::text,
+    tg_op,
+    tg_op,
+    tg_table_name,
+    tg_table_schema,
+    new,
+    old
+  );
+  return coalesce(new, old);
+end;
+$$;
+```
+
+### Using realtime.send (For custom messages)
+
+```sql
+create or replace function public.notify_custom_event()
+returns trigger
+security definer
+language plpgsql
+as $$
+begin
+  perform realtime.send(
+    'room:' || new.room_id::text,
+    'status_changed',
+    jsonb_build_object('id', new.id, 'status', new.status),
+    false
+  );
+  return new;
+end;
+$$;
+```
+
+## Authorization Setup
+
+### Basic RLS Setup
+
+To access a private channel you need to set RLS policies against `realtime.messages` table for SELECT operations.
+
+```sql
+-- Simple policy with indexed columns
+create policy "room_members_can_read" on realtime.messages
+for select to authenticated
+using (
+  topic like 'room:%' and
+  exists (
+    select 1 from room_members
+    where user_id = auth.uid()
+    and room_id = split_part(topic, ':', 2)::uuid
+  )
+);
+
+-- Required index for performance
+create index idx_room_members_user_room
+on room_members(user_id, room_id);
+```
+
+### Client Authorization
+
+```javascript
+const channel = supabase.channel('room:123:messages', {
+  config: { private: true }
+})
+  .on('broadcast', { event: 'message_created' }, handleMessage)
+  .on('broadcast', { event: 'user_joined' }, handleUserJoined)
+
+// Set auth before subscribing
+await supabase.realtime.setAuth()
+
+// Subscribe after auth is set
+await channel.subscribe()
+```
+
+## Error Handling & Reconnection
+
+```javascript
+// Client automatically reconnects with built-in logic
+const supabase = createClient('URL', 'ANON_KEY', {
+  realtime: {
+    params: {
+      log_level: 'info',
+      reconnectAfterMs: 1000 // Custom reconnection timing
+    }
+  }
+})
+
+// Simple connection state monitoring
+channel.subscribe((status, err) => {
+  switch (status) {
+    case 'SUBSCRIBED':
+      console.log('Connected (or reconnected)')
+      break
+    case 'CHANNEL_ERROR':
+      console.error('Channel error:', err)
+      // Client will automatically retry
+      break
+    case 'CLOSED':
+      console.log('Channel closed')
+      break
+  }
+})
+```
+
+## Scalability Best Practices
+
+### Use Dedicated Topics
+```javascript
+// Use dedicated topics for better scalability
+const channel = supabase.channel(`room:${roomId}:messages`)
+
+// One topic per user for notifications
+const channel = supabase.channel(`user:${userId}:notifications`)
+```
+
+### Topic Naming Strategy
+- **One topic per room**: `room:123:messages`, `room:123:presence`
+- **One topic per user**: `user:456:notifications`, `user:456:status`
+- **One topic per organization**: `org:789:announcements`
+- **One topic per feature**: `game:123:moves`, `game:123:chat`
