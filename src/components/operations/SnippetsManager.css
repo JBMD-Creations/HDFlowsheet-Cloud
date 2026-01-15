@@ -1,0 +1,341 @@
+.snippets-manager {
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.snippets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.snippets-header h2 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+  font-size: 28px;
+}
+
+.snippets-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.config-badge {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1e40af;
+  border: 2px solid #93c5fd;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Empty State */
+.snippets-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9ca3af;
+}
+
+.snippets-empty .empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.snippets-empty h3 {
+  margin: 0 0 8px 0;
+  color: #6b7280;
+  font-size: 20px;
+}
+
+.snippets-empty p {
+  margin: 0;
+  color: #9ca3af;
+}
+
+/* Snippet Section */
+.snippet-section {
+  margin-bottom: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-icon {
+  font-size: 24px;
+}
+
+.snippet-count {
+  padding: 4px 12px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Snippets Grid */
+.snippets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.snippet-card {
+  position: relative;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.snippet-card:hover {
+  border-color: var(--theme-primary, #0284c7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+.snippet-card.copied {
+  border-color: var(--theme-accent, #22c55e);
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.snippet-text {
+  font-size: 14px;
+  color: #1f2937;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.snippet-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.snippet-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.snippet-tag {
+  padding: 2px 8px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.delete-snippet-btn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+  padding: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.snippet-card:hover .delete-snippet-btn {
+  opacity: 1;
+}
+
+.delete-snippet-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.1);
+}
+
+.copied-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 12px;
+  background: var(--theme-accent, #22c55e);
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: fadeInOut 2s ease;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Add Snippet */
+.add-snippet-btn {
+  background: white;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6b7280;
+  font-weight: 600;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-snippet-btn:hover {
+  border-color: var(--theme-primary, #0284c7);
+  color: var(--theme-primary, #0284c7);
+  background: var(--theme-primary-bg, #f0f9ff);
+}
+
+.add-snippet-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.snippet-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.snippet-textarea:focus {
+  outline: none;
+  border-color: var(--theme-primary, #0284c7);
+  box-shadow: 0 0 0 3px var(--theme-primary-bg, #f0f9ff);
+}
+
+.snippet-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.save-snippet-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: var(--theme-primary, #0284c7);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-snippet-btn:hover {
+  background: var(--theme-primary-dark, #0369a1);
+}
+
+.cancel-snippet-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-snippet-btn:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* Info Box */
+.snippets-info {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #fde68a;
+  border-radius: 12px;
+  margin-top: 32px;
+  color: #92400e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.info-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.snippets-info strong {
+  color: #78350f;
+}
+
+@media (max-width: 768px) {
+  .snippets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .snippets-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .config-badge {
+    align-self: stretch;
+    text-align: center;
+  }
+}

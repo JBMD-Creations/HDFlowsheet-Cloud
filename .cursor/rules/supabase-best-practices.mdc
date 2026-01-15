@@ -1,0 +1,158 @@
+---
+description: Comprehensive guidelines for writing high-performance, secure, and maintainable Supabase applications
+globs: **/*
+alwaysApply: true
+---
+
+# Supabase Best Practices
+
+This guide outlines best practices for developing with Supabase, ensuring your projects are secure, performant, and maintainable.
+
+## 1. SQL Style & Code Organization
+
+### 1.1 Naming Conventions
+- **Identifiers:** Use `snake_case` for all table, column, and function names
+- **Keywords:** Always use lowercase for SQL keywords (e.g., `select`, `from`, `where`)
+- **Table Names:** Prefer plural, `snake_case` names (e.g., `users`, `products`)
+- **Column Names:** Prefer singular, `snake_case` names (e.g., `id`, `name`, `created_at`)
+- **Foreign Keys:** Use `singular_table_name_id` (e.g., `user_id` for `users` table)
+- **Triggers:** Prefix with a numeric order (e.g., `_200_update_timestamp`)
+
+### 1.2 Formatting & Readability
+- Use consistent indentation for clauses and arguments
+- Always use explicit `AS` for aliases with meaningful names
+- Place `AND`/`OR` at the beginning of the line for multi-line `WHERE` clauses
+
+### 1.3 Common Table Expressions (CTEs)
+- Prefer CTEs (`WITH` clauses) for complex queries to improve readability
+
+## 2. Data Modeling & Schema Design
+
+### 2.1 Primary Keys
+- Every table *must* have an `id` column of type `bigint generated always as identity primary key`
+
+### 2.2 Foreign Key Indexes
+- PostgreSQL does *not* automatically index foreign keys
+- Always add an index to every foreign key column
+
+```sql
+create table orders (
+    id bigint generated always as identity primary key,
+    user_id bigint references users (id)
+);
+create index on orders (user_id);
+```
+
+### 2.3 Table Comments
+- Always add a descriptive comment to each table using `COMMENT ON TABLE`
+
+## 3. Security Best Practices
+
+### 3.1 Row-Level Security (RLS)
+- Enable RLS on *every* table in your database, especially those exposed via API
+
+```sql
+alter table sensitive_data enable row level security;
+create policy select_own_data on sensitive_data
+  for select using (auth.uid() = user_id);
+```
+
+### 3.2 Function Security
+- Default to `SECURITY INVOKER`
+- If using `SECURITY DEFINER`, *always* set `search_path = ''` and use fully-qualified names
+
+```sql
+create function get_current_user_profile()
+returns setof user_profiles
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+    return query select * from public.user_profiles where user_id = auth.uid();
+end;
+$$;
+```
+
+### 3.3 Grant Permissions
+- Grant `SELECT` and `DELETE` at the table level
+- Grant `INSERT` and `UPDATE` at the column level
+
+```sql
+grant select on users to authenticated;
+grant delete on users to authenticated;
+grant insert (name, email) on users to authenticated;
+grant update (name, email) on users to authenticated;
+```
+
+## 4. Performance & Query Optimization
+
+### 4.1 Prefer `LANGUAGE SQL` for Functions
+- SQL functions can often be inlined by the query planner
+
+```sql
+create function add_one(a int)
+returns int
+language sql
+immutable
+as $$
+    select a + 1;
+$$;
+```
+
+### 4.2 Function Volatility
+- Declare functions as `IMMUTABLE` or `STABLE` where appropriate
+- Default to `VOLATILE` only if the function modifies data
+
+## 5. Testing & Linting
+
+### 5.1 Database Testing
+- Use `supabase test db` with `pgTAP` for database unit testing
+
+### 5.2 Database Linting
+- Use `supabase db lint` to catch typing errors and potential issues
+
+### 5.3 Type-Safe Query Builders
+- For Edge Functions, use type-safe query builders like Kysely
+
+## 6. Client-Side Best Practices
+
+### 6.1 Supabase Client Setup
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+)
+```
+
+### 6.2 Error Handling
+```javascript
+const { data, error } = await supabase
+  .from('users')
+  .select('*')
+
+if (error) {
+  console.error('Error:', error.message)
+  return
+}
+```
+
+### 6.3 Authentication
+```javascript
+// Sign up
+const { data, error } = await supabase.auth.signUp({
+  email: 'user@example.com',
+  password: 'password'
+})
+
+// Sign in
+const { data, error } = await supabase.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'password'
+})
+
+// Get current user
+const { data: { user } } = await supabase.auth.getUser()
+```

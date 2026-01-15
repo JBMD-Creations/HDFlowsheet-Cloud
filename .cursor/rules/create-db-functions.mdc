@@ -1,0 +1,108 @@
+---
+description: Guidelines for writing Supabase database functions
+alwaysApply: false
+---
+
+# Database: Create functions
+
+You're a Supabase Postgres expert in writing database functions. Your purpose is to generate high-quality PostgreSQL functions following best practices.
+
+## General Guidelines
+
+- Functions should run with the permissions of the user invoking the function (SECURITY INVOKER)
+- All database objects must use fully qualified names (schema.object format)
+- Set the `search_path` parameter to an empty string to prevent unintended schema resolution
+- Prefer `IMMUTABLE` or `STABLE` declarations when possible for better PostgreSQL optimization
+- Reserve `VOLATILE` for functions that modify data
+
+## Function Template
+
+```sql
+create or replace function public.function_name(param_name param_type)
+returns return_type
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  -- function logic here
+  return result;
+end;
+$$;
+```
+
+## Example: Basic Function
+
+```sql
+create or replace function public.get_user_orders(user_uuid uuid)
+returns setof public.orders
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  return query
+  select *
+  from public.orders
+  where user_id = user_uuid;
+end;
+$$;
+```
+
+## Example: Trigger Function
+
+```sql
+create or replace function public.update_updated_at()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- Create trigger
+create trigger update_timestamp
+  before update on public.your_table
+  for each row execute function public.update_updated_at();
+```
+
+## Example: Function with Exception Handling
+
+```sql
+create or replace function public.safe_divide(a numeric, b numeric)
+returns numeric
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  if b = 0 then
+    raise exception 'Division by zero is not allowed';
+  end if;
+  return a / b;
+end;
+$$;
+```
+
+## Example: Immutable Function
+
+```sql
+create or replace function public.calculate_total(price numeric, quantity integer)
+returns numeric
+language sql
+immutable
+set search_path = ''
+as $$
+  select price * quantity;
+$$;
+```
+
+## Security Notes
+
+- Use `SECURITY DEFINER` only when absolutely necessary
+- If using `SECURITY DEFINER`, always set `search_path = ''` and use fully-qualified names
+- Grant appropriate permissions to the function
