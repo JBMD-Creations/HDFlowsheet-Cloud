@@ -34,15 +34,15 @@ export default async function handler(req, res) {
       .single();
 
     if (error) {
-      // No data found is not an error - return empty
+      // No data found is not an error - return empty object
       if (error.code === 'PGRST116') {
-        return res.status(404).json({ error: 'No saved data found', exists: false });
+        return res.status(200).json({ success: true, data: {} });
       }
       throw error;
     }
 
-    // Return the data
-    return res.status(200).json(data.data);
+    // Return the data in expected format
+    return res.status(200).json({ success: true, data: data.data });
 
   } catch (error) {
     console.error('Load error:', error);

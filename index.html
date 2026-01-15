@@ -8724,7 +8724,7 @@
                 completions: opsState.completions
             };
 
-            fetch('api/save.php', {
+            fetch('/api/save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ type: 'operations', data: data })
@@ -8744,7 +8744,7 @@
 
         // Load operations data from server
         function loadOpsFromServer() {
-            fetch('api/load.php?type=operations')
+            fetch('/api/load?type=operations')
             .then(response => response.json())
             .then(result => {
                 if (result.success && result.data) {
@@ -9010,7 +9010,7 @@
                     savedAt: new Date().toISOString()
                 };
 
-                const response = await fetch('api/save.php', {
+                const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -9094,7 +9094,7 @@
             };
 
             try {
-                const response = await fetch('api/save.php', {
+                const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'operations', data: data })
@@ -9114,7 +9114,7 @@
             };
 
             try {
-                const response = await fetch('api/save.php', {
+                const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'snippets', data: data })
@@ -9189,7 +9189,7 @@
 
             try {
                 showSaveStatus('Loading...');
-                const response = await fetch('api/load.php');
+                const response = await fetch('/api/load');
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
@@ -9286,7 +9286,7 @@
         async function loadOpsAndSnippetsFromServer() {
             try {
                 // Load operations data
-                const opsResponse = await fetch('api/load.php?type=operations');
+                const opsResponse = await fetch('/api/load?type=operations');
                 if (opsResponse.ok) {
                     const opsData = await opsResponse.json();
                     if (opsData.checklists) opsState.checklists = opsData.checklists;
@@ -9299,7 +9299,7 @@
 
             try {
                 // Load snippet data
-                const snippetsResponse = await fetch('api/load.php?type=snippets');
+                const snippetsResponse = await fetch('/api/load?type=snippets');
                 if (snippetsResponse.ok) {
                     const snippetsData = await snippetsResponse.json();
                     if (snippetsData.configurations) {
@@ -9317,7 +9317,7 @@
         async function autoLoadFromServer() {
             try {
                 showSaveStatus('Auto-loading saved data...');
-                const response = await fetch('api/load.php');
+                const response = await fetch('/api/load');
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
