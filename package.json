@@ -1,0 +1,12 @@
+{
+  "name": "hdflowsheet-cloud",
+  "version": "1.9.16",
+  "description": "HD Flowsheet & QA Tracker with Supabase backend",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}
