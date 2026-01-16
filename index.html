@@ -6741,8 +6741,13 @@
                 updateUserDisplay(user);
 
                 // Auto-load data from server after login
-                setTimeout(() => {
-                    autoLoadFromServer();
+                setTimeout(async () => {
+                    const loaded = await autoLoadFromServer();
+
+                    // If no patients loaded, show import modal
+                    if (!state.patients || state.patients.length === 0) {
+                        showImportModal();
+                    }
                 }, 500);
             }
         }
