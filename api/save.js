@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { verifyAuth } from '../lib/auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -28,10 +29,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid JSON data' });
     }
 
-    // Get type, data, and user_id from body
+    // Get type and data from body
     const type = body.type || 'flowsheet';
     const dataToSave = body.data || body;
-    const userId = body.user_id || null;
+
+    // Authenticate: prefer JWT, fall back to user_id param
+    let userId = null;
+    const { user, error: authError } = await verifyAuth(req);
+
+    if (user) {
+      userId = user.id;
+    } else if (body.user_id) {
+      // Fallback for backward compatibility (deprecated)
+      userId = body.user_id;
+      console.warn('DEPRECATED: Using user_id param instead of JWT auth');
+    }
+
+    // Require authentication
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required', details: authError });
+    }
 
     // Valid types
     const validTypes = ['flowsheet', 'operations', 'snippets', 'labs', 'timestamp_logs', 'wheelchair_profiles'];
@@ -44,42 +61,16 @@ export default async function handler(req, res) {
     // Build the record to upsert
     const record = {
       type: type,
+      user_id: userId,
       data: dataToSave,
       updated_at: timestamp
     };
 
-    // Only include user_id if it's provided (backward compatible)
-    if (userId) {
-      record.user_id = userId;
-    }
-
-    // Try upsert with composite key first, fallback to type-only key
-    let error;
-
-    if (userId) {
-      // User is logged in - try composite key first
-      const result = await supabase
-        .from('app_data')
-        .upsert(record, { onConflict: 'type,user_id' })
-        .select();
-      error = result.error;
-
-      // If composite key doesn't exist, fall back to type-only
-      if (error && error.message && error.message.includes('user_id')) {
-        const fallbackResult = await supabase
-          .from('app_data')
-          .upsert({ type, data: dataToSave, updated_at: timestamp }, { onConflict: 'type' })
-          .select();
-        error = fallbackResult.error;
-      }
-    } else {
-      // No user - use type-only key
-      const result = await supabase
-        .from('app_data')
-        .upsert({ type, data: dataToSave, updated_at: timestamp }, { onConflict: 'type' })
-        .select();
-      error = result.error;
-    }
+    // Upsert with composite key
+    const { error } = await supabase
+      .from('app_data')
+      .upsert(record, { onConflict: 'type,user_id' })
+      .select();
 
     if (error) {
       throw error;

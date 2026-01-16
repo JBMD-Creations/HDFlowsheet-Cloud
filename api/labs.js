@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { verifyAuth } from '../lib/auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -8,29 +9,40 @@ export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
   try {
-    // Get user_id from query params (GET/DELETE) or body (POST)
-    const userId = req.query.user_id || req.body?.user_id || null;
+    // Authenticate: prefer JWT, fall back to user_id param
+    let userId = null;
+    const { user, error: authError } = await verifyAuth(req);
+
+    if (user) {
+      userId = user.id;
+    } else {
+      // Fallback for backward compatibility (deprecated)
+      const paramUserId = req.query.user_id || req.body?.user_id;
+      if (paramUserId) {
+        userId = paramUserId;
+        console.warn('DEPRECATED: Using user_id param instead of JWT auth');
+      }
+    }
+
+    // Require authentication
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required', details: authError });
+    }
 
     // GET - Load labs for this user
     if (req.method === 'GET') {
-      let query = supabase
+      const { data, error } = await supabase
         .from('labs')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
-
-      // Filter by user_id if provided
-      if (userId) {
-        query = query.eq('user_id', userId);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -54,19 +66,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid data: entries array required' });
       }
 
-      // Delete existing labs for this user only
-      let deleteQuery = supabase
+      // Delete existing labs for this user
+      const { error: deleteError } = await supabase
         .from('labs')
-        .delete();
+        .delete()
+        .eq('user_id', userId);
 
-      if (userId) {
-        deleteQuery = deleteQuery.eq('user_id', userId);
-      } else {
-        // Fallback: delete all if no user_id (backward compatible)
-        deleteQuery = deleteQuery.gte('id', 0);
-      }
-
-      const { error: deleteError } = await deleteQuery;
       if (deleteError) throw deleteError;
 
       // Insert new entries if any
@@ -77,7 +82,7 @@ export default async function handler(req, res) {
           lab_result: entry.labResult,
           date_time: entry.dateTime,
           created_at: entry.timestamp || new Date().toISOString(),
-          user_id: userId  // Associate with user
+          user_id: userId
         }));
 
         const { error: insertError } = await supabase
@@ -92,17 +97,10 @@ export default async function handler(req, res) {
 
     // DELETE - Clear labs for this user
     if (req.method === 'DELETE') {
-      let deleteQuery = supabase
+      const { error } = await supabase
         .from('labs')
-        .delete();
-
-      if (userId) {
-        deleteQuery = deleteQuery.eq('user_id', userId);
-      } else {
-        deleteQuery = deleteQuery.gte('id', 0);
-      }
-
-      const { error } = await deleteQuery;
+        .delete()
+        .eq('user_id', userId);
 
       if (error) throw error;
 

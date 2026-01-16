@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { verifyAuth } from '../lib/auth.js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -8,7 +9,7 @@ export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   // Handle preflight
   if (req.method === 'OPTIONS') {
@@ -21,9 +22,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get type and user_id from query parameters
+    // Get type from query parameters
     const type = req.query.type || 'flowsheet';
-    const userId = req.query.user_id || null;
+
+    // Authenticate: prefer JWT, fall back to user_id param
+    let userId = null;
+    const { user, error: authError } = await verifyAuth(req);
+
+    if (user) {
+      userId = user.id;
+    } else if (req.query.user_id) {
+      // Fallback for backward compatibility (deprecated)
+      userId = req.query.user_id;
+      console.warn('DEPRECATED: Using user_id param instead of JWT auth');
+    }
+
+    // Require authentication
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required', details: authError });
+    }
 
     // Valid types
     const validTypes = ['flowsheet', 'operations', 'snippets', 'labs', 'timestamp_logs', 'wheelchair_profiles'];
@@ -32,17 +49,12 @@ export default async function handler(req, res) {
     }
 
     // Load from Supabase - filter by type and user_id
-    let query = supabase
+    const { data, error } = await supabase
       .from('app_data')
       .select('data, updated_at')
-      .eq('type', type);
-
-    // Filter by user_id if provided (required for multi-user support)
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data, error } = await query.single();
+      .eq('type', type)
+      .eq('user_id', userId)
+      .single();
 
     if (error) {
       // No data found is not an error - return empty object
