@@ -6839,6 +6839,19 @@
         // Handle logout
         async function handleLogout() {
             if (confirm('Are you sure you want to logout?')) {
+                // Cleanup realtime subscriptions
+                cleanupRealtimeSubscriptions();
+
+                // Clear auto-save intervals
+                if (autoSaveIntervalId) {
+                    clearInterval(autoSaveIntervalId);
+                    autoSaveIntervalId = null;
+                }
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = null;
+                }
+
                 await supabaseClient.auth.signOut();
                 currentUser = null;
                 hideUserProfile();
@@ -6854,6 +6867,12 @@
 
                 // Show main app container
                 document.querySelector('.main-app')?.classList.add('active');
+
+                // Setup realtime subscriptions for multi-tab/device sync
+                setupRealtimeSubscriptions();
+
+                // Start debounced auto-save interval
+                startAutoSaveInterval();
 
                 // Auto-load data from server after login
                 setTimeout(async () => {
@@ -6964,6 +6983,143 @@
             if (!supabaseClient) return null;
             const { data: { session } } = await supabaseClient.auth.getSession();
             return session?.access_token || null;
+        }
+
+        // Helper function for authenticated API calls
+        async function authFetch(url, options = {}) {
+            const token = await getAuthToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return fetch(url, { ...options, headers });
+        }
+
+        // ========== REALTIME SUBSCRIPTIONS ==========
+        let realtimeChannel = null;
+        let isReceivingRealtimeUpdate = false; // Prevent save loops
+
+        function setupRealtimeSubscriptions() {
+            if (!supabaseClient || !currentUser) return;
+
+            // Clean up existing subscription
+            if (realtimeChannel) {
+                supabaseClient.removeChannel(realtimeChannel);
+            }
+
+            // Subscribe to changes for this user's data
+            realtimeChannel = supabaseClient
+                .channel('user-data-changes')
+                .on('postgres_changes', {
+                    event: '*',
+                    schema: 'public',
+                    table: 'app_data',
+                    filter: `user_id=eq.${currentUser.id}`
+                }, (payload) => {
+                    console.log('Realtime update received:', payload);
+                    handleRealtimeUpdate(payload);
+                })
+                .subscribe((status) => {
+                    console.log('Realtime subscription status:', status);
+                });
+        }
+
+        function handleRealtimeUpdate(payload) {
+            // Don't reload if we just saved (would cause loop)
+            if (isReceivingRealtimeUpdate) return;
+
+            const { eventType, new: newData, old: oldData } = payload;
+
+            // Only handle updates from other tabs/devices
+            // We can detect this by checking if the update timestamp is newer than our last save
+            if (newData && newData.type === 'flowsheet') {
+                const serverTime = new Date(newData.updated_at).getTime();
+                const localTime = new Date(state.savedAt || 0).getTime();
+
+                // If server data is significantly newer (more than 2 seconds), reload
+                if (serverTime - localTime > 2000) {
+                    console.log('Loading newer data from another tab/device');
+                    showSaveStatus('Syncing from another device...');
+                    isReceivingRealtimeUpdate = true;
+
+                    // Reload data (skip confirmation for auto-sync)
+                    loadFromServer(true).then(() => {
+                        showSaveStatus('Synced!');
+                        isReceivingRealtimeUpdate = false;
+                    }).catch(() => {
+                        isReceivingRealtimeUpdate = false;
+                    });
+                }
+            }
+        }
+
+        function cleanupRealtimeSubscriptions() {
+            if (realtimeChannel) {
+                supabaseClient.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+            }
+        }
+
+        // ========== DEBOUNCED AUTO-SAVE ==========
+        let saveTimeout = null;
+        let lastChangeTime = 0;
+        const DEBOUNCE_DELAY = 2000; // Save 2 seconds after last change
+        const MAX_SAVE_INTERVAL = 30000; // Force save every 30 seconds if changes pending
+        let hasPendingChanges = false;
+        let autoSaveIntervalId = null;
+
+        // Call this whenever data changes
+        function markDataChanged() {
+            hasPendingChanges = true;
+            lastChangeTime = Date.now();
+
+            // Clear existing debounce timeout
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+            }
+
+            // Set new debounce timeout
+            saveTimeout = setTimeout(() => {
+                if (hasPendingChanges && autoSaveEnabled) {
+                    performDebouncedSave();
+                }
+            }, DEBOUNCE_DELAY);
+        }
+
+        async function performDebouncedSave() {
+            if (!hasPendingChanges || !autoSaveEnabled) return;
+
+            hasPendingChanges = false;
+            isReceivingRealtimeUpdate = true; // Prevent realtime reload during save
+
+            try {
+                await saveAll(true); // true = isAutoSave
+                updateAutoSaveCountdown(); // Reset countdown display
+            } catch (error) {
+                console.error('Debounced save error:', error);
+                hasPendingChanges = true; // Retry on next change
+            } finally {
+                isReceivingRealtimeUpdate = false;
+            }
+        }
+
+        // Fallback interval save (in case debounce doesn't trigger)
+        function startAutoSaveInterval() {
+            if (autoSaveIntervalId) {
+                clearInterval(autoSaveIntervalId);
+            }
+
+            autoSaveIntervalId = setInterval(() => {
+                if (hasPendingChanges && autoSaveEnabled) {
+                    const timeSinceLastChange = Date.now() - lastChangeTime;
+                    if (timeSinceLastChange >= DEBOUNCE_DELAY) {
+                        performDebouncedSave();
+                    }
+                }
+            }, MAX_SAVE_INTERVAL);
         }
 
         // ========== END SUPABASE AUTH ==========
@@ -9260,36 +9416,31 @@
         }
 
         // Save operations data to server (dedicated checklists tables)
-        function saveOpsToServer() {
-            fetch('/api/checklists', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    checklists: opsState.checklists,
-                    completions: opsState.completions,
-                    user_id: getCurrentUserId()
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
+        async function saveOpsToServer() {
+            try {
+                const response = await authFetch('/api/checklists', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        checklists: opsState.checklists,
+                        completions: opsState.completions
+                    })
+                });
+                const result = await response.json();
                 if (result.success) {
                     alert('Checklists saved to server successfully!');
                 } else {
                     alert('Error saving to server: ' + (result.error || 'Unknown error'));
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 alert('Error saving to server: ' + err.message);
-            });
+            }
         }
 
         // Load operations data from server (dedicated checklists tables)
-        function loadOpsFromServer() {
-            const userId = getCurrentUserId();
-            const userParam = userId ? `?user_id=${userId}` : '';
-            fetch('/api/checklists' + userParam)
-            .then(response => response.json())
-            .then(result => {
+        async function loadOpsFromServer() {
+            try {
+                const response = await authFetch('/api/checklists');
+                const result = await response.json();
                 if (result.success && result.data) {
                     opsState.checklists = result.data.checklists || [];
                     opsState.completions = result.data.completions || {};
@@ -9299,10 +9450,9 @@
                 } else {
                     alert('No checklists found on server or error: ' + (result.error || ''));
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 alert('Error loading from server: ' + err.message);
-            });
+            }
         }
 
         // Export operations data to JSON file
@@ -9544,6 +9694,7 @@
         async function saveToServer(silent = false) {
             try {
                 if (!silent) showSaveStatus('Saving...');
+                const savedAt = new Date().toISOString();
                 const data = {
                     patients: state.patients,
                     technicians: state.technicians,
@@ -9551,18 +9702,18 @@
                     selectedShifts: state.selectedShifts,
                     sectionOrder: state.sectionOrder,
                     timestampLogs: timestampState.logs,
-                    savedAt: new Date().toISOString()
+                    savedAt: savedAt
                 };
 
-                const response = await fetch('/api/save', {
+                const response = await authFetch('/api/save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: data, user_id: getCurrentUserId() })
+                    body: JSON.stringify({ data: data })
                 });
 
                 if (!response.ok) throw new Error('Server error');
 
                 const result = await response.json();
+                state.savedAt = savedAt; // Track for realtime sync
                 return { success: true, timestamp: result.timestamp };
             } catch (error) {
                 console.error('Save error:', error);
@@ -9648,13 +9799,11 @@
         // Async version of saveOpsToServer for use in saveAll (dedicated checklists tables)
         async function saveOpsToServerAsync() {
             try {
-                const response = await fetch('/api/checklists', {
+                const response = await authFetch('/api/checklists', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         checklists: opsState.checklists,
-                        completions: opsState.completions,
-                        user_id: getCurrentUserId()
+                        completions: opsState.completions
                     })
                 });
                 const result = await response.json();
@@ -9672,10 +9821,9 @@
             };
 
             try {
-                const response = await fetch('/api/save', {
+                const response = await authFetch('/api/save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'snippets', data: data, user_id: getCurrentUserId() })
+                    body: JSON.stringify({ type: 'snippets', data: data })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9687,10 +9835,9 @@
         // Save labs data to server (dedicated labs table)
         async function saveLabsToServerAsync() {
             try {
-                const response = await fetch('/api/labs', {
+                const response = await authFetch('/api/labs', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entries: labsState.entries, user_id: getCurrentUserId() })
+                    body: JSON.stringify({ entries: labsState.entries })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9706,10 +9853,9 @@
             };
 
             try {
-                const response = await fetch('/api/save', {
+                const response = await authFetch('/api/save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'timestamp_logs', data: data, user_id: getCurrentUserId() })
+                    body: JSON.stringify({ type: 'timestamp_logs', data: data })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9723,10 +9869,9 @@
             const profiles = JSON.parse(localStorage.getItem('wheelchair_profiles') || '{}');
 
             try {
-                const response = await fetch('/api/save', {
+                const response = await authFetch('/api/save', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'wheelchair_profiles', data: profiles, user_id: getCurrentUserId() })
+                    body: JSON.stringify({ type: 'wheelchair_profiles', data: profiles })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9793,14 +9938,12 @@
             }
         }
 
-        async function loadFromServer() {
-            if (!confirm('This will replace all current data. Continue?')) return;
+        async function loadFromServer(skipConfirm = false) {
+            if (!skipConfirm && !confirm('This will replace all current data. Continue?')) return;
 
             try {
                 showSaveStatus('Loading...');
-                const userId = getCurrentUserId();
-                const userParam = userId ? `?user_id=${userId}` : '';
-                const response = await fetch('/api/load' + userParam);
+                const response = await authFetch('/api/load');
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
@@ -9904,12 +10047,9 @@
 
         // Load operations and snippets data from server
         async function loadOpsAndSnippetsFromServer() {
-            const userId = getCurrentUserId();
-            const userParam = userId ? `user_id=${userId}` : '';
-
             try {
                 // Load checklists data from dedicated tables
-                const opsResponse = await fetch('/api/checklists' + (userParam ? '?' + userParam : ''));
+                const opsResponse = await authFetch('/api/checklists');
                 if (opsResponse.ok) {
                     const result = await opsResponse.json();
                     const opsData = result.data || result;
@@ -9924,7 +10064,7 @@
 
             try {
                 // Load snippet data
-                const snippetsResponse = await fetch('/api/load?type=snippets' + (userParam ? '&' + userParam : ''));
+                const snippetsResponse = await authFetch('/api/load?type=snippets');
                 if (snippetsResponse.ok) {
                     const result = await snippetsResponse.json();
                     const snippetsData = result.data || result;
@@ -9940,7 +10080,7 @@
 
             try {
                 // Load labs data from dedicated table
-                const labsResponse = await fetch('/api/labs' + (userParam ? '?' + userParam : ''));
+                const labsResponse = await authFetch('/api/labs');
                 if (labsResponse.ok) {
                     const result = await labsResponse.json();
                     const labsData = result.data || result;
@@ -9956,7 +10096,7 @@
 
             try {
                 // Load timestamp logs
-                const timestampsResponse = await fetch('/api/load?type=timestamp_logs' + (userParam ? '&' + userParam : ''));
+                const timestampsResponse = await authFetch('/api/load?type=timestamp_logs');
                 if (timestampsResponse.ok) {
                     const result = await timestampsResponse.json();
                     const timestampsData = result.data || result;
@@ -9971,7 +10111,7 @@
 
             try {
                 // Load wheelchair profiles
-                const wheelchairResponse = await fetch('/api/load?type=wheelchair_profiles' + (userParam ? '&' + userParam : ''));
+                const wheelchairResponse = await authFetch('/api/load?type=wheelchair_profiles');
                 if (wheelchairResponse.ok) {
                     const result = await wheelchairResponse.json();
                     const wheelchairData = result.data || result;
@@ -9988,9 +10128,7 @@
         async function autoLoadFromServer() {
             try {
                 showSaveStatus('Auto-loading saved data...');
-                const userId = getCurrentUserId();
-                const userParam = userId ? `?user_id=${userId}` : '';
-                const response = await fetch('/api/load' + userParam);
+                const response = await authFetch('/api/load');
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
