@@ -15,24 +15,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get user_id from query params (GET) or body (POST/DELETE)
-    const userId = req.query.user_id || (req.body && req.body.user_id) || null;
-
-    // GET - Load all labs for user
+    // GET - Load all labs (no user filtering for backward compatibility)
     if (req.method === 'GET') {
-      let query = supabase
+      const { data, error } = await supabase
         .from('labs')
         .select('*')
         .order('created_at', { ascending: false });
-
-      // Filter by user_id
-      if (userId) {
-        query = query.eq('user_id', userId);
-      } else {
-        query = query.is('user_id', null);
-      }
-
-      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -48,7 +36,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, data: { entries } });
     }
 
-    // POST - Save labs (replace all for this user)
+    // POST - Save labs (replace all)
     if (req.method === 'POST') {
       const { entries } = req.body;
 
@@ -56,15 +44,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid data: entries array required' });
       }
 
-      // Delete all existing labs for this user and insert new ones
-      let deleteQuery = supabase.from('labs').delete();
-      if (userId) {
-        deleteQuery = deleteQuery.eq('user_id', userId);
-      } else {
-        deleteQuery = deleteQuery.is('user_id', null);
-      }
-
-      const { error: deleteError } = await deleteQuery;
+      // Delete all existing labs and insert new ones
+      const { error: deleteError } = await supabase
+        .from('labs')
+        .delete()
+        .gte('id', 0);
 
       if (deleteError) throw deleteError;
 
@@ -75,7 +59,6 @@ export default async function handler(req, res) {
           patient_name: entry.patientName,
           lab_result: entry.labResult,
           date_time: entry.dateTime,
-          user_id: userId,
           created_at: entry.timestamp || new Date().toISOString()
         }));
 
@@ -89,16 +72,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Labs saved' });
     }
 
-    // DELETE - Clear all labs for this user
+    // DELETE - Clear all labs
     if (req.method === 'DELETE') {
-      let deleteQuery = supabase.from('labs').delete();
-      if (userId) {
-        deleteQuery = deleteQuery.eq('user_id', userId);
-      } else {
-        deleteQuery = deleteQuery.is('user_id', null);
-      }
-
-      const { error } = await deleteQuery;
+      const { error } = await supabase
+        .from('labs')
+        .delete()
+        .gte('id', 0);
 
       if (error) throw error;
 

@@ -1,4 +1,8 @@
-import { supabase } from '../lib/supabase.js';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -37,53 +41,48 @@ export default async function handler(req, res) {
 
     const timestamp = new Date().toISOString();
 
-    // Upsert to Supabase (insert or update)
-    // Use composite key: type + user_id
-    const { data, error } = await supabase
-      .from('app_data')
-      .upsert({
-        type: type,
-        user_id: userId,
-        data: dataToSave,
-        updated_at: timestamp
-      }, {
-        onConflict: 'type,user_id'
-      })
-      .select();
+    // Build the record to upsert
+    const record = {
+      type: type,
+      data: dataToSave,
+      updated_at: timestamp
+    };
+
+    // Only include user_id if it's provided (backward compatible)
+    if (userId) {
+      record.user_id = userId;
+    }
+
+    // Try upsert with composite key first, fallback to type-only key
+    let error;
+
+    if (userId) {
+      // User is logged in - try composite key first
+      const result = await supabase
+        .from('app_data')
+        .upsert(record, { onConflict: 'type,user_id' })
+        .select();
+      error = result.error;
+
+      // If composite key doesn't exist, fall back to type-only
+      if (error && error.message && error.message.includes('user_id')) {
+        const fallbackResult = await supabase
+          .from('app_data')
+          .upsert({ type, data: dataToSave, updated_at: timestamp }, { onConflict: 'type' })
+          .select();
+        error = fallbackResult.error;
+      }
+    } else {
+      // No user - use type-only key
+      const result = await supabase
+        .from('app_data')
+        .upsert({ type, data: dataToSave, updated_at: timestamp }, { onConflict: 'type' })
+        .select();
+      error = result.error;
+    }
 
     if (error) {
       throw error;
-    }
-
-    // Also save to backup history (optional - keeps last 30 per user per type)
-    await supabase
-      .from('app_data_backups')
-      .insert({
-        type: type,
-        user_id: userId,
-        data: dataToSave,
-        created_at: timestamp
-      });
-
-    // Clean up old backups (keep last 30 per type per user)
-    const backupQuery = supabase
-      .from('app_data_backups')
-      .select('id, created_at')
-      .eq('type', type)
-      .order('created_at', { ascending: false });
-
-    if (userId) {
-      backupQuery.eq('user_id', userId);
-    }
-
-    const { data: backups } = await backupQuery;
-
-    if (backups && backups.length > 30) {
-      const toDelete = backups.slice(30).map(b => b.id);
-      await supabase
-        .from('app_data_backups')
-        .delete()
-        .in('id', toDelete);
     }
 
     return res.status(200).json({

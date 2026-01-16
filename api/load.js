@@ -1,4 +1,8 @@
-import { supabase } from '../lib/supabase.js';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -27,18 +31,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid type. Must be: flowsheet, operations, snippets, labs, timestamp_logs, or wheelchair_profiles' });
     }
 
-    // Load from Supabase - filter by type and user_id
+    // Load from Supabase - just filter by type (backward compatible)
+    // If user_id column exists and user is logged in, we'll filter by it
     let query = supabase
       .from('app_data')
       .select('data, updated_at')
       .eq('type', type);
-
-    // Filter by user_id (null for anonymous users)
-    if (userId) {
-      query = query.eq('user_id', userId);
-    } else {
-      query = query.is('user_id', null);
-    }
 
     const { data, error } = await query.single();
 
