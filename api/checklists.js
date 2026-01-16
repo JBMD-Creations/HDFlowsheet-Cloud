@@ -54,7 +54,7 @@ export default async function handler(req, res) {
       const checklists = checklistsData.map(checklist => ({
         id: checklist.id,
         name: checklist.name,
-        position: checklist.position,
+        position: checklist.role || 'General',  // Frontend uses 'position' for role string
         folders: foldersData
           .filter(f => f.checklist_id === checklist.id)
           .map(f => ({
@@ -113,14 +113,16 @@ export default async function handler(req, res) {
       if (deleteError) throw deleteError;
 
       // Insert checklists, folders, and items
-      for (const checklist of checklists) {
+      for (let i = 0; i < checklists.length; i++) {
+        const checklist = checklists[i];
         // Insert checklist
         const { data: newChecklist, error: checklistError } = await supabase
           .from('checklists')
           .insert({
             id: checklist.id,
             name: checklist.name,
-            position: checklist.position || 0
+            position: i,  // Use array index for ordering
+            role: checklist.position || 'General'  // Frontend sends role in 'position' field
           })
           .select()
           .single();
