@@ -6740,6 +6740,9 @@
                 hideAuthModal();
                 updateUserDisplay(user);
 
+                // Show main app container
+                document.querySelector('.main-app')?.classList.add('active');
+
                 // Auto-load data from server after login
                 setTimeout(async () => {
                     const loaded = await autoLoadFromServer();
