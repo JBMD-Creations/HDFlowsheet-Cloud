@@ -21,9 +21,9 @@ export default async function handler(req, res) {
     const type = req.query.type || 'flowsheet';
 
     // Valid types
-    const validTypes = ['flowsheet', 'operations', 'snippets'];
+    const validTypes = ['flowsheet', 'operations', 'snippets', 'labs', 'timestamp_logs', 'wheelchair_profiles'];
     if (!validTypes.includes(type)) {
-      return res.status(400).json({ error: 'Invalid type. Must be: flowsheet, operations, or snippets' });
+      return res.status(400).json({ error: 'Invalid type. Must be: flowsheet, operations, snippets, labs, timestamp_logs, or wheelchair_profiles' });
     }
 
     // Load from Supabase
