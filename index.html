@@ -5813,9 +5813,157 @@
         .floating-nav-save-section.auto-save-warning .auto-save-indicator {
             background: #ef4444;
         }
+
+        /* Auth Modal Styles */
+        .auth-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .auth-modal-overlay.active {
+            display: flex;
+        }
+        .auth-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .auth-modal h2 {
+            margin: 0 0 20px 0;
+            color: #1e293b;
+            font-size: 24px;
+            text-align: center;
+        }
+        .auth-modal .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .auth-modal .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .auth-modal .auth-tab.active {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+            margin-bottom: -2px;
+        }
+        .auth-modal input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .auth-modal input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .auth-modal .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .auth-modal .auth-btn:hover {
+            background: #2563eb;
+        }
+        .auth-modal .auth-btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .auth-modal .auth-error {
+            color: #ef4444;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .auth-modal .auth-success {
+            color: #10b981;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .user-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .user-menu-btn .user-icon {
+            width: 24px;
+            height: 24px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
     </style>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+    <!-- Auth Modal -->
+    <div class="auth-modal-overlay" id="authModalOverlay">
+        <div class="auth-modal">
+            <h2>HD Flowsheet</h2>
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+            <div id="authError" class="auth-error" style="display: none;"></div>
+            <div id="authSuccess" class="auth-success" style="display: none;"></div>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <input type="email" id="authEmail" placeholder="Email" required>
+                <input type="password" id="authPassword" placeholder="Password" required>
+                <div id="signupFields" style="display: none;">
+                    <input type="text" id="authDisplayName" placeholder="Display Name (optional)">
+                </div>
+                <button type="submit" class="auth-btn" id="authSubmitBtn">Login</button>
+            </form>
+            <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 14px;">
+                <a href="#" onclick="showForgotPassword()" style="color: #3b82f6;">Forgot password?</a>
+            </p>
+        </div>
+    </div>
+
     <!-- Floating Navigation Sidebar -->
     <div class="floating-nav-wrapper" id="floatingNavWrapper">
         <nav class="floating-nav" id="floatingNav">
@@ -6426,6 +6574,224 @@
     </div>
 
     <script>
+        // ========== SUPABASE AUTH ==========
+        // Initialize Supabase client (uses anon key for client-side)
+        const SUPABASE_URL = 'https://jbcloud.app';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJyb2xlIjogImFub24iLAogICJpc3MiOiAic3VwYWJhc2UiLAogICJpYXQiOiAxNzM2MzEzNjAwLAogICJleHAiOiAxODk0MDgwMDAwCn0.gfwzfMBi_5xPQ6FaOLlKkB1ykLwIjy8lWFCgbXYE_UM'; // Replace with your actual anon key
+
+        let supabaseClient = null;
+        let currentUser = null;
+        let authMode = 'login'; // 'login' or 'signup'
+
+        // Initialize Supabase when page loads
+        function initSupabase() {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+                // Check for existing session
+                supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                    if (session) {
+                        currentUser = session.user;
+                        onAuthStateChange(session.user);
+                    } else {
+                        showAuthModal();
+                    }
+                });
+
+                // Listen for auth changes
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        currentUser = session.user;
+                        onAuthStateChange(session.user);
+                    } else if (event === 'SIGNED_OUT') {
+                        currentUser = null;
+                        showAuthModal();
+                    }
+                });
+            } else {
+                console.error('Supabase client not loaded');
+            }
+        }
+
+        // Show auth modal
+        function showAuthModal() {
+            document.getElementById('authModalOverlay').classList.add('active');
+        }
+
+        // Hide auth modal
+        function hideAuthModal() {
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+        }
+
+        // Switch between login and signup tabs
+        function switchAuthTab(mode) {
+            authMode = mode;
+            const tabs = document.querySelectorAll('.auth-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            if (mode === 'login') {
+                tabs[0].classList.add('active');
+                document.getElementById('signupFields').style.display = 'none';
+                document.getElementById('authSubmitBtn').textContent = 'Login';
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('signupFields').style.display = 'block';
+                document.getElementById('authSubmitBtn').textContent = 'Sign Up';
+            }
+
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authSuccess').style.display = 'none';
+        }
+
+        // Handle auth form submission
+        async function handleAuth(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const errorEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = authMode === 'login' ? 'Logging in...' : 'Signing up...';
+
+            try {
+                let result;
+
+                if (authMode === 'login') {
+                    result = await supabaseClient.auth.signInWithPassword({ email, password });
+                } else {
+                    const displayName = document.getElementById('authDisplayName').value;
+                    result = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: {
+                            data: { display_name: displayName || email.split('@')[0] }
+                        }
+                    });
+                }
+
+                if (result.error) {
+                    throw result.error;
+                }
+
+                if (authMode === 'signup' && result.data.user && !result.data.session) {
+                    // Email confirmation required
+                    successEl.textContent = 'Check your email to confirm your account!';
+                    successEl.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Sign Up';
+                } else if (result.data.session) {
+                    // Logged in successfully
+                    currentUser = result.data.user;
+                    hideAuthModal();
+                    onAuthStateChange(result.data.user);
+                }
+            } catch (error) {
+                errorEl.textContent = error.message || 'Authentication failed';
+                errorEl.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = authMode === 'login' ? 'Login' : 'Sign Up';
+            }
+        }
+
+        // Handle forgot password
+        async function showForgotPassword() {
+            const email = document.getElementById('authEmail').value;
+            const errorEl = document.getElementById('authError');
+            const successEl = document.getElementById('authSuccess');
+
+            if (!email) {
+                errorEl.textContent = 'Please enter your email address first';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+
+                successEl.textContent = 'Password reset email sent!';
+                successEl.style.display = 'block';
+                errorEl.style.display = 'none';
+            } catch (error) {
+                errorEl.textContent = error.message || 'Failed to send reset email';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                showAuthModal();
+            }
+        }
+
+        // Called when auth state changes (login/logout)
+        function onAuthStateChange(user) {
+            if (user) {
+                hideAuthModal();
+                updateUserDisplay(user);
+
+                // Auto-load data from server after login
+                setTimeout(() => {
+                    autoLoadFromServer();
+                }, 500);
+            }
+        }
+
+        // Update UI to show current user
+        function updateUserDisplay(user) {
+            const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+            const initial = displayName.charAt(0).toUpperCase();
+
+            // Add user button to floating nav if not exists
+            let userBtn = document.getElementById('userMenuBtn');
+            if (!userBtn) {
+                const floatingNav = document.getElementById('floatingNav');
+                if (floatingNav) {
+                    const userSection = document.createElement('div');
+                    userSection.className = 'floating-nav-section';
+                    userSection.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+                    userSection.style.marginTop = '10px';
+                    userSection.style.paddingTop = '10px';
+                    userSection.innerHTML = `
+                        <button class="user-menu-btn" id="userMenuBtn" onclick="handleLogout()">
+                            <span class="user-icon">${initial}</span>
+                            <span>${displayName}</span>
+                        </button>
+                    `;
+                    floatingNav.appendChild(userSection);
+                }
+            } else {
+                userBtn.innerHTML = `
+                    <span class="user-icon">${initial}</span>
+                    <span>${displayName}</span>
+                `;
+            }
+        }
+
+        // Get current user ID for API calls
+        function getCurrentUserId() {
+            return currentUser?.id || null;
+        }
+
+        // Get auth token for API calls
+        async function getAuthToken() {
+            if (!supabaseClient) return null;
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            return session?.access_token || null;
+        }
+
+        // ========== END SUPABASE AUTH ==========
+
         // State management
         let state = {
             patients: [],
@@ -9012,7 +9378,7 @@
                 const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ data: data, user_id: getCurrentUserId() })
                 });
 
                 if (!response.ok) throw new Error('Server error');
@@ -9108,7 +9474,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         checklists: opsState.checklists,
-                        completions: opsState.completions
+                        completions: opsState.completions,
+                        user_id: getCurrentUserId()
                     })
                 });
                 const result = await response.json();
@@ -9129,7 +9496,7 @@
                 const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'snippets', data: data })
+                    body: JSON.stringify({ type: 'snippets', data: data, user_id: getCurrentUserId() })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9144,7 +9511,7 @@
                 const response = await fetch('/api/labs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ entries: labsState.entries })
+                    body: JSON.stringify({ entries: labsState.entries, user_id: getCurrentUserId() })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9163,7 +9530,7 @@
                 const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'timestamp_logs', data: data })
+                    body: JSON.stringify({ type: 'timestamp_logs', data: data, user_id: getCurrentUserId() })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9180,7 +9547,7 @@
                 const response = await fetch('/api/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'wheelchair_profiles', data: profiles })
+                    body: JSON.stringify({ type: 'wheelchair_profiles', data: profiles, user_id: getCurrentUserId() })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9252,7 +9619,9 @@
 
             try {
                 showSaveStatus('Loading...');
-                const response = await fetch('/api/load');
+                const userId = getCurrentUserId();
+                const userParam = userId ? `?user_id=${userId}` : '';
+                const response = await fetch('/api/load' + userParam);
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
@@ -9355,9 +9724,12 @@
 
         // Load operations and snippets data from server
         async function loadOpsAndSnippetsFromServer() {
+            const userId = getCurrentUserId();
+            const userParam = userId ? `user_id=${userId}` : '';
+
             try {
                 // Load checklists data from dedicated tables
-                const opsResponse = await fetch('/api/checklists');
+                const opsResponse = await fetch('/api/checklists' + (userParam ? '?' + userParam : ''));
                 if (opsResponse.ok) {
                     const result = await opsResponse.json();
                     const opsData = result.data || result;
@@ -9372,7 +9744,7 @@
 
             try {
                 // Load snippet data
-                const snippetsResponse = await fetch('/api/load?type=snippets');
+                const snippetsResponse = await fetch('/api/load?type=snippets' + (userParam ? '&' + userParam : ''));
                 if (snippetsResponse.ok) {
                     const result = await snippetsResponse.json();
                     const snippetsData = result.data || result;
@@ -9388,7 +9760,7 @@
 
             try {
                 // Load labs data from dedicated table
-                const labsResponse = await fetch('/api/labs');
+                const labsResponse = await fetch('/api/labs' + (userParam ? '?' + userParam : ''));
                 if (labsResponse.ok) {
                     const result = await labsResponse.json();
                     const labsData = result.data || result;
@@ -9404,7 +9776,7 @@
 
             try {
                 // Load timestamp logs
-                const timestampsResponse = await fetch('/api/load?type=timestamp_logs');
+                const timestampsResponse = await fetch('/api/load?type=timestamp_logs' + (userParam ? '&' + userParam : ''));
                 if (timestampsResponse.ok) {
                     const result = await timestampsResponse.json();
                     const timestampsData = result.data || result;
@@ -9419,7 +9791,7 @@
 
             try {
                 // Load wheelchair profiles
-                const wheelchairResponse = await fetch('/api/load?type=wheelchair_profiles');
+                const wheelchairResponse = await fetch('/api/load?type=wheelchair_profiles' + (userParam ? '&' + userParam : ''));
                 if (wheelchairResponse.ok) {
                     const result = await wheelchairResponse.json();
                     const wheelchairData = result.data || result;
@@ -9436,7 +9808,9 @@
         async function autoLoadFromServer() {
             try {
                 showSaveStatus('Auto-loading saved data...');
-                const response = await fetch('/api/load');
+                const userId = getCurrentUserId();
+                const userParam = userId ? `?user_id=${userId}` : '';
+                const response = await fetch('/api/load' + userParam);
 
                 if (response.status === 404) {
                     showSaveStatus('No saved data found on server.', true);
@@ -14231,14 +14605,15 @@
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
+            // Initialize Supabase auth first (shows login modal if not authenticated)
+            initSupabase();
+
             loadTheme(); // Load theme first to avoid flash
             loadShifts(); // Load selected shifts
             loadTechnicians();
             loadSection();
             loadSectionOrder(); // Load saved section order
             initFloatingNav(); // Initialize floating navigation sidebar
-            showImportModal(); // Show import modal with section selector on page load
-            // Auto-save is OFF by default - user must enable it to prevent overwriting from other sessions
 
             // Check if we're returning from a refresh (auto-load from server)
             const pendingServerLoad = localStorage.getItem('hd_pending_server_load');
@@ -14246,13 +14621,13 @@
                 // Clear the flag first
                 localStorage.removeItem('hd_pending_server_load');
                 // Auto-load data from server (skip import modal)
-                const loaded = await autoLoadFromServer();
-                if (!loaded) {
-                    // If auto-load fails, show import modal as fallback
-                    showImportModal();
-                }
-            } else {
-                showImportModal(); // Show import modal with section selector on page load
+                // Note: This will be handled by onAuthStateChange after login
+            }
+
+            // Show import modal only if already logged in
+            // Otherwise, auth modal will show and data loads after login
+            if (currentUser) {
+                showImportModal();
             }
 
             startAutoSave(); // Start auto-save (every 60 seconds)
