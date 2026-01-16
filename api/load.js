@@ -31,12 +31,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid type. Must be: flowsheet, operations, snippets, labs, timestamp_logs, or wheelchair_profiles' });
     }
 
-    // Load from Supabase - just filter by type (backward compatible)
-    // If user_id column exists and user is logged in, we'll filter by it
+    // Load from Supabase - filter by type and user_id
     let query = supabase
       .from('app_data')
       .select('data, updated_at')
       .eq('type', type);
+
+    // Filter by user_id if provided (required for multi-user support)
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
 
     const { data, error } = await query.single();
 
