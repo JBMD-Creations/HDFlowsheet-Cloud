@@ -15,13 +15,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // GET - Load all checklists with folders, items, and completions
+    // Get user_id from query params (GET) or body (POST)
+    const userId = req.query.user_id || (req.body && req.body.user_id) || null;
+
+    // GET - Load all checklists with folders, items, and completions for user
     if (req.method === 'GET') {
-      // Get all checklists
-      const { data: checklistsData, error: checklistsError } = await supabase
+      // Get all checklists for this user
+      let checklistQuery = supabase
         .from('checklists')
         .select('*')
         .order('position', { ascending: true });
+
+      if (userId) {
+        checklistQuery = checklistQuery.eq('user_id', userId);
+      } else {
+        checklistQuery = checklistQuery.is('user_id', null);
+      }
+
+      const { data: checklistsData, error: checklistsError } = await checklistQuery;
 
       if (checklistsError) throw checklistsError;
 
@@ -97,7 +108,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // POST - Save all checklists (replace all)
+    // POST - Save all checklists (replace all for this user)
     if (req.method === 'POST') {
       const { checklists, completions } = req.body;
 
@@ -105,23 +116,28 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid data: checklists array required' });
       }
 
-      // Delete all existing data (cascade will handle related tables)
-      const { error: deleteError } = await supabase
-        .from('checklists')
-        .delete()
-        .gte('id', 0);
+      // Delete all existing data for this user (cascade will handle related tables)
+      let deleteQuery = supabase.from('checklists').delete();
+      if (userId) {
+        deleteQuery = deleteQuery.eq('user_id', userId);
+      } else {
+        deleteQuery = deleteQuery.is('user_id', null);
+      }
+
+      const { error: deleteError } = await deleteQuery;
 
       if (deleteError) throw deleteError;
 
       // Insert checklists, folders, and items
       for (const checklist of checklists) {
-        // Insert checklist
+        // Insert checklist with user_id
         const { data: newChecklist, error: checklistError } = await supabase
           .from('checklists')
           .insert({
             id: checklist.id,
             name: checklist.name,
-            position: checklist.position || 0
+            position: checklist.position || 0,
+            user_id: userId
           })
           .select()
           .single();

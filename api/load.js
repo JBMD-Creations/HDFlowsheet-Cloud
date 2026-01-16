@@ -17,8 +17,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get type from query parameter (default: flowsheet)
+    // Get type and user_id from query parameters
     const type = req.query.type || 'flowsheet';
+    const userId = req.query.user_id || null;
 
     // Valid types
     const validTypes = ['flowsheet', 'operations', 'snippets', 'labs', 'timestamp_logs', 'wheelchair_profiles'];
@@ -26,12 +27,20 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid type. Must be: flowsheet, operations, snippets, labs, timestamp_logs, or wheelchair_profiles' });
     }
 
-    // Load from Supabase
-    const { data, error } = await supabase
+    // Load from Supabase - filter by type and user_id
+    let query = supabase
       .from('app_data')
       .select('data, updated_at')
-      .eq('type', type)
-      .single();
+      .eq('type', type);
+
+    // Filter by user_id (null for anonymous users)
+    if (userId) {
+      query = query.eq('user_id', userId);
+    } else {
+      query = query.is('user_id', null);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       // No data found is not an error - return empty object
