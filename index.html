@@ -9656,6 +9656,7 @@
                 }
                 if (data.selectedShifts) {
                     state.selectedShifts = data.selectedShifts;
+                    state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
                     saveShifts();
                 }
                 if (data.sectionOrder) {
@@ -9845,6 +9846,7 @@
                 }
                 if (data.selectedShifts) {
                     state.selectedShifts = data.selectedShifts;
+                    state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
                     saveShifts();
                 }
                 if (data.sectionOrder) {
