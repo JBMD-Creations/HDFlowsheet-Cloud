@@ -9004,6 +9004,7 @@
                     technicians: state.technicians,
                     currentSection: state.currentSection,
                     selectedShifts: state.selectedShifts,
+                    sectionOrder: state.sectionOrder,
                     timestampLogs: timestampState.logs,
                     savedAt: new Date().toISOString()
                 };
@@ -9280,6 +9281,10 @@
                     state.selectedShifts = data.selectedShifts;
                     saveShifts();
                 }
+                if (data.sectionOrder) {
+                    state.sectionOrder = data.sectionOrder;
+                    saveSectionOrder();
+                }
                 if (data.timestampLogs) {
                     timestampState.logs = data.timestampLogs;
                     saveTimestampLogs();
@@ -9459,6 +9464,10 @@
                 if (data.selectedShifts) {
                     state.selectedShifts = data.selectedShifts;
                     saveShifts();
+                }
+                if (data.sectionOrder) {
+                    state.sectionOrder = data.sectionOrder;
+                    saveSectionOrder();
                 }
                 if (data.timestampLogs) {
                     timestampState.logs = data.timestampLogs;
