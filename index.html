@@ -9101,7 +9101,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     checklists: opsState.checklists,
-                    completions: opsState.completions
+                    completions: opsState.completions,
+                    user_id: getCurrentUserId()
                 })
             })
             .then(response => response.json())
@@ -9119,7 +9120,9 @@
 
         // Load operations data from server (dedicated checklists tables)
         function loadOpsFromServer() {
-            fetch('/api/checklists')
+            const userId = getCurrentUserId();
+            const userParam = userId ? `?user_id=${userId}` : '';
+            fetch('/api/checklists' + userParam)
             .then(response => response.json())
             .then(result => {
                 if (result.success && result.data) {
