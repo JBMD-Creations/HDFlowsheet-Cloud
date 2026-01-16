@@ -6744,6 +6744,9 @@
                 setTimeout(async () => {
                     const loaded = await autoLoadFromServer();
 
+                    // Always render the UI after loading
+                    renderAll();
+
                     // If no patients loaded, show import modal
                     if (!state.patients || state.patients.length === 0) {
                         showImportModal();
