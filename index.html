@@ -9026,7 +9026,7 @@
             }
         }
 
-        // Universal Save All function - saves flowsheet, operations, and snippet data
+        // Universal Save All function - saves flowsheet, operations, snippet, labs, timestamps, and wheelchair data
         async function saveAll(isAutoSave = false) {
             const saveBtn = document.getElementById('universalSaveBtn');
             const saveStatus = document.getElementById('universalSaveStatus');
@@ -9047,10 +9047,22 @@
                 // Save snippet data
                 const snippetsResult = await saveSnippetsToServerAsync();
 
+                // Save labs data
+                const labsResult = await saveLabsToServerAsync();
+
+                // Save timestamp logs
+                const timestampsResult = await saveTimestampLogsToServerAsync();
+
+                // Save wheelchair profiles
+                const wheelchairResult = await saveWheelchairProfilesToServerAsync();
+
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-                if (flowsheetResult.success && opsResult.success && snippetsResult.success) {
+                const allSuccess = flowsheetResult.success && opsResult.success && snippetsResult.success &&
+                                   labsResult.success && timestampsResult.success && wheelchairResult.success;
+
+                if (allSuccess) {
                     if (saveStatus) {
                         saveStatus.textContent = `Last saved: ${timeStr}`;
                         saveStatus.className = 'universal-save-status success';
@@ -9065,6 +9077,9 @@
                     if (!flowsheetResult.success) errors.push('flowsheet');
                     if (!opsResult.success) errors.push('operations');
                     if (!snippetsResult.success) errors.push('snippets');
+                    if (!labsResult.success) errors.push('labs');
+                    if (!timestampsResult.success) errors.push('timestamps');
+                    if (!wheelchairResult.success) errors.push('wheelchair');
                     if (saveStatus) {
                         saveStatus.textContent = `Failed: ${errors.join(', ')}`;
                         saveStatus.className = 'universal-save-status error';
@@ -9118,6 +9133,61 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'snippets', data: data })
+                });
+                const result = await response.json();
+                return { success: result.success };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        }
+
+        // Save labs data to server
+        async function saveLabsToServerAsync() {
+            const data = {
+                entries: labsState.entries
+            };
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'labs', data: data })
+                });
+                const result = await response.json();
+                return { success: result.success };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        }
+
+        // Save timestamp logs to server
+        async function saveTimestampLogsToServerAsync() {
+            const data = {
+                logs: timestampState.logs
+            };
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'timestamp_logs', data: data })
+                });
+                const result = await response.json();
+                return { success: result.success };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        }
+
+        // Save wheelchair profiles to server
+        async function saveWheelchairProfilesToServerAsync() {
+            const profiles = JSON.parse(localStorage.getItem('wheelchair_profiles') || '{}');
+
+            try {
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'wheelchair_profiles', data: profiles })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9198,7 +9268,8 @@
 
                 if (!response.ok) throw new Error('Server error');
 
-                const data = await response.json();
+                const result = await response.json();
+                const data = result.data || result;
 
                 // Clear EOSR edits and labs data from previous session
                 clearEOSRAndLabsState();
@@ -9222,7 +9293,7 @@
                     saveTimestampLogs();
                 }
 
-                // Load operations and snippets data
+                // Load operations, snippets, labs, timestamps, and wheelchair data
                 await loadOpsAndSnippetsFromServer();
 
                 renderAll();
@@ -9255,9 +9326,12 @@
                     throw new Error('Failed to save data to server');
                 }
 
-                // Also save operations and snippets data
+                // Also save operations, snippets, labs, timestamps, and wheelchair data
                 await saveOpsToServerAsync();
                 await saveSnippetsToServerAsync();
+                await saveLabsToServerAsync();
+                await saveTimestampLogsToServerAsync();
+                await saveWheelchairProfilesToServerAsync();
 
                 if (btn) {
                     btn.innerHTML = '🔄 Reloading...';
@@ -9288,7 +9362,8 @@
                 // Load operations data
                 const opsResponse = await fetch('/api/load?type=operations');
                 if (opsResponse.ok) {
-                    const opsData = await opsResponse.json();
+                    const result = await opsResponse.json();
+                    const opsData = result.data || result;
                     if (opsData.checklists) opsState.checklists = opsData.checklists;
                     if (opsData.completions) opsState.completions = opsData.completions;
                     saveOpsData();
@@ -9301,7 +9376,8 @@
                 // Load snippet data
                 const snippetsResponse = await fetch('/api/load?type=snippets');
                 if (snippetsResponse.ok) {
-                    const snippetsData = await snippetsResponse.json();
+                    const result = await snippetsResponse.json();
+                    const snippetsData = result.data || result;
                     if (snippetsData.configurations) {
                         snippetState.configurations = snippetsData.configurations;
                         snippetState.activeConfigId = snippetsData.activeConfigId || null;
@@ -9310,6 +9386,51 @@
                 }
             } catch (err) {
                 console.warn('Could not load snippet data:', err);
+            }
+
+            try {
+                // Load labs data
+                const labsResponse = await fetch('/api/load?type=labs');
+                if (labsResponse.ok) {
+                    const result = await labsResponse.json();
+                    const labsData = result.data || result;
+                    if (labsData.entries) {
+                        labsState.entries = labsData.entries;
+                        saveLabsData();
+                        renderLabsList();
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load labs data:', err);
+            }
+
+            try {
+                // Load timestamp logs
+                const timestampsResponse = await fetch('/api/load?type=timestamp_logs');
+                if (timestampsResponse.ok) {
+                    const result = await timestampsResponse.json();
+                    const timestampsData = result.data || result;
+                    if (timestampsData.logs) {
+                        timestampState.logs = timestampsData.logs;
+                        saveTimestampLogs();
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load timestamp logs:', err);
+            }
+
+            try {
+                // Load wheelchair profiles
+                const wheelchairResponse = await fetch('/api/load?type=wheelchair_profiles');
+                if (wheelchairResponse.ok) {
+                    const result = await wheelchairResponse.json();
+                    const wheelchairData = result.data || result;
+                    if (wheelchairData && Object.keys(wheelchairData).length > 0) {
+                        localStorage.setItem('wheelchair_profiles', JSON.stringify(wheelchairData));
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load wheelchair profiles:', err);
             }
         }
 
@@ -9326,7 +9447,8 @@
 
                 if (!response.ok) throw new Error('Server error');
 
-                const data = await response.json();
+                const result = await response.json();
+                const data = result.data || result;
 
                 // Clear EOSR edits and labs data from previous session
                 clearEOSRAndLabsState();
@@ -9350,7 +9472,7 @@
                     saveTimestampLogs();
                 }
 
-                // Load operations and snippets data
+                // Load operations, snippets, labs, timestamps, and wheelchair data
                 await loadOpsAndSnippetsFromServer();
 
                 renderAll();
