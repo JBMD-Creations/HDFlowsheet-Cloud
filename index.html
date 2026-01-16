@@ -8717,22 +8717,20 @@
             renderChecklistTabs();
         }
 
-        // Save operations data to server
+        // Save operations data to server (dedicated checklists tables)
         function saveOpsToServer() {
-            const data = {
-                checklists: opsState.checklists,
-                completions: opsState.completions
-            };
-
-            fetch('/api/save', {
+            fetch('/api/checklists', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'operations', data: data })
+                body: JSON.stringify({
+                    checklists: opsState.checklists,
+                    completions: opsState.completions
+                })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Operations data saved to server successfully!');
+                    alert('Checklists saved to server successfully!');
                 } else {
                     alert('Error saving to server: ' + (result.error || 'Unknown error'));
                 }
@@ -8742,9 +8740,9 @@
             });
         }
 
-        // Load operations data from server
+        // Load operations data from server (dedicated checklists tables)
         function loadOpsFromServer() {
-            fetch('/api/load?type=operations')
+            fetch('/api/checklists')
             .then(response => response.json())
             .then(result => {
                 if (result.success && result.data) {
@@ -8752,9 +8750,9 @@
                     opsState.completions = result.data.completions || {};
                     saveOpsData(); // Also save to localStorage
                     renderChecklistTabs();
-                    alert('Operations data loaded from server!');
+                    alert('Checklists loaded from server!');
                 } else {
-                    alert('No operations data found on server or error: ' + (result.error || ''));
+                    alert('No checklists found on server or error: ' + (result.error || ''));
                 }
             })
             .catch(err => {
@@ -9101,18 +9099,16 @@
             }
         }
 
-        // Async version of saveOpsToServer for use in saveAll
+        // Async version of saveOpsToServer for use in saveAll (dedicated checklists tables)
         async function saveOpsToServerAsync() {
-            const data = {
-                checklists: opsState.checklists,
-                completions: opsState.completions
-            };
-
             try {
-                const response = await fetch('/api/save', {
+                const response = await fetch('/api/checklists', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'operations', data: data })
+                    body: JSON.stringify({
+                        checklists: opsState.checklists,
+                        completions: opsState.completions
+                    })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9141,17 +9137,13 @@
             }
         }
 
-        // Save labs data to server
+        // Save labs data to server (dedicated labs table)
         async function saveLabsToServerAsync() {
-            const data = {
-                entries: labsState.entries
-            };
-
             try {
-                const response = await fetch('/api/save', {
+                const response = await fetch('/api/labs', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ type: 'labs', data: data })
+                    body: JSON.stringify({ entries: labsState.entries })
                 });
                 const result = await response.json();
                 return { success: result.success };
@@ -9359,17 +9351,18 @@
         // Load operations and snippets data from server
         async function loadOpsAndSnippetsFromServer() {
             try {
-                // Load operations data
-                const opsResponse = await fetch('/api/load?type=operations');
+                // Load checklists data from dedicated tables
+                const opsResponse = await fetch('/api/checklists');
                 if (opsResponse.ok) {
                     const result = await opsResponse.json();
                     const opsData = result.data || result;
                     if (opsData.checklists) opsState.checklists = opsData.checklists;
                     if (opsData.completions) opsState.completions = opsData.completions;
                     saveOpsData();
+                    renderChecklistTabs();
                 }
             } catch (err) {
-                console.warn('Could not load operations data:', err);
+                console.warn('Could not load checklists data:', err);
             }
 
             try {
@@ -9389,8 +9382,8 @@
             }
 
             try {
-                // Load labs data
-                const labsResponse = await fetch('/api/load?type=labs');
+                // Load labs data from dedicated table
+                const labsResponse = await fetch('/api/labs');
                 if (labsResponse.ok) {
                     const result = await labsResponse.json();
                     const labsData = result.data || result;
