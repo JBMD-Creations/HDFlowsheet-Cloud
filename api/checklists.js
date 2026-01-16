@@ -131,11 +131,10 @@ export default async function handler(req, res) {
       // Insert checklists, folders, and items
       for (let i = 0; i < checklists.length; i++) {
         const checklist = checklists[i];
-        // Insert checklist with user_id
+        // Insert checklist with user_id (let database generate ID)
         const { data: newChecklist, error: checklistError } = await supabase
           .from('checklists')
           .insert({
-            id: checklist.id,
             name: checklist.name,
             position: i,  // Use array index for ordering
             role: checklist.position || 'General',  // Frontend sends role in 'position' field
@@ -146,31 +145,52 @@ export default async function handler(req, res) {
 
         if (checklistError) throw checklistError;
 
+        const newChecklistId = newChecklist.id;
+
         // Insert folders
         if (checklist.folders && checklist.folders.length > 0) {
-          const foldersToInsert = checklist.folders.map(f => ({
-            id: f.id,
-            checklist_id: checklist.id,
-            name: f.name,
-            sort_order: f.order || 0
-          }));
+          // Create mapping from old folder IDs to new ones
+          const folderIdMap = {};
 
-          const { error: foldersError } = await supabase
-            .from('checklist_folders')
-            .insert(foldersToInsert);
+          for (const f of checklist.folders) {
+            const { data: newFolder, error: folderError } = await supabase
+              .from('checklist_folders')
+              .insert({
+                checklist_id: newChecklistId,
+                name: f.name,
+                sort_order: f.order || 0
+              })
+              .select()
+              .single();
 
-          if (foldersError) throw foldersError;
-        }
+            if (folderError) throw folderError;
+            folderIdMap[f.id] = newFolder.id;
+          }
 
-        // Insert items
-        if (checklist.items && checklist.items.length > 0) {
-          const itemsToInsert = checklist.items.map(i => ({
-            id: i.id,
-            checklist_id: checklist.id,
-            folder_id: i.folderId || null,
-            item_text: i.text,
-            url: i.url || null,
-            sort_order: i.order || 0
+          // Insert items with mapped folder IDs
+          if (checklist.items && checklist.items.length > 0) {
+            const itemsToInsert = checklist.items.map(item => ({
+              checklist_id: newChecklistId,
+              folder_id: item.folderId ? folderIdMap[item.folderId] || null : null,
+              item_text: item.text,
+              url: item.url || null,
+              sort_order: item.order || 0
+            }));
+
+            const { error: itemsError } = await supabase
+              .from('checklist_items')
+              .insert(itemsToInsert);
+
+            if (itemsError) throw itemsError;
+          }
+        } else if (checklist.items && checklist.items.length > 0) {
+          // No folders, just insert items directly
+          const itemsToInsert = checklist.items.map(item => ({
+            checklist_id: newChecklistId,
+            folder_id: null,
+            item_text: item.text,
+            url: item.url || null,
+            sort_order: item.order || 0
           }));
 
           const { error: itemsError } = await supabase
