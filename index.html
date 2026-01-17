@@ -3927,6 +3927,70 @@
             box-shadow: 0 8px 25px rgba(91, 155, 213, 0.6);
         }
 
+        /* Sync Status Indicator (Bottom Left) */
+        .sync-status-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 999;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .sync-status-indicator:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .sync-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .sync-status-indicator.synced .sync-status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+        }
+
+        .sync-status-indicator.syncing .sync-status-dot {
+            background: #eab308;
+            animation: pulse 1s infinite;
+        }
+
+        .sync-status-indicator.offline .sync-status-dot {
+            background: #ef4444;
+        }
+
+        .sync-status-indicator.saving .sync-status-dot {
+            background: #3b82f6;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
+        }
+
+        .sync-status-text {
+            color: #374151;
+        }
+
+        .sync-status-time {
+            color: #9ca3af;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
         /* Timestamp Modal */
         .timestamp-modal-overlay {
             display: none;
@@ -6116,7 +6180,7 @@
             </div>
 
             <!-- Universal Save Section -->
-            <div class="floating-nav-save-section auto-save-warning" id="saveSection">
+            <div class="floating-nav-save-section" id="saveSection">
                 <button class="universal-save-btn" id="universalSaveBtn" onclick="saveAll()">
                     💾 Save All
                 </button>
@@ -6126,9 +6190,8 @@
                         <span class="auto-save-indicator" id="autoSaveIndicator"></span>
                         Auto-save
                     </div>
-                    <input type="checkbox" class="auto-save-toggle" id="autoSaveToggle" onchange="toggleAutoSave()">
+                    <input type="checkbox" class="auto-save-toggle" id="autoSaveToggle" onchange="toggleAutoSave()" checked>
                 </div>
-                <div class="auto-save-countdown" id="autoSaveCountdown">Auto-save in 60s</div>
                 <button class="refresh-app-btn" id="refreshAppBtn" onclick="refreshApp()" title="Save data, clear cache, and reload app with latest code">
                     🔄 Refresh App
                 </button>
@@ -6842,6 +6905,9 @@
                 // Cleanup realtime subscriptions
                 cleanupRealtimeSubscriptions();
 
+                // Hide sync status indicator
+                hideSyncStatus();
+
                 // Clear auto-save intervals
                 if (autoSaveIntervalId) {
                     clearInterval(autoSaveIntervalId);
@@ -6998,6 +7064,46 @@
             return fetch(url, { ...options, headers });
         }
 
+        // ========== SYNC STATUS INDICATOR ==========
+        let lastSyncTime = null;
+
+        function updateSyncStatus(status, message) {
+            const indicator = document.getElementById('syncStatusIndicator');
+            const textEl = document.getElementById('syncStatusText');
+            const timeEl = document.getElementById('syncStatusTime');
+
+            if (!indicator) return;
+
+            // Show indicator
+            indicator.style.display = 'flex';
+
+            // Remove all status classes
+            indicator.classList.remove('synced', 'syncing', 'offline', 'saving');
+
+            // Add appropriate class
+            indicator.classList.add(status);
+
+            // Update text
+            if (textEl) {
+                textEl.textContent = message || status.charAt(0).toUpperCase() + status.slice(1);
+            }
+
+            // Update time for synced status
+            if (timeEl && status === 'synced' && lastSyncTime) {
+                const timeStr = lastSyncTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                timeEl.textContent = timeStr;
+            } else if (timeEl) {
+                timeEl.textContent = '';
+            }
+        }
+
+        function hideSyncStatus() {
+            const indicator = document.getElementById('syncStatusIndicator');
+            if (indicator) {
+                indicator.style.display = 'none';
+            }
+        }
+
         // ========== REALTIME SUBSCRIPTIONS ==========
         let realtimeChannel = null;
         let isReceivingRealtimeUpdate = false; // Prevent save loops
@@ -7024,6 +7130,14 @@
                 })
                 .subscribe((status) => {
                     console.log('Realtime subscription status:', status);
+                    // Update sync indicator based on connection status
+                    if (status === 'SUBSCRIBED') {
+                        updateSyncStatus('synced', 'Live');
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                        updateSyncStatus('offline', 'Offline');
+                    } else if (status === 'CLOSED') {
+                        updateSyncStatus('offline', 'Disconnected');
+                    }
                 });
         }
 
@@ -7042,14 +7156,16 @@
                 // If server data is significantly newer (more than 2 seconds), reload
                 if (serverTime - localTime > 2000) {
                     console.log('Loading newer data from another tab/device');
-                    showSaveStatus('Syncing from another device...');
+                    updateSyncStatus('syncing', 'Syncing...');
                     isReceivingRealtimeUpdate = true;
 
                     // Reload data (skip confirmation for auto-sync)
                     loadFromServer(true).then(() => {
-                        showSaveStatus('Synced!');
+                        lastSyncTime = new Date();
+                        updateSyncStatus('synced', 'Synced');
                         isReceivingRealtimeUpdate = false;
                     }).catch(() => {
+                        updateSyncStatus('offline', 'Sync failed');
                         isReceivingRealtimeUpdate = false;
                     });
                 }
@@ -7070,6 +7186,7 @@
         const MAX_SAVE_INTERVAL = 30000; // Force save every 30 seconds if changes pending
         let hasPendingChanges = false;
         let autoSaveIntervalId = null;
+        let autoSaveEnabled = true; // Auto-save enabled by default
 
         // Call this whenever data changes
         function markDataChanged() {
@@ -7094,12 +7211,16 @@
 
             hasPendingChanges = false;
             isReceivingRealtimeUpdate = true; // Prevent realtime reload during save
+            updateSyncStatus('saving', 'Saving...');
 
             try {
                 await saveAll(true); // true = isAutoSave
+                lastSyncTime = new Date();
+                updateSyncStatus('synced', 'Saved');
                 updateAutoSaveCountdown(); // Reset countdown display
             } catch (error) {
                 console.error('Debounced save error:', error);
+                updateSyncStatus('offline', 'Save failed');
                 hasPendingChanges = true; // Retry on next change
             } finally {
                 isReceivingRealtimeUpdate = false;
@@ -9880,61 +10001,40 @@
             }
         }
 
-        // Auto-save state
-        let autoSaveInterval = null;
-        let autoSaveCountdown = 60;
-        let countdownInterval = null;
-
+        // Auto-save controls (debounced save is managed above)
         function startAutoSave() {
-            // Clear any existing intervals
-            if (autoSaveInterval) clearInterval(autoSaveInterval);
-            if (countdownInterval) clearInterval(countdownInterval);
+            autoSaveEnabled = true;
+            const toggle = document.getElementById('autoSaveToggle');
+            const indicator = document.getElementById('autoSaveIndicator');
 
-            autoSaveCountdown = 60;
-            updateAutoSaveCountdown();
+            if (toggle) toggle.checked = true;
+            if (indicator) indicator.classList.add('active');
 
-            // Countdown timer - updates every second
-            countdownInterval = setInterval(() => {
-                autoSaveCountdown--;
-                if (autoSaveCountdown < 0) autoSaveCountdown = 60;
-                updateAutoSaveCountdown();
-            }, 1000);
-
-            // Auto-save every 60 seconds
-            autoSaveInterval = setInterval(() => {
-                autoSaveCountdown = 60;
-                saveAll(true);
-            }, 60000);
+            // Start the debounced auto-save interval (fallback)
+            startAutoSaveInterval();
         }
 
         function updateAutoSaveCountdown() {
-            const countdownEl = document.getElementById('autoSaveCountdown');
-            if (countdownEl) {
-                countdownEl.textContent = `Auto-save in ${autoSaveCountdown}s`;
-            }
+            // No longer showing countdown - sync indicator shows status instead
         }
 
         function toggleAutoSave() {
             const toggle = document.getElementById('autoSaveToggle');
             const indicator = document.getElementById('autoSaveIndicator');
-            const saveSection = document.getElementById('saveSection');
 
-            if (autoSaveInterval) {
+            if (autoSaveEnabled) {
                 // Turn off auto-save
-                clearInterval(autoSaveInterval);
-                clearInterval(countdownInterval);
-                autoSaveInterval = null;
-                countdownInterval = null;
+                autoSaveEnabled = false;
                 if (toggle) toggle.checked = false;
                 if (indicator) indicator.classList.remove('active');
-                if (saveSection) saveSection.classList.add('auto-save-warning');
-                document.getElementById('autoSaveCountdown').textContent = 'Auto-save off';
+                updateSyncStatus('offline', 'Auto-save off');
             } else {
                 // Turn on auto-save
+                autoSaveEnabled = true;
                 if (toggle) toggle.checked = true;
                 if (indicator) indicator.classList.add('active');
-                if (saveSection) saveSection.classList.remove('auto-save-warning');
-                startAutoSave();
+                updateSyncStatus('synced', 'Auto-save on');
+                startAutoSaveInterval();
             }
         }
 
@@ -14986,6 +15086,13 @@
         <button class="floating-btn" onclick="saveAll()">
             💾 Save All
         </button>
+    </div>
+
+    <!-- Sync Status Indicator (Bottom Left) -->
+    <div class="sync-status-indicator synced" id="syncStatusIndicator" style="display: none;">
+        <div class="sync-status-dot"></div>
+        <span class="sync-status-text" id="syncStatusText">Synced</span>
+        <span class="sync-status-time" id="syncStatusTime"></span>
     </div>
 
     <!-- Bottom Center Floating Button -->
