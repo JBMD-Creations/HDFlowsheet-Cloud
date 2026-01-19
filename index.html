@@ -6399,6 +6399,7 @@
                         <button class="ops-btn" style="background: #f3f4f6; color: #374151;" onclick="document.getElementById('opsImportFile').click()">📤 Import JSON</button>
                         <input type="file" id="opsImportFile" accept=".json" style="display: none;" onchange="importOpsData(event)">
                         <button class="ops-btn" style="background: #fef3c7; color: #92400e;" onclick="openBackupRestoreModal()">🔄 Restore Backup</button>
+                        <button class="ops-btn" style="background: #dcfce7; color: #166534;" onclick="recoverOrphanedItems()">🔍 Recover Lost Items</button>
                     </div>
                 </div>
 
@@ -9723,6 +9724,46 @@
             } catch (err) {
                 console.error('Restore error:', err);
                 alert('❌ Failed to restore backup. Please try again.');
+            }
+        }
+
+        // Recover orphaned checklist items from database
+        async function recoverOrphanedItems() {
+            if (!confirm('🔍 Recover Lost Items?\n\nThis will search for any checklist items in the database that are not connected to a checklist and restore them.\n\nContinue?')) {
+                return;
+            }
+
+            try {
+                const response = await authFetch('/api/checklists', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'recover_orphaned' })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (result.recoveredItems === 0) {
+                        alert('No orphaned items found in the database.');
+                    } else {
+                        alert(`✅ ${result.message}\n\nYour recovered items are now available.`);
+
+                        // Reload checklists from server
+                        const opsResponse = await authFetch('/api/checklists');
+                        if (opsResponse.ok) {
+                            const opsResult = await opsResponse.json();
+                            const opsData = opsResult.data || opsResult;
+                            if (opsData.checklists) opsState.checklists = opsData.checklists;
+                            if (opsData.completions) opsState.completions = opsData.completions;
+                            saveOpsData(true);
+                            renderChecklistTabs();
+                        }
+                    }
+                } else {
+                    alert('❌ Failed to recover: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Recovery error:', err);
+                alert('❌ Failed to recover items. Please try again.');
             }
         }
 
