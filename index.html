@@ -7478,11 +7478,14 @@
             updateLabDateTime();
         }
 
-        // Save labs data to localStorage
-        function saveLabsData() {
+        // Save labs data to localStorage and trigger auto-save to Supabase
+        function saveLabsData(skipAutoSave = false) {
             localStorage.setItem('hd_labs_data', JSON.stringify({
                 entries: labsState.entries
             }));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // Get current date/time in Phoenix, Arizona timezone
@@ -7713,13 +7716,16 @@
             renderSnippetConfigContent();
         }
 
-        // Save snippet data to localStorage
-        function saveSnippetData() {
+        // Save snippet data to localStorage and trigger auto-save to Supabase
+        function saveSnippetData(skipAutoSave = false) {
             localStorage.setItem('hd_snippet_data', JSON.stringify({
                 configurations: snippetState.configurations,
                 activeConfigId: snippetState.activeConfigId
             }));
             updateAllTags();
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // Initialize with default snippet configuration based on existing drawer snippets
@@ -9645,8 +9651,12 @@
             }
         }
         
-        function saveTechnicians() {
+        // Save technicians to localStorage and trigger auto-save to Supabase
+        function saveTechnicians(skipAutoSave = false) {
             localStorage.setItem('hd_technicians', JSON.stringify(state.technicians));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
         
         function loadSection() {
@@ -9656,13 +9666,20 @@
             }
         }
         
-        function saveSection() {
+        // Save current section to localStorage and trigger auto-save to Supabase
+        function saveSection(skipAutoSave = false) {
             localStorage.setItem('hd_current_section', state.currentSection);
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
-        // Save/load section order
-        function saveSectionOrder() {
+        // Save section order to localStorage and trigger auto-save to Supabase
+        function saveSectionOrder(skipAutoSave = false) {
             localStorage.setItem('hd_section_order', JSON.stringify(state.sectionOrder));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         function loadSectionOrder() {
@@ -9802,8 +9819,12 @@
             updateShiftCheckboxVisuals();
         }
         
-        function saveShifts() {
+        // Save selected shifts to localStorage and trigger auto-save to Supabase
+        function saveShifts(skipAutoSave = false) {
             localStorage.setItem('hd_selected_shifts', JSON.stringify(state.selectedShifts));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // ========== DATA MANAGEMENT FUNCTIONS ==========
@@ -10063,28 +10084,28 @@
                 // Clear EOSR edits and labs data from previous session
                 clearEOSRAndLabsState();
 
-                // Restore state
+                // Restore state (skip auto-save since we're loading from server)
                 if (data.patients) state.patients = data.patients;
                 if (data.technicians) {
                     state.technicians = data.technicians;
-                    saveTechnicians();
+                    saveTechnicians(true);
                 }
                 if (data.currentSection) {
                     state.currentSection = data.currentSection;
-                    saveSection();
+                    saveSection(true);
                 }
                 if (data.selectedShifts) {
                     state.selectedShifts = data.selectedShifts;
                     state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
-                    saveShifts();
+                    saveShifts(true);
                 }
                 if (data.sectionOrder) {
                     state.sectionOrder = data.sectionOrder;
-                    saveSectionOrder();
+                    saveSectionOrder(true);
                 }
                 if (data.timestampLogs) {
                     timestampState.logs = data.timestampLogs;
-                    saveTimestampLogs();
+                    saveTimestampLogs(true);
                 }
 
                 // Load operations, snippets, labs, timestamps, and wheelchair data
@@ -10168,7 +10189,7 @@
             }
 
             try {
-                // Load snippet data
+                // Load snippet data (skip auto-save since we're loading from server)
                 const snippetsResponse = await authFetch('/api/load?type=snippets');
                 if (snippetsResponse.ok) {
                     const result = await snippetsResponse.json();
@@ -10176,7 +10197,7 @@
                     if (snippetsData.configurations) {
                         snippetState.configurations = snippetsData.configurations;
                         snippetState.activeConfigId = snippetsData.activeConfigId || null;
-                        saveSnippetData();
+                        saveSnippetData(true);
                     }
                 }
             } catch (err) {
@@ -10184,14 +10205,14 @@
             }
 
             try {
-                // Load labs data from dedicated table
+                // Load labs data from dedicated table (skip auto-save since we're loading from server)
                 const labsResponse = await authFetch('/api/labs');
                 if (labsResponse.ok) {
                     const result = await labsResponse.json();
                     const labsData = result.data || result;
                     if (labsData.entries) {
                         labsState.entries = labsData.entries;
-                        saveLabsData();
+                        saveLabsData(true);
                         renderLabsList();
                     }
                 }
@@ -10200,14 +10221,14 @@
             }
 
             try {
-                // Load timestamp logs
+                // Load timestamp logs (skip auto-save since we're loading from server)
                 const timestampsResponse = await authFetch('/api/load?type=timestamp_logs');
                 if (timestampsResponse.ok) {
                     const result = await timestampsResponse.json();
                     const timestampsData = result.data || result;
                     if (timestampsData.logs) {
                         timestampState.logs = timestampsData.logs;
-                        saveTimestampLogs();
+                        saveTimestampLogs(true);
                     }
                 }
             } catch (err) {
@@ -10248,28 +10269,28 @@
                 // Clear EOSR edits and labs data from previous session
                 clearEOSRAndLabsState();
 
-                // Restore state
+                // Restore state (skip auto-save since we're loading from server)
                 if (data.patients) state.patients = data.patients;
                 if (data.technicians) {
                     state.technicians = data.technicians;
-                    saveTechnicians();
+                    saveTechnicians(true);
                 }
                 if (data.currentSection) {
                     state.currentSection = data.currentSection;
-                    saveSection();
+                    saveSection(true);
                 }
                 if (data.selectedShifts) {
                     state.selectedShifts = data.selectedShifts;
                     state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
-                    saveShifts();
+                    saveShifts(true);
                 }
                 if (data.sectionOrder) {
                     state.sectionOrder = data.sectionOrder;
-                    saveSectionOrder();
+                    saveSectionOrder(true);
                 }
                 if (data.timestampLogs) {
                     timestampState.logs = data.timestampLogs;
-                    saveTimestampLogs();
+                    saveTimestampLogs(true);
                 }
 
                 // Load operations, snippets, labs, timestamps, and wheelchair data
@@ -10366,9 +10387,12 @@
             }
         }
 
-        // Save timestamp logs to localStorage
-        function saveTimestampLogs() {
+        // Save timestamp logs to localStorage and trigger auto-save to Supabase
+        function saveTimestampLogs(skipAutoSave = false) {
             localStorage.setItem('hd_timestamp_logs', JSON.stringify(timestampState.logs));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // Get Phoenix, AZ time
@@ -11342,7 +11366,7 @@
             event.stopPropagation();
             const patient = state.patients.find(p => p.id === patientId);
             if (!patient) return;
-            
+
             // Initialize techCheck if it doesn't exist
             if (!patient.techCheck) {
                 patient.techCheck = {
@@ -11356,8 +11380,9 @@
                     postWeight: false
                 };
             }
-            
+
             patient.techCheck[field] = !patient.techCheck[field];
+            markDataChanged();
             renderAll();
         }
         
@@ -11855,6 +11880,7 @@
             const patient = state.patients.find(p => p.id === id);
             if (patient) {
                 patient[field] = value;
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11864,6 +11890,7 @@
             const patient = state.patients.find(p => p.id === id);
             if (patient) {
                 patient[field] = value;
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11873,6 +11900,7 @@
             const patient = state.patients.find(p => p.id === patientId);
             if (patient) {
                 patient[field] = checked;
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11901,6 +11929,7 @@
                     // The checkmark shows when all are done
                 }
 
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11922,6 +11951,7 @@
                     completed: false,
                     timestamp: timestamp
                 });
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11940,6 +11970,7 @@
                 const todo = patient.miscTodos.find(t => t.id === todoId);
                 if (todo) {
                     todo.completed = completed;
+                    markDataChanged();
                     renderAll();
                 }
             }
@@ -11949,6 +11980,7 @@
             const patient = state.patients.find(p => p.id === patientId);
             if (patient && patient.miscTodos) {
                 patient.miscTodos = patient.miscTodos.filter(t => t.id !== todoId);
+                markDataChanged();
                 renderAll();
             }
         }
@@ -11983,6 +12015,7 @@
                     actionTaken: false,
                     sectionComplete: false
                 });
+                markDataChanged();
                 renderAll();
             }
         }
@@ -12001,6 +12034,7 @@
                 const lab = patient.labs.find(l => l.id === labId);
                 if (lab) {
                     lab[field] = value;
+                    markDataChanged();
                     renderAll();
                 }
             }
@@ -12012,6 +12046,7 @@
                 const lab = patient.labs.find(l => l.id === labId);
                 if (lab) {
                     lab.resultText = value;
+                    markDataChanged();
                     // Don't renderAll() on every keystroke, just update state
                 }
             }
@@ -12021,6 +12056,7 @@
             const patient = state.patients.find(p => p.id === patientId);
             if (patient && patient.labs) {
                 patient.labs = patient.labs.filter(l => l.id !== labId);
+                markDataChanged();
                 renderAll();
             }
         }
@@ -12050,6 +12086,7 @@
                     if (value) {
                         syncLabToOperations(patient, lab);
                     }
+                    markDataChanged();
                     renderAll();
                 }
             }
@@ -12122,6 +12159,9 @@
             if (typeof labsState !== 'undefined') {
                 labsState.entries = labsData.entries;
             }
+
+            // Trigger auto-save to Supabase
+            markDataChanged();
         }
 
         // Check if patient has any missed tx sub-items checked
@@ -12382,12 +12422,15 @@
             }));
         }
 
-        // Save wheelchair equipment profile to localStorage by patient initials
-        function saveWheelchairProfile(patientName, items) {
+        // Save wheelchair equipment profile to localStorage and trigger auto-save to Supabase
+        function saveWheelchairProfile(patientName, items, skipAutoSave = false) {
             if (!patientName) return;
             const profiles = JSON.parse(localStorage.getItem('wheelchair_profiles') || '{}');
             profiles[patientName] = items;
             localStorage.setItem('wheelchair_profiles', JSON.stringify(profiles));
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // Calculate the sum of equipment weights for a specific column (pre or post)
@@ -12471,6 +12514,7 @@
             } else {
                 patient.wheelchairPostMeasured = value;
             }
+            markDataChanged();
             updateWheelchairCalculations(patientId);
         }
 
