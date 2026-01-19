@@ -5988,6 +5988,33 @@
         .floating-nav-save-section.auto-save-warning .auto-save-indicator {
             background: #ef4444;
         }
+        /* Reset Patients Button */
+        .reset-patients-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            margin-top: 8px;
+        }
+        .reset-patients-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        .reset-patients-btn:active {
+            transform: translateY(0);
+        }
 
         /* Auth Modal Styles */
         .auth-modal-overlay {
@@ -6194,6 +6221,9 @@
                 </div>
                 <button class="refresh-app-btn" id="refreshAppBtn" onclick="refreshApp()" title="Save data, clear cache, and reload app with latest code">
                     🔄 Refresh App
+                </button>
+                <button class="reset-patients-btn" id="resetPatientsBtn" onclick="resetPatients()" title="Clear all patient data for end of shift">
+                    🔄 Reset Patients
                 </button>
             </div>
         </nav>
@@ -7465,6 +7495,52 @@
             // Clear labs state and localStorage
             labsState.entries = [];
             localStorage.removeItem('hd_labs_data');
+        }
+
+        // Reset patients for end of shift - clears patient data but preserves settings
+        function resetPatients() {
+            const patientCount = state.patients.length;
+
+            if (patientCount === 0) {
+                alert('No patients to reset.');
+                return;
+            }
+
+            const confirmMsg = `⚠️ End of Shift Reset\n\nThis will clear:\n• All ${patientCount} patients\n• Patient labs, todos, and checkmarks\n• EOSR edits\n• Operations labs entries\n• Timestamp logs\n\nThis will keep:\n• Technicians\n• Checklists\n• Snippets\n• Section & shift preferences\n\nAre you sure you want to reset?`;
+
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+
+            // Double-confirm for safety
+            if (!confirm('⚠️ FINAL CONFIRMATION\n\nThis cannot be undone. Continue with reset?')) {
+                return;
+            }
+
+            // Clear patients
+            state.patients = [];
+            state.activePatientId = null;
+            state.nextId = 1;
+            state.selectedPatients = new Set();
+            state.collapsedSections = {};
+            state.expandedTechCheck = null;
+
+            // Clear EOSR and labs state
+            clearEOSRAndLabsState();
+
+            // Clear timestamp logs
+            timestampState.logs = [];
+            saveTimestampLogs();
+
+            // Trigger auto-save to sync to Supabase
+            markDataChanged();
+
+            // Re-render the UI
+            renderAll();
+
+            // Show success message
+            showSaveStatus('✓ Patients reset for new shift');
+            alert('✅ Reset complete!\n\nAll patient data has been cleared.\nYou can now import new patients for your next shift.');
         }
 
         // Load labs data from localStorage
