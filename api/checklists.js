@@ -230,6 +230,137 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, backups: backupList });
       }
 
+      // Handle recovery of orphaned checklist items
+      if (action === 'recover_orphaned') {
+        // Get all checklist IDs that belong to this user
+        const { data: userChecklists } = await supabase
+          .from('checklists')
+          .select('id')
+          .eq('user_id', userId);
+
+        const validChecklistIds = (userChecklists || []).map(c => c.id);
+
+        // Find all orphaned items (items with no valid parent checklist)
+        const { data: allItems } = await supabase
+          .from('checklist_items')
+          .select('*')
+          .order('sort_order', { ascending: true });
+
+        // Find orphaned folders too
+        const { data: allFolders } = await supabase
+          .from('checklist_folders')
+          .select('*')
+          .order('sort_order', { ascending: true });
+
+        // Filter to orphaned items (checklist_id not in validChecklistIds)
+        const orphanedItems = (allItems || []).filter(item =>
+          !validChecklistIds.includes(item.checklist_id)
+        );
+
+        const orphanedFolders = (allFolders || []).filter(folder =>
+          !validChecklistIds.includes(folder.checklist_id)
+        );
+
+        if (orphanedItems.length === 0) {
+          return res.status(200).json({
+            success: true,
+            message: 'No orphaned items found',
+            recoveredItems: 0
+          });
+        }
+
+        // Group orphaned items by their original checklist_id
+        const itemsByChecklist = {};
+        orphanedItems.forEach(item => {
+          if (!itemsByChecklist[item.checklist_id]) {
+            itemsByChecklist[item.checklist_id] = [];
+          }
+          itemsByChecklist[item.checklist_id].push(item);
+        });
+
+        // Group orphaned folders by their original checklist_id
+        const foldersByChecklist = {};
+        orphanedFolders.forEach(folder => {
+          if (!foldersByChecklist[folder.checklist_id]) {
+            foldersByChecklist[folder.checklist_id] = [];
+          }
+          foldersByChecklist[folder.checklist_id].push(folder);
+        });
+
+        // Create a recovered checklist for each group
+        let totalRecovered = 0;
+        const checklistIds = Object.keys(itemsByChecklist);
+
+        for (let i = 0; i < checklistIds.length; i++) {
+          const oldChecklistId = checklistIds[i];
+          const items = itemsByChecklist[oldChecklistId];
+          const folders = foldersByChecklist[oldChecklistId] || [];
+
+          // Create new checklist
+          const { data: newChecklist, error: clError } = await supabase
+            .from('checklists')
+            .insert({
+              name: `Recovered Checklist ${i + 1}`,
+              position: i,
+              role: 'Recovered',
+              user_id: userId
+            })
+            .select()
+            .single();
+
+          if (clError) {
+            console.error('Error creating recovered checklist:', clError);
+            continue;
+          }
+
+          // Create folders with ID mapping
+          const folderIdMap = {};
+          for (const folder of folders) {
+            const { data: newFolder } = await supabase
+              .from('checklist_folders')
+              .insert({
+                checklist_id: newChecklist.id,
+                name: folder.name,
+                sort_order: folder.sort_order || 0
+              })
+              .select()
+              .single();
+
+            if (newFolder) {
+              folderIdMap[folder.id] = newFolder.id;
+            }
+          }
+
+          // Update items to point to new checklist and folders
+          for (const item of items) {
+            await supabase
+              .from('checklist_items')
+              .update({
+                checklist_id: newChecklist.id,
+                folder_id: item.folder_id ? folderIdMap[item.folder_id] || null : null
+              })
+              .eq('id', item.id);
+
+            totalRecovered++;
+          }
+
+          // Delete the old orphaned folders (they're now recreated)
+          for (const folder of folders) {
+            await supabase
+              .from('checklist_folders')
+              .delete()
+              .eq('id', folder.id);
+          }
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: `Recovered ${totalRecovered} items into ${checklistIds.length} checklist(s)`,
+          recoveredItems: totalRecovered,
+          checklistCount: checklistIds.length
+        });
+      }
+
       // Handle restore from backup request
       if (action === 'restore_backup') {
         const { backupId } = req.body;
