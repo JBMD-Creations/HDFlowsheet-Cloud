@@ -7306,13 +7306,18 @@
             renderChecklistTabs();
         }
 
-        // Save operations data to localStorage
-        function saveOpsData() {
+        // Save operations data to localStorage and optionally trigger auto-save to Supabase
+        // skipAutoSave = true when loading from server (to avoid saving back what we just loaded)
+        function saveOpsData(skipAutoSave = false) {
             localStorage.setItem('hd_operations_data', JSON.stringify({
                 checklists: opsState.checklists,
                 completions: opsState.completions,
                 activeFolders: opsState.activeFolders
             }));
+            // Trigger debounced auto-save to Supabase (unless we're loading from server)
+            if (!skipAutoSave) {
+                markDataChanged();
+            }
         }
 
         // Switch between top-level tabs
@@ -10155,7 +10160,7 @@
                     const opsData = result.data || result;
                     if (opsData.checklists) opsState.checklists = opsData.checklists;
                     if (opsData.completions) opsState.completions = opsData.completions;
-                    saveOpsData();
+                    saveOpsData(true); // Skip auto-save since we just loaded from server
                     renderChecklistTabs();
                 }
             } catch (err) {
