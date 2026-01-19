@@ -6964,6 +6964,9 @@
                 // Show main app container
                 document.querySelector('.main-app')?.classList.add('active');
 
+                // Cache auth token for beforeunload handler
+                getAuthToken();
+
                 // Setup realtime subscriptions for multi-tab/device sync
                 setupRealtimeSubscriptions();
 
@@ -7074,11 +7077,15 @@
             return currentUser?.id || null;
         }
 
+        // Cached auth token for synchronous access (needed for beforeunload)
+        let cachedAuthToken = null;
+
         // Get auth token for API calls
         async function getAuthToken() {
             if (!supabaseClient) return null;
             const { data: { session } } = await supabaseClient.auth.getSession();
-            return session?.access_token || null;
+            cachedAuthToken = session?.access_token || null; // Cache for beforeunload
+            return cachedAuthToken;
         }
 
         // Helper function for authenticated API calls
@@ -7272,6 +7279,38 @@
                 }
             }, MAX_SAVE_INTERVAL);
         }
+
+        // Save pending changes before page unload (refresh/close)
+        // This prevents data loss when user refreshes before debounce completes
+        window.addEventListener('beforeunload', function(e) {
+            if (hasPendingChanges && autoSaveEnabled && cachedAuthToken) {
+                // Build the save payload
+                const data = {
+                    patients: state.patients,
+                    technicians: state.technicians,
+                    currentSection: state.currentSection,
+                    selectedShifts: state.selectedShifts,
+                    sectionOrder: state.sectionOrder,
+                    timestampLogs: timestampState.logs,
+                    savedAt: new Date().toISOString()
+                };
+
+                const payload = JSON.stringify({ data: data });
+
+                // Use fetch with keepalive to allow request to outlive the page
+                fetch('/api/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${cachedAuthToken}`
+                    },
+                    body: payload,
+                    keepalive: true
+                }).catch(() => {}); // Ignore errors during unload
+
+                hasPendingChanges = false;
+            }
+        });
 
         // ========== END SUPABASE AUTH ==========
 
