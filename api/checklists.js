@@ -5,6 +5,77 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+const MAX_BACKUPS = 5; // Keep last 5 backups per user
+
+// Helper function to backup current checklists before overwriting
+async function backupCurrentChecklists(userId) {
+  try {
+    // Fetch current checklists
+    const { data: checklistsData, error: checklistsError } = await supabase
+      .from('checklists')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (checklistsError || !checklistsData || checklistsData.length === 0) {
+      return; // Nothing to backup
+    }
+
+    const checklistIds = checklistsData.map(c => c.id);
+
+    // Get folders
+    const { data: foldersData } = await supabase
+      .from('checklist_folders')
+      .select('*')
+      .in('checklist_id', checklistIds);
+
+    // Get items
+    const { data: itemsData } = await supabase
+      .from('checklist_items')
+      .select('*')
+      .in('checklist_id', checklistIds);
+
+    // Build backup structure
+    const backupData = {
+      checklists: checklistsData,
+      folders: foldersData || [],
+      items: itemsData || [],
+      backupTimestamp: new Date().toISOString()
+    };
+
+    // Save backup to app_data table
+    const backupType = `checklist_backup_${Date.now()}`;
+    await supabase
+      .from('app_data')
+      .insert({
+        type: backupType,
+        user_id: userId,
+        data: backupData,
+        updated_at: new Date().toISOString()
+      });
+
+    // Cleanup old backups (keep only MAX_BACKUPS)
+    const { data: allBackups } = await supabase
+      .from('app_data')
+      .select('id, type, updated_at')
+      .eq('user_id', userId)
+      .like('type', 'checklist_backup_%')
+      .order('updated_at', { ascending: false });
+
+    if (allBackups && allBackups.length > MAX_BACKUPS) {
+      const backupsToDelete = allBackups.slice(MAX_BACKUPS).map(b => b.id);
+      await supabase
+        .from('app_data')
+        .delete()
+        .in('id', backupsToDelete);
+    }
+
+    console.log(`Backup created: ${backupType} (${itemsData?.length || 0} items)`);
+  } catch (err) {
+    console.error('Backup error (non-fatal):', err);
+    // Don't throw - backup failure shouldn't block save
+  }
+}
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -134,11 +205,124 @@ export default async function handler(req, res) {
 
     // POST - Save all checklists for this user (replace all)
     if (req.method === 'POST') {
-      const { checklists, completions } = req.body;
+      const { checklists, completions, action } = req.body;
 
+      // Handle backup listing request
+      if (action === 'list_backups') {
+        const { data: backups, error } = await supabase
+          .from('app_data')
+          .select('id, type, data, updated_at')
+          .eq('user_id', userId)
+          .like('type', 'checklist_backup_%')
+          .order('updated_at', { ascending: false })
+          .limit(MAX_BACKUPS);
+
+        if (error) throw error;
+
+        const backupList = (backups || []).map(b => ({
+          id: b.id,
+          type: b.type,
+          timestamp: b.data?.backupTimestamp || b.updated_at,
+          checklistCount: b.data?.checklists?.length || 0,
+          itemCount: b.data?.items?.length || 0
+        }));
+
+        return res.status(200).json({ success: true, backups: backupList });
+      }
+
+      // Handle restore from backup request
+      if (action === 'restore_backup') {
+        const { backupId } = req.body;
+        if (!backupId) {
+          return res.status(400).json({ error: 'backupId required for restore' });
+        }
+
+        // Fetch the backup
+        const { data: backup, error: backupError } = await supabase
+          .from('app_data')
+          .select('data')
+          .eq('id', backupId)
+          .eq('user_id', userId)
+          .single();
+
+        if (backupError || !backup) {
+          return res.status(404).json({ error: 'Backup not found' });
+        }
+
+        const backupData = backup.data;
+
+        // Backup current state before restoring (in case user wants to undo)
+        await backupCurrentChecklists(userId);
+
+        // Delete current checklists
+        await supabase.from('checklists').delete().eq('user_id', userId);
+
+        // Restore checklists from backup
+        if (backupData.checklists && backupData.checklists.length > 0) {
+          for (const checklist of backupData.checklists) {
+            const { data: newChecklist, error: clError } = await supabase
+              .from('checklists')
+              .insert({
+                name: checklist.name,
+                position: checklist.position,
+                role: checklist.role || 'General',
+                user_id: userId
+              })
+              .select()
+              .single();
+
+            if (clError) throw clError;
+
+            // Restore folders for this checklist
+            const oldChecklistId = checklist.id;
+            const folderIdMap = {};
+
+            const checklistFolders = (backupData.folders || []).filter(f => f.checklist_id === oldChecklistId);
+            for (const folder of checklistFolders) {
+              const { data: newFolder, error: fError } = await supabase
+                .from('checklist_folders')
+                .insert({
+                  checklist_id: newChecklist.id,
+                  name: folder.name,
+                  sort_order: folder.sort_order || 0
+                })
+                .select()
+                .single();
+
+              if (!fError && newFolder) {
+                folderIdMap[folder.id] = newFolder.id;
+              }
+            }
+
+            // Restore items for this checklist
+            const checklistItems = (backupData.items || []).filter(i => i.checklist_id === oldChecklistId);
+            if (checklistItems.length > 0) {
+              const itemsToInsert = checklistItems.map(item => ({
+                checklist_id: newChecklist.id,
+                folder_id: item.folder_id ? folderIdMap[item.folder_id] || null : null,
+                item_text: item.item_text,
+                url: item.url || null,
+                sort_order: item.sort_order || 0
+              }));
+
+              await supabase.from('checklist_items').insert(itemsToInsert);
+            }
+          }
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: `Restored ${backupData.checklists?.length || 0} checklists with ${backupData.items?.length || 0} items`
+        });
+      }
+
+      // Normal save operation
       if (!checklists || !Array.isArray(checklists)) {
         return res.status(400).json({ error: 'Invalid data: checklists array required' });
       }
+
+      // SAFETY: Backup current checklists before overwriting
+      await backupCurrentChecklists(userId);
 
       // Delete existing checklists for this user (cascade handles related tables)
       const { error: deleteError } = await supabase

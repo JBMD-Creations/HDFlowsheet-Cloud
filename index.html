@@ -6398,6 +6398,7 @@
                         <button class="ops-btn" style="background: #f3f4f6; color: #374151;" onclick="exportOpsData()">📥 Export JSON</button>
                         <button class="ops-btn" style="background: #f3f4f6; color: #374151;" onclick="document.getElementById('opsImportFile').click()">📤 Import JSON</button>
                         <input type="file" id="opsImportFile" accept=".json" style="display: none;" onchange="importOpsData(event)">
+                        <button class="ops-btn" style="background: #fef3c7; color: #92400e;" onclick="openBackupRestoreModal()">🔄 Restore Backup</button>
                     </div>
                 </div>
 
@@ -6696,6 +6697,27 @@
                 <button class="checklist-editor-btn checklist-editor-delete" id="checklistDeleteBtn" style="display: none;" onclick="deleteChecklist()">🗑️ Delete</button>
                 <button class="checklist-editor-btn checklist-editor-cancel" onclick="closeChecklistEditor()">Cancel</button>
                 <button class="checklist-editor-btn checklist-editor-save" onclick="saveChecklist()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backup Restore Modal -->
+    <div class="checklist-editor-modal" id="backupRestoreModal">
+        <div class="checklist-editor" style="max-width: 500px;">
+            <div class="checklist-editor-header" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <span class="checklist-editor-title">🔄 Restore from Backup</span>
+                <button class="checklist-editor-close" onclick="closeBackupRestoreModal()">×</button>
+            </div>
+            <div class="checklist-editor-body" style="padding: 20px;">
+                <p style="margin-bottom: 15px; color: #6b7280; font-size: 14px;">
+                    Backups are automatically created before each save. Select a backup to restore your checklists.
+                </p>
+                <div id="backupListContainer" style="max-height: 300px; overflow-y: auto;">
+                    <div style="text-align: center; padding: 20px; color: #9ca3af;">Loading backups...</div>
+                </div>
+            </div>
+            <div class="checklist-editor-footer">
+                <button class="checklist-editor-btn checklist-editor-cancel" onclick="closeBackupRestoreModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -9604,6 +9626,104 @@
         function closeChecklistEditor() {
             document.getElementById('checklistEditorModal').classList.remove('active');
             opsState.editingChecklistId = null;
+        }
+
+        // Backup restore modal functions
+        async function openBackupRestoreModal() {
+            document.getElementById('backupRestoreModal').classList.add('active');
+            await loadBackupList();
+        }
+
+        function closeBackupRestoreModal() {
+            document.getElementById('backupRestoreModal').classList.remove('active');
+        }
+
+        async function loadBackupList() {
+            const container = document.getElementById('backupListContainer');
+            container.innerHTML = '<div style="text-align: center; padding: 20px; color: #9ca3af;">Loading backups...</div>';
+
+            try {
+                const response = await authFetch('/api/checklists', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'list_backups' })
+                });
+
+                const result = await response.json();
+
+                if (!result.success || !result.backups || result.backups.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 30px; color: #9ca3af;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+                            <div>No backups found yet.</div>
+                            <div style="font-size: 12px; margin-top: 5px;">Backups are created automatically when you save checklists.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const backupsHtml = result.backups.map(backup => {
+                    const date = new Date(backup.timestamp);
+                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+                    return `
+                        <div class="backup-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px; background: #f9fafb;">
+                            <div>
+                                <div style="font-weight: 600; color: #374151;">${dateStr} at ${timeStr}</div>
+                                <div style="font-size: 12px; color: #6b7280;">${backup.checklistCount} checklists, ${backup.itemCount} items</div>
+                            </div>
+                            <button onclick="restoreBackup(${backup.id})" style="padding: 8px 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">
+                                Restore
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = backupsHtml;
+            } catch (err) {
+                console.error('Error loading backups:', err);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #ef4444;">
+                        Failed to load backups. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        async function restoreBackup(backupId) {
+            if (!confirm('⚠️ Restore this backup?\n\nThis will replace your current checklists with the backup version.\n\nA backup of your current checklists will be created first (so you can undo if needed).')) {
+                return;
+            }
+
+            try {
+                const response = await authFetch('/api/checklists', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'restore_backup', backupId: backupId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ ' + result.message + '\n\nYour checklists have been restored.');
+                    closeBackupRestoreModal();
+
+                    // Reload checklists from server
+                    const opsResponse = await authFetch('/api/checklists');
+                    if (opsResponse.ok) {
+                        const opsResult = await opsResponse.json();
+                        const opsData = opsResult.data || opsResult;
+                        if (opsData.checklists) opsState.checklists = opsData.checklists;
+                        if (opsData.completions) opsState.completions = opsData.completions;
+                        saveOpsData(true); // Skip auto-save since we just loaded from server
+                        renderChecklistTabs();
+                    }
+                } else {
+                    alert('❌ Failed to restore: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Restore error:', err);
+                alert('❌ Failed to restore backup. Please try again.');
+            }
         }
 
         // Save checklist from editor
