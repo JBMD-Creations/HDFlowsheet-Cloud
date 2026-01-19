@@ -520,6 +520,13 @@
         .eosr-btn-copy:hover {
             background: #059669;
         }
+        .eosr-btn-reset {
+            background: #ef4444;
+            color: white;
+        }
+        .eosr-btn-reset:hover {
+            background: #dc2626;
+        }
         .eosr-patient-badge {
             background: #667eea;
             color: white;
@@ -5853,49 +5860,104 @@
             }
         }
 
-        /* Universal Save Button Styles */
+        /* Compact Save Section Styles */
         .floating-nav-save-section {
             margin-top: auto;
-            padding-top: 10px;
-            border-top: 2px solid rgba(102, 126, 234, 0.2);
+            padding-top: 8px;
+            border-top: 1px solid rgba(102, 126, 234, 0.15);
+        }
+        .save-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .universal-save-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 12px 14px;
+            gap: 6px;
+            flex: 1;
+            padding: 8px 12px;
             background: linear-gradient(135deg, #10b981, #059669);
             border: none;
             color: white;
             cursor: pointer;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
         }
         .universal-save-btn:hover {
             background: linear-gradient(135deg, #059669, #047857);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
-        }
-        .universal-save-btn:active {
-            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
         }
         .universal-save-btn:disabled {
             background: #9ca3af;
             cursor: not-allowed;
-            transform: none;
             box-shadow: none;
         }
+        .auto-save-mini {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            background: rgba(248, 250, 252, 0.9);
+            border-radius: 6px;
+        }
+        .auto-save-toggle-mini {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 16px;
+            background: #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+        .auto-save-toggle-mini:checked {
+            background: #10b981;
+        }
+        .auto-save-toggle-mini::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .auto-save-toggle-mini:checked::before {
+            transform: translateX(12px);
+        }
+        .auto-save-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .auto-save-indicator.active {
+            background: #10b981;
+            box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
+        }
+        .auto-save-indicator.flash {
+            animation: saveFlash 1s ease;
+        }
+        @keyframes saveFlash {
+            0%, 100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.6); }
+            50% { box-shadow: 0 0 12px rgba(16, 185, 129, 1); background: #34d399; }
+        }
         .universal-save-status {
-            font-size: 10px;
+            font-size: 9px;
             text-align: center;
-            padding: 4px 0;
+            padding: 2px 0;
             color: #64748b;
-            min-height: 18px;
+            min-height: 14px;
         }
         .universal-save-status.success {
             color: #10b981;
@@ -5903,71 +5965,10 @@
         .universal-save-status.error {
             color: #ef4444;
         }
-        .auto-save-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 8px;
-            background: rgba(248, 250, 252, 0.9);
-            border-radius: 6px;
-            margin-top: 6px;
-        }
-        .auto-save-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            color: #64748b;
-        }
-        .auto-save-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #d1d5db;
-            transition: all 0.3s ease;
-        }
-        .auto-save-indicator.active {
-            background: #10b981;
-            box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
-        }
-        .auto-save-indicator.flash {
-            animation: saveFlash 1s ease;
-        }
-        @keyframes saveFlash {
-            0%, 100% { box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
-            50% { box-shadow: 0 0 16px rgba(16, 185, 129, 1); background: #34d399; }
-        }
-        .auto-save-toggle {
-            position: relative;
-            width: 36px;
-            height: 20px;
-            background: #d1d5db;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .auto-save-toggle:checked {
-            background: #10b981;
-        }
-        .auto-save-toggle::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-        .auto-save-toggle:checked::before {
-            transform: translateX(16px);
-        }
         .auto-save-countdown {
-            font-size: 10px;
+            font-size: 9px;
             color: #94a3b8;
             text-align: center;
-            padding: 2px 0;
         }
         /* Warning state when auto-save is off */
         .floating-nav-save-section.auto-save-warning {
@@ -6206,25 +6207,18 @@
                 </button>
             </div>
 
-            <!-- Universal Save Section -->
+            <!-- Save Section -->
             <div class="floating-nav-save-section" id="saveSection">
-                <button class="universal-save-btn" id="universalSaveBtn" onclick="saveAll()">
-                    💾 Save All
-                </button>
-                <div class="universal-save-status" id="universalSaveStatus"></div>
-                <div class="auto-save-container">
-                    <div class="auto-save-label">
+                <div class="save-row">
+                    <button class="universal-save-btn" id="universalSaveBtn" onclick="saveAll()">
+                        💾 Save
+                    </button>
+                    <div class="auto-save-mini">
+                        <input type="checkbox" class="auto-save-toggle-mini" id="autoSaveToggle" onchange="toggleAutoSave()" checked title="Auto-save">
                         <span class="auto-save-indicator" id="autoSaveIndicator"></span>
-                        Auto-save
                     </div>
-                    <input type="checkbox" class="auto-save-toggle" id="autoSaveToggle" onchange="toggleAutoSave()" checked>
                 </div>
-                <button class="refresh-app-btn" id="refreshAppBtn" onclick="refreshApp()" title="Save data, clear cache, and reload app with latest code">
-                    🔄 Refresh App
-                </button>
-                <button class="reset-patients-btn" id="resetPatientsBtn" onclick="resetPatients()" title="Clear all patient data for end of shift">
-                    🔄 Reset Patients
-                </button>
+                <div class="universal-save-status" id="universalSaveStatus"></div>
             </div>
         </nav>
         <button class="floating-nav-toggle" onclick="toggleFloatingNav()" id="floatingNavToggle" title="Hide Navigation">
@@ -6516,6 +6510,7 @@
                     <div class="eosr-actions" style="margin-top: 0; margin-bottom: 20px;">
                         <button class="eosr-btn eosr-btn-refresh" onclick="refreshEOSR()">🔄 Refresh Report</button>
                         <button class="eosr-btn eosr-btn-copy" onclick="copyEOSRToClipboard()">📋 Copy All to Clipboard</button>
+                        <button class="eosr-btn eosr-btn-reset" onclick="resetPatients()">🗑️ Reset Patients</button>
                     </div>
 
                     <!-- Treatments Complete Without Issue Section -->
