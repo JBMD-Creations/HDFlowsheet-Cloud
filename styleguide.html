@@ -812,6 +812,285 @@
         }
 
         /* ========================================
+           PATIENT TAB SYSTEM
+           ======================================== */
+
+        /* Shift Tabs Container */
+        .shift-tabs {
+            display: inline-flex;
+            gap: var(--spacing-1);
+            background: var(--background);
+            padding: var(--spacing-1);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+
+        .shift-tab {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .shift-tab:hover {
+            color: var(--foreground);
+            background: var(--muted);
+        }
+
+        .shift-tab.active {
+            color: var(--foreground);
+            background: var(--background);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .shift-tab-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 var(--spacing-1);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--muted);
+            color: var(--muted-foreground);
+            border-radius: var(--radius-full);
+        }
+
+        .shift-tab.active .shift-tab-count {
+            background: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        /* Pod/Tech Tabs */
+        .pod-tabs-container {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3) var(--spacing-4);
+            background: var(--muted);
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+        }
+
+        .pod-tab {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .pod-tab:hover {
+            border-color: var(--primary);
+            color: var(--foreground);
+        }
+
+        .pod-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .pod-tab-icon {
+            font-size: 1rem;
+        }
+
+        .pod-tab-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--muted);
+            color: var(--muted-foreground);
+            border-radius: var(--radius-full);
+        }
+
+        .pod-tab.active .pod-tab-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--primary-foreground);
+        }
+
+        .pod-tab-alert {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: var(--warning);
+            color: var(--background);
+            border-radius: var(--radius-full);
+        }
+
+        .pod-tab-unassigned {
+            color: var(--warning-foreground);
+        }
+
+        .pod-tab-unassigned .pod-tab-icon {
+            color: var(--warning);
+        }
+
+        /* Patient Cards/Tabs Grid */
+        .patient-tabs-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-3);
+            padding: var(--spacing-4);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+        }
+
+        .patient-tab-card {
+            display: flex;
+            flex-direction: column;
+            min-width: 140px;
+            padding: var(--spacing-3);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .patient-tab-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .patient-tab-card.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .patient-tab-card.chart-closed {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .patient-tab-card.hospitalized {
+            background: var(--accent);
+            border-color: var(--primary);
+        }
+
+        .patient-tab-card.missed-tx {
+            background: var(--warning-light);
+            border-color: var(--warning);
+        }
+
+        .patient-tab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .patient-tab-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .patient-tab-card.active .patient-tab-name {
+            color: var(--primary-foreground);
+        }
+
+        .patient-tab-alert-icon {
+            color: var(--destructive);
+            font-weight: 700;
+        }
+
+        .patient-tab-chair {
+            display: inline-flex;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: var(--muted);
+            color: var(--muted-foreground);
+            border-radius: var(--radius-sm);
+        }
+
+        .patient-tab-card.active .patient-tab-chair {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--primary-foreground);
+        }
+
+        /* Status Pills Row */
+        .patient-tab-pills {
+            display: flex;
+            gap: var(--spacing-1);
+            margin-top: var(--spacing-2);
+        }
+
+        .patient-status-pill {
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.65rem;
+            font-weight: 500;
+            background: var(--muted);
+            color: var(--muted-foreground);
+            border-radius: var(--radius-sm);
+        }
+
+        .patient-status-pill.complete {
+            background: var(--success);
+            color: var(--success-foreground);
+        }
+
+        .patient-tab-card.active .patient-status-pill {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--primary-foreground);
+        }
+
+        .patient-tab-card.active .patient-status-pill.complete {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Add Patient Button */
+        .patient-tab-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            min-width: 100px;
+            min-height: 80px;
+            padding: var(--spacing-3);
+            background: var(--background);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .patient-tab-add:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        /* ========================================
            AVATAR
            ======================================== */
         .avatar {
@@ -1355,6 +1634,164 @@
                         <div class="list-item-content">
                             <div class="list-item-title">Post</div>
                             <div class="list-item-description">Post-treatment documentation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PATIENT TAB SYSTEM -->
+        <div class="section">
+            <h2 class="section-title">Patient Tab System</h2>
+
+            <div class="subsection">
+                <h3 class="subsection-title">Shift Tabs</h3>
+                <div class="shift-tabs">
+                    <button class="shift-tab active">
+                        <span>1st</span>
+                        <span class="shift-tab-count">4</span>
+                    </button>
+                    <button class="shift-tab">
+                        <span>2nd</span>
+                        <span class="shift-tab-count">1</span>
+                    </button>
+                    <button class="shift-tab">
+                        <span>3rd</span>
+                        <span class="shift-tab-count">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">Pod/Technician Tabs</h3>
+                <div class="pod-tabs-container">
+                    <div class="pod-tab active">
+                        <span class="pod-tab-icon">📌</span>
+                        <span>1</span>
+                        <span class="pod-tab-badge">3 pts</span>
+                        <span class="pod-tab-alert">3</span>
+                    </div>
+                    <div class="pod-tab">
+                        <span class="pod-tab-icon">📌</span>
+                        <span>2</span>
+                        <span class="pod-tab-badge">2 pts</span>
+                    </div>
+                    <div class="pod-tab pod-tab-unassigned">
+                        <span class="pod-tab-icon">⚠️</span>
+                        <span>Unassigned</span>
+                        <span class="pod-tab-badge">1 pts</span>
+                        <span class="pod-tab-alert">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">Patient Cards</h3>
+                <div class="patient-tabs-grid">
+                    <!-- Default State -->
+                    <div class="patient-tab-card">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Patient 5</span>
+                            <span class="patient-tab-chair">Chair 3</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill">Pre</span>
+                            <span class="patient-status-pill">Meds</span>
+                            <span class="patient-status-pill">30m</span>
+                            <span class="patient-status-pill">Post</span>
+                        </div>
+                    </div>
+
+                    <!-- Active/Selected State -->
+                    <div class="patient-tab-card active">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">A.T.</span>
+                            <span class="patient-tab-chair">Chair 2</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill complete">Pre</span>
+                            <span class="patient-status-pill complete">Meds</span>
+                            <span class="patient-status-pill complete">30m</span>
+                            <span class="patient-status-pill complete">Post</span>
+                        </div>
+                    </div>
+
+                    <!-- With Alert -->
+                    <div class="patient-tab-card">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">L.C. <span class="patient-tab-alert-icon">❗</span></span>
+                            <span class="patient-tab-chair">Chair 3</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill complete">Pre</span>
+                            <span class="patient-status-pill complete">Meds</span>
+                            <span class="patient-status-pill">30m</span>
+                            <span class="patient-status-pill">Post</span>
+                        </div>
+                    </div>
+
+                    <!-- Add Button -->
+                    <div class="patient-tab-add">
+                        <span>+ Add</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h3 class="subsection-title">Patient Card States</h3>
+                <div class="patient-tabs-grid">
+                    <div class="patient-tab-card">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Default</span>
+                            <span class="patient-tab-chair">Chair 1</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill">Pre</span>
+                            <span class="patient-status-pill">Meds</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-tab-card active">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Active</span>
+                            <span class="patient-tab-chair">Chair 2</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill">Pre</span>
+                            <span class="patient-status-pill">Meds</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-tab-card chart-closed">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Chart Closed</span>
+                            <span class="patient-tab-chair">Chair 3</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill complete">Pre</span>
+                            <span class="patient-status-pill complete">Meds</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-tab-card hospitalized">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Hospitalized</span>
+                            <span class="patient-tab-chair">Chair 4</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill">Pre</span>
+                            <span class="patient-status-pill">Meds</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-tab-card missed-tx">
+                        <div class="patient-tab-header">
+                            <span class="patient-tab-name">Missed Tx</span>
+                            <span class="patient-tab-chair">Chair 5</span>
+                        </div>
+                        <div class="patient-tab-pills">
+                            <span class="patient-status-pill">Pre</span>
+                            <span class="patient-status-pill">Meds</span>
                         </div>
                     </div>
                 </div>
