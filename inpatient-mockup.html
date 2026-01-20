@@ -394,6 +394,7 @@
             border-radius: var(--radius-lg);
             overflow: hidden;
             margin-bottom: var(--spacing-4);
+            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
         }
 
         .collapsible-header {
@@ -410,6 +411,43 @@
 
         .collapsible-header:hover {
             background: #dbeafe;
+        }
+
+        /* Drag handle */
+        .section-drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            padding: 0 var(--spacing-2);
+            margin-right: var(--spacing-2);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.15s;
+        }
+
+        .section-drag-handle:hover {
+            color: var(--primary);
+        }
+
+        .section-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* SortableJS drag states */
+        .collapsible-section.sortable-ghost {
+            opacity: 0.4;
+            background: #dbeafe;
+        }
+
+        .collapsible-section.sortable-chosen {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .collapsible-section.sortable-drag {
+            opacity: 1 !important;
+            box-shadow: var(--shadow-lg);
+            transform: scale(1.02);
         }
 
         .collapsible-header-left {
@@ -949,10 +987,14 @@
                 </div>
             </div>
 
+            <!-- Sortable Sections Container -->
+            <div id="sortable-sections">
+
             <!-- Section 1: Dialysis Requested -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="dialysis">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">📞</span>
                         <span class="collapsible-header-title">Dialysis Requested</span>
                         <span class="collapsible-header-badge">5/6 Complete</span>
@@ -1053,9 +1095,10 @@
             </div>
 
             <!-- Section 2: Visit Patient -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="visit">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">👤</span>
                         <span class="collapsible-header-title">Visit Patient</span>
                         <span class="collapsible-header-badge">8/8 Complete</span>
@@ -1130,9 +1173,10 @@
             </div>
 
             <!-- Section 3: Setup & RO Log -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="setup">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">🔧</span>
                         <span class="collapsible-header-title">Setup Machine & RO Log</span>
                         <span class="collapsible-header-badge">Complete</span>
@@ -1180,9 +1224,10 @@
             </div>
 
             <!-- Section 4: Gather Supplies -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="supplies">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">📦</span>
                         <span class="collapsible-header-title">Gather Supplies</span>
                         <span class="collapsible-header-badge">9/12 Gathered</span>
@@ -1256,9 +1301,10 @@
             </div>
 
             <!-- Section 5: CERNER Notes -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="cerner">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">📝</span>
                         <span class="collapsible-header-title">CERNER Notes & Documentation</span>
                         <span class="collapsible-header-badge pending">2/4 Complete</span>
@@ -1304,9 +1350,10 @@
             </div>
 
             <!-- Section 6: Pre/Post Assessment Charting -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="assessment">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">🩺</span>
                         <span class="collapsible-header-title">Pre/Post Assessment Charting</span>
                         <span class="collapsible-header-badge pending">In Progress</span>
@@ -1503,9 +1550,10 @@
             </div>
 
             <!-- Section 7: Treatment Tracking -->
-            <div class="collapsible-section">
-                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <div class="collapsible-section" data-section-id="tracking">
+                <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
                     <div class="collapsible-header-left">
+                        <span class="section-drag-handle" title="Drag to reorder">⋮⋮</span>
                         <span class="collapsible-header-icon">⏱️</span>
                         <span class="collapsible-header-title">Treatment Tracking & Final Checks</span>
                         <span class="collapsible-header-badge pending">In Progress</span>
@@ -1754,9 +1802,13 @@ Post: [To be completed]
                 </div>
             </div>
 
+            </div><!-- End sortable-sections -->
+
         </main>
     </div>
 
+    <!-- SortableJS CDN -->
+    <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
         // Simple toggle functionality for checkboxes
         document.querySelectorAll('.checkbox').forEach(checkbox => {
@@ -1776,6 +1828,83 @@ Post: [To be completed]
                 }
             });
         });
+
+        // Track if user is dragging to prevent accidental collapse
+        let isDragging = false;
+
+        // Handle section header clicks - only toggle if not dragging and not clicking drag handle
+        function handleSectionClick(event, section) {
+            // Don't toggle if clicking the drag handle
+            if (event.target.closest('.section-drag-handle')) {
+                return;
+            }
+            // Don't toggle if we just finished dragging
+            if (isDragging) {
+                return;
+            }
+            section.classList.toggle('collapsed');
+        }
+
+        // Initialize SortableJS for section reordering
+        const sortableContainer = document.getElementById('sortable-sections');
+        if (sortableContainer && typeof Sortable !== 'undefined') {
+            const sortable = new Sortable(sortableContainer, {
+                animation: 200,
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                handle: '.section-drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                forceFallback: false,
+
+                onStart: function(evt) {
+                    isDragging = true;
+                    document.body.style.cursor = 'grabbing';
+                },
+
+                onEnd: function(evt) {
+                    document.body.style.cursor = '';
+                    // Small delay to prevent click event from firing
+                    setTimeout(() => {
+                        isDragging = false;
+                    }, 100);
+
+                    // Save section order to localStorage
+                    saveSectionOrder();
+                }
+            });
+        }
+
+        // Save section order to localStorage
+        function saveSectionOrder() {
+            const sections = document.querySelectorAll('#sortable-sections .collapsible-section');
+            const order = Array.from(sections).map(section => section.dataset.sectionId);
+            localStorage.setItem('inpatient-section-order', JSON.stringify(order));
+        }
+
+        // Load and apply saved section order
+        function loadSectionOrder() {
+            const savedOrder = localStorage.getItem('inpatient-section-order');
+            if (!savedOrder) return;
+
+            try {
+                const order = JSON.parse(savedOrder);
+                const container = document.getElementById('sortable-sections');
+                if (!container) return;
+
+                order.forEach(sectionId => {
+                    const section = container.querySelector(`[data-section-id="${sectionId}"]`);
+                    if (section) {
+                        container.appendChild(section);
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load section order:', e);
+            }
+        }
+
+        // Load saved order on page load
+        loadSectionOrder();
     </script>
 </body>
 </html>

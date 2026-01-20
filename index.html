@@ -3650,24 +3650,38 @@
             opacity: 0;
         }
 
-        /* Draggable Section Styles */
-        .collapsible-section.dragging {
-            opacity: 0.5;
-            background: #dbeafe;
-            border-radius: 8px;
-        }
-        .collapsible-section.drag-over {
-            border-top: 3px solid #3b82f6;
-        }
+        /* Draggable Section Styles - SortableJS */
         .section-drag-handle {
             cursor: grab;
             color: rgba(255,255,255,0.7);
-            padding: 0 5px;
-            font-size: 1em;
-            margin-right: 5px;
+            padding: 0 8px;
+            font-size: 1rem;
+            margin-right: 6px;
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+        }
+        .section-drag-handle:hover {
+            color: rgba(255,255,255,1);
         }
         .section-drag-handle:active {
             cursor: grabbing;
+        }
+        /* SortableJS ghost (placeholder) */
+        .collapsible-section.sortable-ghost {
+            opacity: 0.4;
+            background: #dbeafe !important;
+        }
+        /* SortableJS chosen (selected item) */
+        .collapsible-section.sortable-chosen {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 2px solid #3b82f6 !important;
+        }
+        /* SortableJS drag (item being dragged) */
+        .collapsible-section.sortable-drag {
+            opacity: 1 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: scale(1.02);
         }
         .sections-container {
             min-height: 50px;
@@ -7547,6 +7561,8 @@
     </style>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SortableJS for smooth drag-and-drop -->
+    <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
     <!-- Auth Modal -->
@@ -13008,13 +13024,6 @@
             });
         }
 
-        // Section drag state
-        let sectionDragState = {
-            draggedSection: null,
-            draggedSectionId: null,
-            patientId: null
-        };
-
         // Initialize section order in state if needed
         function initSectionOrder() {
             if (!state.sectionOrder) {
@@ -13022,72 +13031,66 @@
             }
         }
 
-        // Section drag and drop handlers
-        function handleSectionDragStart(event, patientId) {
-            initSectionOrder();
-            const section = event.target.closest('.collapsible-section');
-            sectionDragState.draggedSection = section;
-            sectionDragState.draggedSectionId = section.dataset.sectionId;
-            sectionDragState.patientId = patientId;
-            section.classList.add('dragging');
-            event.dataTransfer.effectAllowed = 'move';
-        }
+        // Store SortableJS instances to avoid duplicates
+        const sortableInstances = new Map();
 
-        function handleSectionDragEnd(event) {
-            event.target.closest('.collapsible-section').classList.remove('dragging');
-            document.querySelectorAll('.collapsible-section.drag-over').forEach(el => el.classList.remove('drag-over'));
-            sectionDragState.draggedSection = null;
-            sectionDragState.draggedSectionId = null;
-            sectionDragState.patientId = null;
-        }
-
-        function handleSectionDragOver(event) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            const section = event.target.closest('.collapsible-section');
-            if (section && section !== sectionDragState.draggedSection) {
-                // Remove drag-over from all sections first
-                document.querySelectorAll('.collapsible-section.drag-over').forEach(el => el.classList.remove('drag-over'));
-                section.classList.add('drag-over');
+        // Initialize SortableJS on all sections containers
+        function initSectionSortable() {
+            if (typeof Sortable === 'undefined') {
+                console.warn('SortableJS not loaded');
+                return;
             }
-        }
-
-        function handleSectionDragLeave(event) {
-            const section = event.target.closest('.collapsible-section');
-            if (section) {
-                section.classList.remove('drag-over');
-            }
-        }
-
-        function handleSectionDrop(event, patientId) {
-            event.preventDefault();
-            const targetSection = event.target.closest('.collapsible-section');
-            if (targetSection) targetSection.classList.remove('drag-over');
-
-            if (!sectionDragState.draggedSectionId) return;
-
-            const targetSectionId = targetSection?.dataset.sectionId;
-            if (!targetSectionId || sectionDragState.draggedSectionId === targetSectionId) return;
 
             initSectionOrder();
 
-            // Get current order
-            const order = [...state.sectionOrder];
-            const draggedIndex = order.indexOf(sectionDragState.draggedSectionId);
-            const targetIndex = order.indexOf(targetSectionId);
+            // Initialize sortable on each patient's sections container
+            document.querySelectorAll('.sections-container').forEach(container => {
+                // Skip if already initialized
+                if (sortableInstances.has(container.id)) {
+                    return;
+                }
 
-            if (draggedIndex === -1 || targetIndex === -1) return;
+                const sortable = new Sortable(container, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.section-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    forceFallback: false,
 
-            // Remove dragged item and insert at new position
-            order.splice(draggedIndex, 1);
-            order.splice(targetIndex, 0, sectionDragState.draggedSectionId);
+                    onStart: function(evt) {
+                        document.body.style.cursor = 'grabbing';
+                    },
 
-            // Update state
-            state.sectionOrder = order;
-            saveState();
+                    onEnd: function(evt) {
+                        document.body.style.cursor = '';
 
-            // Reorder the sections in the DOM for ALL patients
-            reorderSectionsInDOM();
+                        // Get new order from DOM
+                        const sections = container.querySelectorAll('.collapsible-section');
+                        const newOrder = Array.from(sections).map(s => s.dataset.sectionId);
+
+                        // Update state with new order
+                        state.sectionOrder = newOrder;
+                        saveState();
+
+                        // Apply same order to ALL patient containers
+                        reorderSectionsInDOM();
+                    }
+                });
+
+                sortableInstances.set(container.id, sortable);
+            });
+        }
+
+        // Clean up sortable instances when containers are removed
+        function cleanupSortableInstances() {
+            sortableInstances.forEach((sortable, containerId) => {
+                if (!document.getElementById(containerId)) {
+                    sortable.destroy();
+                    sortableInstances.delete(containerId);
+                }
+            });
         }
 
         // Reorder sections in DOM based on saved order
@@ -15473,12 +15476,7 @@
                     <div class="sections-container" id="sectionsContainer_${patient.id}">
 
                     <!-- Tech Check (Missing Chart Items) - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="techcheck" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="techcheck">
                         <div class="section-header" data-section="${patient.id}_techcheck" onclick="toggleSection(${patient.id}, 'techcheck')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             🔍 Tech Check (Missing Chart Items)
@@ -15563,12 +15561,7 @@
                     </div>
 
                     <!-- QA Checklist - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="qa" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="qa">
                         <div class="section-header" data-section="${patient.id}_qa" onclick="toggleSection(${patient.id}, 'qa')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ✅ QA Checklist
@@ -15930,12 +15923,7 @@
                     </div>
 
                     <!-- Assignment - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="assignment" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="assignment">
                         <div class="section-header ${state.collapsedSections[`${patient.id}_assignment`] ? 'collapsed' : ''}" data-section="${patient.id}_assignment" onclick="toggleSection(${patient.id}, 'assignment')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             👤 Assignment (Tech/Pod/Chair)
@@ -15980,12 +15968,7 @@
                     </div>
 
                     <!-- Treatment Orders - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="orders" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="orders">
                         <div class="section-header ${state.collapsedSections[`${patient.id}_orders`] ? 'collapsed' : ''}" data-section="${patient.id}_orders" onclick="toggleSection(${patient.id}, 'orders')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             📋 Treatment Orders
@@ -16059,12 +16042,7 @@
                     </div>
 
                     <!-- Weight Management - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="weight" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="weight">
                         <div class="section-header" data-section="${patient.id}_weight" onclick="toggleSection(${patient.id}, 'weight')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ⚖️ Weight & UF Management
@@ -16250,12 +16228,7 @@
                     </div>
 
                     <!-- Time Tracking - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="time" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="time">
                         <div class="section-header" data-section="${patient.id}_time" onclick="toggleSection(${patient.id}, 'time')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ⏱️ Treatment Time Tracking
@@ -16458,6 +16431,8 @@
             renderSummary();
             renderTabs();
             renderTabContents();
+            // Initialize SortableJS for section reordering
+            initSectionSortable();
         }
         
         // ===== DRAWER CONTROL FUNCTIONS =====
