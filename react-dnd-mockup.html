@@ -8,15 +8,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- React -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- React 17 (better CDN compatibility with react-beautiful-dnd) -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- react-beautiful-dnd (hello-pangea fork) -->
-    <script src="https://unpkg.com/@hello-pangea/dnd@16.6.0/dist/dnd.min.js"></script>
+    <!-- react-beautiful-dnd (original Atlassian version with good UMD support) -->
+    <script src="https://unpkg.com/react-beautiful-dnd@13.1.1/dist/react-beautiful-dnd.min.js"></script>
 
     <style>
         :root {
@@ -212,19 +212,6 @@
             opacity: 1 !important;
         }
 
-        /* React Beautiful DnD specific */
-        .section-card[data-rbd-draggable-context-id] {
-            /* Ensure smooth transforms */
-        }
-
-        /* Placeholder styling */
-        .drop-placeholder {
-            background: #dbeafe;
-            border: 2px dashed var(--primary);
-            border-radius: var(--radius-md);
-            margin-bottom: 0.5rem;
-        }
-
         /* Info boxes */
         .info-box {
             margin-top: 1rem;
@@ -288,13 +275,22 @@
         .order-display strong {
             color: var(--foreground);
         }
+
+        /* Dragging over container */
+        .drag-over-container {
+            background: #f0f9ff;
+            border-radius: var(--radius-md);
+            transition: background 0.2s;
+            padding: 0.25rem;
+            margin: -0.25rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="page-header">
             <h1 class="page-title">Drag & Drop Comparison</h1>
-            <p class="page-subtitle">Compare React @hello-pangea/dnd vs Vanilla SortableJS - drag sections to reorder</p>
+            <p class="page-subtitle">Compare React react-beautiful-dnd vs Vanilla SortableJS - drag sections to reorder</p>
         </div>
 
         <div class="comparison-grid">
@@ -302,8 +298,8 @@
             <div class="panel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <span>React + @hello-pangea/dnd</span>
-                        <span class="panel-badge badge-react">React 18</span>
+                        <span>React + react-beautiful-dnd</span>
+                        <span class="panel-badge badge-react">React 17</span>
                     </div>
                 </div>
                 <div class="panel-body">
@@ -436,7 +432,7 @@
     <!-- React Implementation -->
     <script type="text/babel">
         const { useState, useCallback } = React;
-        const { DragDropContext, Droppable, Draggable } = window.HelloPangeaDnd;
+        const { DragDropContext, Droppable, Draggable } = window.ReactBeautifulDnd;
 
         const initialSections = [
             { id: 'dialysis', icon: '📞', title: 'Dialysis Requested', badge: '5/6', status: 'complete' },
@@ -505,13 +501,7 @@
                                 <div
                                     ref={provided.innerRef}
                                     {...provided.droppableProps}
-                                    style={{
-                                        background: snapshot.isDraggingOver ? '#f0f9ff' : 'transparent',
-                                        borderRadius: 'var(--radius-md)',
-                                        transition: 'background 0.2s',
-                                        padding: snapshot.isDraggingOver ? '0.25rem' : 0,
-                                        margin: snapshot.isDraggingOver ? '-0.25rem' : 0,
-                                    }}
+                                    className={snapshot.isDraggingOver ? 'drag-over-container' : ''}
                                 >
                                     {sections.map((section, index) => (
                                         <SectionCard key={section.id} section={section} index={index} />
@@ -525,14 +515,13 @@
                         <strong>Order:</strong> {sections.map(s => s.id).join(', ')}
                     </div>
                     <div className="info-box">
-                        <strong>React + @hello-pangea/dnd:</strong> Declarative, smooth animations, great accessibility (keyboard support), maintained Atlassian fork.
+                        <strong>React + react-beautiful-dnd:</strong> Declarative, smooth animations, great accessibility (keyboard support), by Atlassian.
                     </div>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('react-root'));
-        root.render(<App />);
+        ReactDOM.render(<App />, document.getElementById('react-root'));
     </script>
 </body>
 </html>
