@@ -1792,6 +1792,21 @@
             grid-template-columns: repeat(4, 1fr);
         }
 
+        .widget-grid.cols-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .widget-grid.cols-6 {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .widget-grid.cols-7 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
         /* Full-width widgets span all columns in any grid */
         .widget-grid[class*="cols-"] > .widget-full,
         .widget-grid[class*="cols-"] > .widget-divider,
@@ -4063,6 +4078,18 @@
                         <span class="widget-picker-item-icon">▢▢▢▢</span>
                         <span class="widget-picker-item-name">4 Columns</span>
                     </div>
+                    <div class="widget-picker-item" onclick="addSection(5)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">5 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(6)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">6 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(7)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">7 Columns</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4110,6 +4137,50 @@
                     <div class="widget-picker-item" onclick="addWidget('reminder-error')" style="border-left: 4px solid var(--destructive);">
                         <span class="widget-picker-item-icon">❌</span>
                         <span class="widget-picker-item-name">Error Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="openGridPicker()" style="border-top: 2px solid var(--primary); margin-top: var(--spacing-2); padding-top: var(--spacing-4);">
+                        <span class="widget-picker-item-icon">⊞</span>
+                        <span class="widget-picker-item-name">Inner Grid</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Picker Modal (for inner grids) -->
+        <div class="widget-picker-overlay" id="gridPickerOverlay" onclick="closeGridPicker(event)">
+            <div class="widget-picker" onclick="event.stopPropagation()">
+                <div class="widget-picker-header">
+                    <span class="widget-picker-title">Select Grid Columns</span>
+                    <button class="widget-picker-close" onclick="closeGridPicker()">&times;</button>
+                </div>
+                <div class="widget-picker-body">
+                    <div class="widget-picker-item" onclick="addInnerGrid(1)">
+                        <span class="widget-picker-item-icon">▢</span>
+                        <span class="widget-picker-item-name">1 Column</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(2)">
+                        <span class="widget-picker-item-icon">▢▢</span>
+                        <span class="widget-picker-item-name">2 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(3)">
+                        <span class="widget-picker-item-icon">▢▢▢</span>
+                        <span class="widget-picker-item-name">3 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(4)">
+                        <span class="widget-picker-item-icon">▢▢▢▢</span>
+                        <span class="widget-picker-item-name">4 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(5)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">5 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(6)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">6 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(7)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">7 Columns</span>
                     </div>
                 </div>
             </div>
@@ -4505,7 +4576,55 @@
         function closeWidgetPicker(event) {
             if (event && event.target !== event.currentTarget) return;
             document.getElementById('widgetPickerOverlay').classList.remove('open');
+        }
+
+        // Open grid picker (for inner grids)
+        function openGridPicker() {
+            document.getElementById('widgetPickerOverlay').classList.remove('open');
+            document.getElementById('gridPickerOverlay').classList.add('open');
+        }
+
+        // Close grid picker
+        function closeGridPicker(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('gridPickerOverlay').classList.remove('open');
             currentTargetGrid = null;
+        }
+
+        // Grid counter for unique IDs
+        let gridCounter = 100;
+
+        // Add inner grid to current grid
+        function addInnerGrid(cols) {
+            const grid = document.getElementById(currentTargetGrid);
+            if (!grid) {
+                closeGridPicker();
+                return;
+            }
+
+            const addBtn = grid.querySelector('.widget-add-btn');
+            const innerGridId = 'innerGrid' + (++gridCounter);
+
+            const innerGrid = document.createElement('div');
+            innerGrid.className = 'widget-grid cols-' + cols;
+            innerGrid.id = innerGridId;
+            innerGrid.style.gridColumn = '1 / -1';
+            innerGrid.style.width = '100%';
+            innerGrid.innerHTML = `
+                <button class="widget-add-btn" onclick="openWidgetPicker('${innerGridId}')">
+                    <span class="widget-add-btn-icon">+</span>
+                    <span class="widget-add-btn-text">Add Widget</span>
+                </button>
+            `;
+
+            if (addBtn) {
+                grid.insertBefore(innerGrid, addBtn);
+            } else {
+                grid.appendChild(innerGrid);
+            }
+
+            closeGridPicker();
+            initWidgetGridSortable();
         }
 
         // Add widget to grid (placeholder - will expand with each widget type)
