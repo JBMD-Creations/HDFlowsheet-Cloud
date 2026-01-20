@@ -1757,6 +1757,31 @@
             display: none;
         }
 
+        /* Section Edit Button */
+        .widget-section-edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: var(--spacing-1);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .widget-section-header:hover .widget-section-edit-btn {
+            opacity: 1;
+        }
+
+        .widget-section.edit-mode .widget-section-edit-btn {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Hide Add Widget button when not in edit mode */
+        .widget-section:not(.edit-mode) .widget-add-btn {
+            display: none;
+        }
+
         /* Widget Section Body */
         .widget-section-body {
             padding: var(--spacing-4);
@@ -3755,6 +3780,7 @@
                     <span class="widget-section-icon">📞</span>
                     <span class="widget-section-title">Dialysis Requested</span>
                     <span class="widget-section-badge">5/6 Complete</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
@@ -3838,6 +3864,7 @@
                     <span class="widget-section-icon">🔧</span>
                     <span class="widget-section-title">Setup Machine & RO Log</span>
                     <span class="widget-section-badge complete">Complete</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
@@ -3898,6 +3925,7 @@
                     <span class="widget-section-icon">📦</span>
                     <span class="widget-section-title">Gather Supplies</span>
                     <span class="widget-section-badge in-progress">9/12 Gathered</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
@@ -3947,6 +3975,7 @@
                     <span class="widget-section-icon">🩺</span>
                     <span class="widget-section-title">Pre/Post Assessment Charting</span>
                     <span class="widget-section-badge in-progress">In Progress</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
@@ -4509,6 +4538,20 @@
             section.classList.toggle('collapsed');
         }
 
+        // Toggle section edit mode
+        function toggleSectionEditMode(btn) {
+            const section = btn.closest('.widget-section');
+            section.classList.toggle('edit-mode');
+            // Update button text based on mode
+            if (section.classList.contains('edit-mode')) {
+                btn.textContent = '✓';
+                btn.title = 'Done Editing';
+            } else {
+                btn.textContent = '✏️';
+                btn.title = 'Edit Section';
+            }
+        }
+
         // Section counter for unique IDs
         let sectionCounter = 10;
 
@@ -4529,7 +4572,7 @@
             const gridId = 'grid' + (++sectionCounter);
 
             const section = document.createElement('div');
-            section.className = 'widget-section';
+            section.className = 'widget-section edit-mode'; // Start in edit mode so user can add widgets
             section.style.marginBottom = 'var(--spacing-4)';
             section.innerHTML = `
                 <div class="widget-section-header" onclick="toggleWidgetSection(this)">
@@ -4537,7 +4580,8 @@
                     <span class="widget-section-icon" contenteditable="true" onclick="event.stopPropagation()">📁</span>
                     <span class="widget-section-title" contenteditable="true" onclick="event.stopPropagation()">New Section</span>
                     <span class="widget-section-badge">0/0</span>
-                    <button class="widget-delete-btn" onclick="event.stopPropagation(); deleteSection(this)" title="Delete Section" style="position: relative; right: auto; top: auto; opacity: 1; margin-left: auto; margin-right: var(--spacing-2);">×</button>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Done Editing">✓</button>
+                    <button class="widget-delete-btn" onclick="event.stopPropagation(); deleteSection(this)" title="Delete Section" style="position: relative; right: auto; top: auto; opacity: 1; margin-right: var(--spacing-2);">×</button>
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
@@ -4634,60 +4678,65 @@
 
         // Add widget to grid (placeholder - will expand with each widget type)
         function addWidget(type) {
-            const grid = document.getElementById(currentTargetGrid);
-            if (!grid) {
-                closeWidgetPicker();
-                return;
-            }
-
-            const addBtn = grid.querySelector('.widget-add-btn');
-            let widget;
-
-            switch(type) {
-                case 'checklist':
-                    widget = createChecklistWidget();
-                    break;
-                case 'divider':
-                    widget = createDividerWidget();
-                    break;
-                case 'reminder-info':
-                    widget = createReminderWidget('info');
-                    break;
-                case 'reminder-success':
-                    widget = createReminderWidget('success');
-                    break;
-                case 'reminder-warning':
-                    widget = createReminderWidget('warning');
-                    break;
-                case 'reminder-error':
-                    widget = createReminderWidget('error');
-                    break;
-                case 'data':
-                    widget = createDataWidget();
-                    break;
-                case 'checkoff':
-                    widget = createCheckoffWidget();
-                    break;
-                case 'form':
-                    widget = createFormWidget();
-                    break;
-                default:
-                    console.log('Widget type not implemented yet:', type);
+            try {
+                const grid = document.getElementById(currentTargetGrid);
+                if (!grid) {
                     closeWidgetPicker();
                     return;
-            }
+                }
 
-            if (widget && addBtn) {
-                grid.insertBefore(widget, addBtn);
+                const addBtn = grid.querySelector('.widget-add-btn');
+                let widget;
+
+                switch(type) {
+                    case 'checklist':
+                        widget = createChecklistWidget();
+                        break;
+                    case 'divider':
+                        widget = createDividerWidget();
+                        break;
+                    case 'reminder-info':
+                        widget = createReminderWidget('info');
+                        break;
+                    case 'reminder-success':
+                        widget = createReminderWidget('success');
+                        break;
+                    case 'reminder-warning':
+                        widget = createReminderWidget('warning');
+                        break;
+                    case 'reminder-error':
+                        widget = createReminderWidget('error');
+                        break;
+                    case 'data':
+                        widget = createDataWidget();
+                        break;
+                    case 'checkoff':
+                        widget = createCheckoffWidget();
+                        break;
+                    case 'form':
+                        widget = createFormWidget();
+                        break;
+                    default:
+                        console.log('Widget type not implemented yet:', type);
+                        closeWidgetPicker();
+                        return;
+                }
+
+                if (widget && addBtn) {
+                    grid.insertBefore(widget, addBtn);
+                }
+
                 // Re-initialize sortable to include new widget
                 try {
                     initCardSortable();
                 } catch (e) {
                     console.error('Error initializing sortable:', e);
                 }
+            } catch (e) {
+                console.error('Error adding widget:', e);
+            } finally {
+                closeWidgetPicker();
             }
-
-            closeWidgetPicker();
         }
 
         // Create Checklist Widget
