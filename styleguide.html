@@ -1771,6 +1771,29 @@
             align-items: flex-start;
         }
 
+        /* Grid column layouts - force specific column counts */
+        .widget-grid.cols-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .widget-grid.cols-2 > .widget-full,
+        .widget-grid.cols-2 > .widget-divider,
+        .widget-grid.cols-2 > .widget-reminder {
+            grid-column: 1 / -1;
+        }
+
+        .widget-grid.cols-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .widget-grid.cols-3 > .widget-full,
+        .widget-grid.cols-3 > .widget-divider,
+        .widget-grid.cols-3 > .widget-reminder {
+            grid-column: 1 / -1;
+        }
+
         /* Widget base styles - all widgets inherit from this */
         .widget {
             background: var(--card);
@@ -1948,6 +1971,24 @@
             padding: var(--spacing-2) 0;
             background: transparent;
             border: none;
+            position: relative;
+        }
+
+        .widget-divider:hover .widget-drag-handle,
+        .widget-divider:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-divider .widget-drag-handle {
+            position: absolute;
+            left: -24px;
+            opacity: 0;
+        }
+
+        .widget-divider .widget-delete-btn {
+            position: absolute;
+            right: -24px;
+            opacity: 0;
         }
 
         .widget-divider-line {
@@ -1969,16 +2010,73 @@
             width: 100%;
             flex: 1 1 100%;
             padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-md);
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .widget-reminder:hover .widget-drag-handle,
+        .widget-reminder:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-reminder .widget-drag-handle {
+            position: absolute;
+            left: -24px;
+            opacity: 0;
+        }
+
+        .widget-reminder .widget-delete-btn {
+            position: absolute;
+            right: -24px;
+            opacity: 0;
+        }
+
+        /* Reminder color variants - match alert colors from styleguide */
+        .widget-reminder.info {
+            background: var(--info-light);
+            border: 1px solid var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        .widget-reminder.info .widget-reminder-text {
+            color: var(--info-foreground);
+        }
+
+        .widget-reminder.success {
+            background: var(--success-light);
+            border: 1px solid var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .widget-reminder.success .widget-reminder-text {
+            color: var(--success-foreground);
+        }
+
+        .widget-reminder.warning {
             background: var(--warning-light);
             border: 1px solid var(--warning);
-            border-radius: var(--radius-md);
             border-left: 4px solid var(--warning);
+        }
+
+        .widget-reminder.warning .widget-reminder-text {
+            color: var(--warning-foreground);
+        }
+
+        .widget-reminder.error {
+            background: var(--destructive-light);
+            border: 1px solid var(--destructive);
+            border-left: 4px solid var(--destructive);
+        }
+
+        .widget-reminder.error .widget-reminder-text {
+            color: var(--destructive);
         }
 
         .widget-reminder-text {
             font-size: 0.875rem;
             font-weight: 500;
-            color: var(--warning-foreground);
         }
 
         .widget-reminder-text strong {
@@ -3706,11 +3804,13 @@
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
-                    <div class="widget-grid">
+                    <div class="widget-grid" id="demoGrid2">
                         <!-- Section Divider -->
                         <div class="widget-divider">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
                             <div class="widget-divider-line"></div>
-                            <span class="widget-divider-text">Water Quality Readings</span>
+                            <span class="widget-divider-text" contenteditable="true">Water Quality Readings</span>
                             <div class="widget-divider-line"></div>
                         </div>
 
@@ -3764,10 +3864,12 @@
                     <span class="widget-section-chevron">▼</span>
                 </div>
                 <div class="widget-section-body">
-                    <div class="widget-grid">
+                    <div class="widget-grid" id="demoGrid3">
                         <!-- Reminder Bar -->
-                        <div class="widget-reminder">
-                            <span class="widget-reminder-text"><strong>REMINDER:</strong> BRING LUNCH, WATER, SNACKS</span>
+                        <div class="widget-reminder warning">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <span class="widget-reminder-text" contenteditable="true"><strong>REMINDER:</strong> BRING LUNCH, WATER, SNACKS</span>
                         </div>
 
                         <!-- Check Off Widgets -->
@@ -3794,6 +3896,117 @@
                         </div>
 
                         <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid3')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Section 4 - 2 Column Grid Layout -->
+            <div class="widget-section" style="margin-bottom: var(--spacing-4);">
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon">🩺</span>
+                    <span class="widget-section-title">Pre/Post Assessment Charting</span>
+                    <span class="widget-section-badge in-progress">In Progress</span>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid cols-2" id="demoGrid4">
+                        <!-- Pre Treatment Card -->
+                        <div class="checklist-card" data-card-id="preTx">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title" style="color: var(--primary);">Pre Treatment</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">PreProcedure Time Out</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Pre-Treatment Assessment</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Dialysis Access</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Vital Signs</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Neurological</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Post Treatment Card -->
+                        <div class="checklist-card" data-card-id="postTx">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title" style="color: var(--primary);">Post Treatment</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Dialysis Access</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">End Treatment</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Vital Signs</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Neurological</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Mental Status / Cognition</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid4')">
                             <span class="widget-add-btn-icon">+</span>
                             <span class="widget-add-btn-text">Add Widget</span>
                         </button>
@@ -3830,9 +4043,21 @@
                         <span class="widget-picker-item-icon">➖</span>
                         <span class="widget-picker-item-name">Section Divider</span>
                     </div>
-                    <div class="widget-picker-item" onclick="addWidget('reminder')">
+                    <div class="widget-picker-item" onclick="addWidget('reminder-info')" style="border-left: 4px solid var(--info);">
+                        <span class="widget-picker-item-icon">ℹ️</span>
+                        <span class="widget-picker-item-name">Info Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-success')" style="border-left: 4px solid var(--success);">
+                        <span class="widget-picker-item-icon">✅</span>
+                        <span class="widget-picker-item-name">Success Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-warning')" style="border-left: 4px solid var(--warning);">
                         <span class="widget-picker-item-icon">⚠️</span>
-                        <span class="widget-picker-item-name">Reminder Bar</span>
+                        <span class="widget-picker-item-name">Warning Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-error')" style="border-left: 4px solid var(--destructive);">
+                        <span class="widget-picker-item-icon">❌</span>
+                        <span class="widget-picker-item-name">Error Alert</span>
                     </div>
                 </div>
             </div>
@@ -4195,8 +4420,17 @@
                 case 'divider':
                     widget = createDividerWidget();
                     break;
-                case 'reminder':
-                    widget = createReminderWidget();
+                case 'reminder-info':
+                    widget = createReminderWidget('info');
+                    break;
+                case 'reminder-success':
+                    widget = createReminderWidget('success');
+                    break;
+                case 'reminder-warning':
+                    widget = createReminderWidget('warning');
+                    break;
+                case 'reminder-error':
+                    widget = createReminderWidget('error');
                     break;
                 case 'data':
                     widget = createDataWidget();
@@ -4255,9 +4489,9 @@
         function createDividerWidget() {
             const div = document.createElement('div');
             div.className = 'widget-divider';
-            div.style.position = 'relative';
             div.innerHTML = `
-                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete" style="left: auto; right: 0; top: 50%; transform: translateY(-50%);">×</button>
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
                 <div class="widget-divider-line"></div>
                 <span class="widget-divider-text" contenteditable="true">SECTION TITLE</span>
                 <div class="widget-divider-line"></div>
@@ -4265,14 +4499,14 @@
             return div;
         }
 
-        // Create Reminder Widget
-        function createReminderWidget() {
+        // Create Reminder Widget with color variant
+        function createReminderWidget(color = 'warning') {
             const div = document.createElement('div');
-            div.className = 'widget-reminder';
-            div.style.position = 'relative';
+            div.className = 'widget-reminder ' + color;
             div.innerHTML = `
-                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete" style="top: 50%; transform: translateY(-50%);">×</button>
-                <span class="widget-reminder-text"><strong>REMINDER:</strong> <span contenteditable="true">Enter reminder text here</span></span>
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <span class="widget-reminder-text" contenteditable="true"><strong>REMINDER:</strong> Enter reminder text here</span>
             `;
             return div;
         }
