@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFlowsheet - Inpatient Module Mockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           HD FLOWSHEET DESIGN SYSTEM
+           Based on styleguide.html
+           ======================================== */
+
+        :root {
+            /* === COLORS === */
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-foreground: #ffffff;
+
+            --secondary: #f3f4f6;
+            --secondary-hover: #e5e7eb;
+            --secondary-foreground: #4b5563;
+
+            --accent: #e0f2fe;
+            --accent-foreground: #1e3a8a;
+
+            --background: #ffffff;
+            --foreground: #111827;
+
+            --card: #ffffff;
+            --card-foreground: #111827;
+
+            --muted: #f9fafb;
+            --muted-foreground: #6b7280;
+
+            --destructive: #ef4444;
+            --destructive-hover: #dc2626;
+            --destructive-foreground: #ffffff;
+
+            --success: #22c55e;
+            --success-light: #f0fdf4;
+            --success-foreground: #166534;
+
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --warning-foreground: #92400e;
+
+            --border: #e5e7eb;
+            --input: #e5e7eb;
+            --ring: #3b82f6;
+
+            /* === TYPOGRAPHY === */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+            /* === SPACING === */
+            --spacing-0: 0;
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-5: 1.25rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+            --spacing-10: 2.5rem;
+
+            /* === BORDER RADIUS === */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-full: 9999px;
+
+            /* === SHADOWS === */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+            /* === TRANSITIONS === */
+            --transition-fast: 150ms ease;
+            --transition-normal: 200ms ease;
+        }
+
+        /* === BASE STYLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--foreground);
+            background: var(--muted);
+        }
+
+        /* === LAYOUT === */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            width: 220px;
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .sidebar-logo {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .sidebar-item:hover {
+            background: var(--muted);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .sidebar-item-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .sidebar-item.active .sidebar-item-icon {
+            color: var(--primary);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: var(--spacing-2) 0;
+        }
+
+        /* === MAIN CONTENT === */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: var(--spacing-6);
+        }
+
+        /* === PAGE HEADER === */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-6);
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: var(--spacing-3);
+        }
+
+        /* === PATIENT INFO CARD === */
+        .patient-info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .patient-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .patient-info-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .patient-info-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .patient-info-value.badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            width: fit-content;
+        }
+
+        .badge-inpatient {
+            background: var(--accent);
+            color: var(--accent-foreground);
+        }
+
+        .badge-ed {
+            background: var(--warning-light);
+            color: var(--warning-foreground);
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-4);
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--foreground);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--muted);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--foreground);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--muted);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-1) var(--spacing-3);
+            font-size: 0.75rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--primary-foreground);
+            border-color: var(--success);
+        }
+
+        /* === INPUTS === */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .input-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .input {
+            width: 100%;
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.875rem;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            background: var(--background);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-md);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .input::placeholder {
+            color: var(--muted-foreground);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-sm {
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+        }
+
+        select.input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: var(--spacing-8);
+        }
+
+        textarea.input {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* === COLLAPSIBLE SECTIONS === */
+        .collapsible-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-3) var(--spacing-4);
+            background: #eff6ff;
+            border-bottom: 1px solid #bfdbfe;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: #dbeafe;
+        }
+
+        .collapsible-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .collapsible-header-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: #3b82f6;
+        }
+
+        .collapsible-header-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .collapsible-header-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--success-light);
+            color: var(--success-foreground);
+            border-radius: var(--radius-full);
+            margin-left: var(--spacing-2);
+        }
+
+        .collapsible-header-badge.pending {
+            background: var(--warning-light);
+            color: var(--warning-foreground);
+        }
+
+        .collapsible-chevron {
+            color: #3b82f6;
+            font-size: 0.75rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .collapsible-body {
+            padding: var(--spacing-4);
+        }
+
+        .collapsible-section.collapsed .collapsible-body {
+            display: none;
+        }
+
+        .collapsible-section.collapsed .collapsible-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* === CHECKLIST STYLES === */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .checklist-card {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+        }
+
+        .checklist-card-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-3);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) 0;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .checklist-label {
+            font-size: 0.875rem;
+            color: var(--foreground);
+            flex: 1;
+        }
+
+        .checklist-label.completed {
+            color: var(--muted-foreground);
+            text-decoration: line-through;
+        }
+
+        .checklist-sublabel {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        /* === FIELD GRID === */
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .field-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .field-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .field-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* === SECTION DIVIDER === */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            margin: var(--spacing-4) 0;
+        }
+
+        .section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .section-divider-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* === NOTES / DOCUMENTATION === */
+        .notes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .note-card {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+        }
+
+        .note-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-3);
+        }
+
+        .note-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .note-template {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            font-size: 0.8125rem;
+            color: var(--foreground);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .note-template .highlight {
+            background: var(--warning-light);
+            padding: 0 var(--spacing-1);
+            border-radius: var(--radius-sm);
+        }
+
+        /* === VITALS TABLE === */
+        .vitals-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .vitals-table th {
+            text-align: left;
+            padding: var(--spacing-2) var(--spacing-3);
+            font-weight: 500;
+            color: var(--muted-foreground);
+            background: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vitals-table td {
+            padding: var(--spacing-2) var(--spacing-3);
+            color: var(--foreground);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vitals-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .vitals-table input {
+            width: 100%;
+            max-width: 120px;
+        }
+
+        /* === SUPPLY CHECKLIST === */
+        .supply-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: var(--spacing-3);
+        }
+
+        .supply-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) var(--spacing-3);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+
+        .supply-item.gathered {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .supply-name {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .supply-location {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* === ASSESSMENT GRID === */
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-4);
+        }
+
+        .assessment-column {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+        }
+
+        .assessment-column-header {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: var(--spacing-3);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* === WATER QUALITY CARD === */
+        .water-quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-3);
+        }
+
+        .water-quality-item {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            text-align: center;
+        }
+
+        .water-quality-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .water-quality-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .water-quality-value.pass {
+            color: var(--success);
+        }
+
+        .water-quality-value.fail {
+            color: var(--destructive);
+        }
+
+        /* === FINAL CHECKS === */
+        .final-checks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .final-check-card {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-4);
+        }
+
+        .final-check-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-3);
+        }
+
+        .final-check-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .final-check-icon.complete {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .final-check-icon.pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .final-check-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .final-check-description {
+            font-size: 0.8125rem;
+            color: var(--muted-foreground);
+            line-height: 1.5;
+        }
+
+        /* === EMAIL TEMPLATE === */
+        .email-template {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .email-template-header {
+            background: var(--muted);
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .email-template-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-2);
+            font-size: 0.8125rem;
+        }
+
+        .email-template-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .email-template-label {
+            font-weight: 500;
+            color: var(--muted-foreground);
+            min-width: 50px;
+        }
+
+        .email-template-value {
+            color: var(--foreground);
+        }
+
+        .email-template-body {
+            padding: var(--spacing-4);
+            font-size: 0.8125rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .field-grid-2,
+            .field-grid-3,
+            .field-grid-4 {
+                grid-template-columns: 1fr;
+            }
+            .assessment-grid {
+                grid-template-columns: 1fr;
+            }
+            .notes-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">HDFlowsheet</div>
+            </div>
+
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">📋</span>
+                Pt Charting
+            </a>
+            <a href="#" class="sidebar-item active">
+                <span class="sidebar-item-icon">🏥</span>
+                Inpatient
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">⚙️</span>
+                Operations
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">📊</span>
+                Reports
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">💾</span>
+                Save
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">📤</span>
+                Export
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Inpatient Dialysis Flowsheet</h1>
+                    <p class="page-subtitle">Hospital HD Treatment Documentation</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-outline">
+                        <span>📄</span> New Treatment
+                    </button>
+                    <button class="btn btn-primary">
+                        <span>💾</span> Save Progress
+                    </button>
+                </div>
+            </div>
+
+            <!-- Patient Info Card -->
+            <div class="patient-info-card">
+                <div class="patient-info-item">
+                    <span class="patient-info-label">Location</span>
+                    <span class="patient-info-value badge badge-inpatient">INPT - Room 1218</span>
+                </div>
+                <div class="patient-info-item">
+                    <span class="patient-info-label">Charge Code</span>
+                    <span class="patient-info-value">1771</span>
+                </div>
+                <div class="patient-info-item">
+                    <span class="patient-info-label">Primary RN</span>
+                    <span class="patient-info-value">Tiffany Landis</span>
+                </div>
+                <div class="patient-info-item">
+                    <span class="patient-info-label">Home Clinic</span>
+                    <span class="patient-info-value">DaVita - Sells</span>
+                </div>
+                <div class="patient-info-item">
+                    <span class="patient-info-label">Access Type</span>
+                    <span class="patient-info-value">LCVC</span>
+                </div>
+                <div class="patient-info-item">
+                    <span class="patient-info-label">A&Ox4</span>
+                    <span class="patient-info-value">Yes</span>
+                </div>
+            </div>
+
+            <!-- Section 1: Dialysis Requested -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">📞</span>
+                        <span class="collapsible-header-title">Dialysis Requested</span>
+                        <span class="collapsible-header-badge">5/6 Complete</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="checklist-grid">
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">CERNER Tasks</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Check CERNER</div>
+                                    <div class="checklist-sublabel">ED or INPT? Labs available?</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Enter orders in CERNER</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Text & Email Sahani for orders</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Call Floor</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Identify Primary RN</div>
+                                    <div class="checklist-sublabel">Tiffany Landis</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <div>
+                                    <div class="checklist-label">Confirm patient ready</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Call Pt HD Clinic</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Fax Hep B & Rounding</div>
+                                    <div class="checklist-sublabel">GRHC Fax: 602-271-7970</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <div>
+                                    <div class="checklist-label">Add clinic to list (if new)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Rounding Report Orders</div>
+                            <div class="field-grid" style="gap: var(--spacing-2);">
+                                <div class="input-group">
+                                    <label class="input-label">DW</label>
+                                    <input type="text" class="input input-sm" placeholder="kg">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Dialyzer</label>
+                                    <input type="text" class="input input-sm" placeholder="">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">BFR/DFR</label>
+                                    <input type="text" class="input input-sm" placeholder="">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">NA/Bicarb</label>
+                                    <input type="text" class="input input-sm" placeholder="">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Heparin?</label>
+                                    <select class="input input-sm">
+                                        <option>Select...</option>
+                                        <option>Yes</option>
+                                        <option>No</option>
+                                        <option>Saline Flush</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Visit Patient -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">👤</span>
+                        <span class="collapsible-header-title">Visit Patient</span>
+                        <span class="collapsible-header-badge">8/8 Complete</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="checklist-grid">
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Initial Assessment</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div class="checklist-label completed">Introduce self</div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div class="checklist-label completed">Assess patient</div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div class="checklist-label completed">Verify access & location (LCVC)</div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div class="checklist-label completed">Check if pt needs restroom</div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Clinical Assessment</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">A&O Status</div>
+                                    <div class="checklist-sublabel">A&Ox4: Yes</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Vitals trends</div>
+                                    <div class="checklist-sublabel">BP Low side</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Pain assessment</div>
+                                    <div class="checklist-sublabel">Pain: 0/10</div>
+                                </div>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Code Status confirmed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">RN Report</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <div>
+                                    <div class="checklist-label completed">Meds given</div>
+                                    <div class="checklist-sublabel">None</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Setup & RO Log -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">🔧</span>
+                        <span class="collapsible-header-title">Setup Machine & RO Log</span>
+                        <span class="collapsible-header-badge">Complete</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Water Quality Readings</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="water-quality-grid">
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Chlorine</div>
+                            <div class="water-quality-value pass">0</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">pH</div>
+                            <div class="water-quality-value pass">7.6</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Water Hardness</div>
+                            <div class="water-quality-value pass">0</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Rejection Rate</div>
+                            <div class="water-quality-value">91.2%</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Permeate Conductivity</div>
+                            <div class="water-quality-value">46.6</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Feed Water Conductivity</div>
+                            <div class="water-quality-value">530.4</div>
+                        </div>
+                        <div class="water-quality-item">
+                            <div class="water-quality-label">Feed Water Temp</div>
+                            <div class="water-quality-value">23°C</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Gather Supplies -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">📦</span>
+                        <span class="collapsible-header-title">Gather Supplies</span>
+                        <span class="collapsible-header-badge">9/12 Gathered</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="supply-grid">
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Dialyzer</div>
+                            <div class="supply-location">Small & large storage</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Bicarb</div>
+                            <div class="supply-location">Water room</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Lines</div>
+                            <div class="supply-location">Small & large storage</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Saline x 2</div>
+                            <div class="supply-location">Water room</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Acid Jug</div>
+                            <div class="supply-location">Large storage room</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">CVC / AVF bag</div>
+                            <div class="supply-location">Large storage room</div>
+                        </div>
+                        <div class="supply-item">
+                            <div class="checkbox"></div>
+                            <div class="supply-name">(ED) Red biohazard bag</div>
+                            <div class="supply-location">Small storage room</div>
+                        </div>
+                        <div class="supply-item">
+                            <div class="checkbox"></div>
+                            <div class="supply-name">(AVF) Extra 2x2 gauze</div>
+                            <div class="supply-location">Small storage room</div>
+                        </div>
+                        <div class="supply-item">
+                            <div class="checkbox"></div>
+                            <div class="supply-name">(AVF) Extra paper/plastic tape</div>
+                            <div class="supply-location">Small storage room</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Lunch</div>
+                            <div class="supply-location">-</div>
+                        </div>
+                        <div class="supply-item gathered">
+                            <div class="checkbox checked"></div>
+                            <div class="supply-name">Water / Snack</div>
+                            <div class="supply-location">-</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-4); padding: var(--spacing-3); background: var(--warning-light); border-radius: var(--radius-md); border: 1px solid var(--warning);">
+                        <strong style="color: var(--warning-foreground);">REMINDER:</strong>
+                        <span style="color: var(--warning-foreground);">BRING LUNCH, WATER, SNACKS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: CERNER Notes -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">📝</span>
+                        <span class="collapsible-header-title">CERNER Notes & Documentation</span>
+                        <span class="collapsible-header-badge pending">2/4 Complete</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="notes-container">
+                        <!-- Pre-Treatment Notes -->
+                        <div class="note-card">
+                            <div class="note-card-header">
+                                <span class="note-card-title">Hemodialysis Consent</span>
+                                <div class="checkbox checked" style="margin-left: auto;"></div>
+                            </div>
+                            <div class="note-template">Hemodialysis consent successfully obtained from patient. Pt A&Ox4. See uploaded documentation</div>
+                        </div>
+
+                        <div class="note-card">
+                            <div class="note-card-header">
+                                <span class="note-card-title">Hepatitis B Status</span>
+                                <div class="checkbox checked" style="margin-left: auto;"></div>
+                            </div>
+                            <div class="note-template">Pt Hepatitis B successfully obtained. Pt Hep B <span class="highlight">IMMUNE</span>. See uploaded documentation</div>
+                        </div>
+
+                        <div class="note-card">
+                            <div class="note-card-header">
+                                <span class="note-card-title">Hemodialysis Initiation</span>
+                                <div class="checkbox" style="margin-left: auto;"></div>
+                            </div>
+                            <div class="note-template">Machine settings and orders reviewed and verified. Timeout procedure performed. Medications given reviewed with <span class="highlight">_</span>, <span class="highlight">_</span> Primary RN. Pt has <span class="highlight">_</span> in <span class="highlight">_</span>. AVF cannulated with 2x 15g needles without complication. CVC accessed, flushes easily, dressing changed. Hemodialysis consent obtained. Hep B status confirmed as <span class="highlight">_</span>. RO & water checked. Dialysate PH 7.6. Lines secured to pt sleeve with clamp. Tx initiated at <span class="highlight">_</span>.</div>
+                        </div>
+
+                        <div class="note-card">
+                            <div class="note-card-header">
+                                <span class="note-card-title">Hemodialysis Post Treatment</span>
+                                <div class="checkbox" style="margin-left: auto;"></div>
+                            </div>
+                            <div class="note-template">Pt successfully completed <span class="highlight">_</span> tx with <span class="highlight">_</span> UF removed. Pt stable post HD, no voiced concerns. Report given to <span class="highlight">_</span>, <span class="highlight">_</span> Primary RN.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Pre/Post Assessment Charting -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">🩺</span>
+                        <span class="collapsible-header-title">Pre/Post Assessment Charting</span>
+                        <span class="collapsible-header-badge pending">In Progress</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <div class="assessment-grid">
+                        <!-- Pre Treatment Column -->
+                        <div class="assessment-column">
+                            <div class="assessment-column-header">Pre Treatment</div>
+
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">PreProcedure Time Out</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Pre-Treatment Assessment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Dialysis Access</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Hemodialysis Treatment (Partial)</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Vital Signs</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Neurological</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Mental Status / Cognition</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Respiratory</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Breath Sounds</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Cardiovascular</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Psychosocial Assessment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Edema</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">GI</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Integumentary</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Learning Assessment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Nursing Handoff (RN giving report)</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Dialysis Pre/Post Treatment Activities</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Hemodialysis Access Management</span>
+                            </div>
+                        </div>
+
+                        <!-- Post Treatment Column -->
+                        <div class="assessment-column">
+                            <div class="assessment-column-header">Post Treatment</div>
+
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Dialysis Access</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">End Treatment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Vital Signs</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Neurological</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Mental Status / Cognition</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Respiratory</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Breath Sounds</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Cardiovascular</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Psychosocial Assessment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Edema</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">GI</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Integumentary</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Learning Assessment</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Nursing Handoff (RN receiving report)</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Dialysis Pre/Post Treatment Activities</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Hemodialysis Access Management</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Access Documentation</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">CVC Access</div>
+                            <div class="checklist-item">
+                                <div class="checkbox checked"></div>
+                                <span class="checklist-label">Access CVC</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">CVC dressing changed</span>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">AVF/AVG Access</div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Access AVF / AVG</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Change Dressing</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Needles removed and bleeding controlled</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: Treatment Tracking -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <div class="collapsible-header-left">
+                        <span class="collapsible-header-icon">⏱️</span>
+                        <span class="collapsible-header-title">Treatment Tracking & Final Checks</span>
+                        <span class="collapsible-header-badge pending">In Progress</span>
+                    </div>
+                    <span class="collapsible-chevron">▼</span>
+                </div>
+                <div class="collapsible-body">
+                    <!-- Vitals Tracking -->
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Treatment Vitals</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div style="overflow-x: auto; margin-bottom: var(--spacing-6);">
+                        <table class="vitals-table">
+                            <thead>
+                                <tr>
+                                    <th>Timeframe</th>
+                                    <th>Time</th>
+                                    <th>BP</th>
+                                    <th>HR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Pre TX Assessment</strong></td>
+                                    <td>0930</td>
+                                    <td>109/69</td>
+                                    <td>71</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Initiation</strong></td>
+                                    <td>0950</td>
+                                    <td>106/78</td>
+                                    <td>70</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>TX Complete</strong></td>
+                                    <td><input type="text" class="input input-sm" placeholder="HHMM"></td>
+                                    <td><input type="text" class="input input-sm" placeholder="SBP/DBP"></td>
+                                    <td><input type="text" class="input input-sm" placeholder="HR"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Intra Dialysis Tasks -->
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Intra Dialysis Tasks</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="checklist-grid" style="margin-bottom: var(--spacing-6);">
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">During Treatment</div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Begin Monthly/Yearly Log - Acute Dialysis Spreadsheet</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Prepare take-off supplies</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Clean up waste</span>
+                            </div>
+                            <div class="checklist-item">
+                                <div class="checkbox"></div>
+                                <span class="checklist-label">Clean machine</span>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card">
+                            <div class="checklist-card-header">Post Dialysis Data</div>
+                            <div class="input-group" style="margin-bottom: var(--spacing-2);">
+                                <label class="input-label">UF Total</label>
+                                <input type="text" class="input input-sm" placeholder="mL">
+                            </div>
+                            <div class="input-group" style="margin-bottom: var(--spacing-2);">
+                                <label class="input-label">Vol</label>
+                                <input type="text" class="input input-sm" placeholder="">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">End Time</label>
+                                <input type="text" class="input input-sm" placeholder="HHMM">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Checks -->
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Final Checks</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="final-checks-grid">
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon complete">✓</div>
+                                <span class="final-check-title">Hep B Upload</span>
+                            </div>
+                            <div class="final-check-description">Hep B obtained, pt sticker applied and given to secretary to upload into pt chart</div>
+                        </div>
+
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon complete">✓</div>
+                                <span class="final-check-title">Consent Upload</span>
+                            </div>
+                            <div class="final-check-description">Consent obtained and signed, pt sticker applied and given to secretary to upload into pt chart</div>
+                        </div>
+
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon pending">!</div>
+                                <span class="final-check-title">Orders Completed</span>
+                            </div>
+                            <div class="final-check-description">CERNER orders completed</div>
+                        </div>
+
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon complete">✓</div>
+                                <span class="final-check-title">CERNER Notes Complete</span>
+                            </div>
+                            <div class="final-check-description">Pre Hep B, Pre Consent, Tx initiated and Post Tx.</div>
+                        </div>
+
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon complete">✓</div>
+                                <span class="final-check-title">Doc PDFs Saved</span>
+                            </div>
+                            <div class="final-check-description">Hep B & Consent scans placed in Acutes folder in X drive.</div>
+                        </div>
+
+                        <div class="final-check-card">
+                            <div class="final-check-header">
+                                <div class="final-check-icon complete">✓</div>
+                                <span class="final-check-title">Post TX Email Sent</span>
+                            </div>
+                            <div class="final-check-description">Email sent to Sahani & Patty</div>
+                        </div>
+                    </div>
+
+                    <!-- Post TX Email Template -->
+                    <div class="section-divider">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Post TX Email Template</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="email-template">
+                        <div class="email-template-header">
+                            <div class="email-template-row">
+                                <span class="email-template-label">To:</span>
+                                <span class="email-template-value">@Patricia Austin</span>
+                            </div>
+                            <div class="email-template-row">
+                                <span class="email-template-label">Subject:</span>
+                                <span class="email-template-value">[ Date ] - HHK INPT ED EoSR</span>
+                            </div>
+                        </div>
+                        <div class="email-template-body">Good afternoon,
+
+Here is the post tx report for [ Patient Name ].
+
+<strong>Prescription:</strong>
+Pt ran [ 3 hrs ] with [ UF removed ].
+
+<strong>Complications:</strong>
+Asymptomatic hypotension throughout tx. Pt was brought in d/t syncope / hypotension related to diarrheal acute illness. Pt likely euvolemic or slightly below DW.
+
+<strong>Treatment Vitals:</strong>
+Pre: 0930 - 109/69 - 71
+Initiation: 0950 - 106/78 - 70
+Post: [To be completed]
+
+<strong>Course of Stay:</strong>
+[To be completed]
+
+---
+<strong>Documentation Checklist:</strong>
+☑ Hep B doc handed to unit secretary - Yes
+☑ Hep B doc copied into X drive - Yes
+☑ Consent handed to unit secretary - Yes
+☑ Consent doc copied into X drive - Yes</div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-4); display: flex; gap: var(--spacing-3);">
+                        <button class="btn btn-outline">
+                            <span>📋</span> Copy Email
+                        </button>
+                        <button class="btn btn-primary">
+                            <span>✉️</span> Open in Email Client
+                        </button>
+                    </div>
+
+                    <!-- Redan Machine Email -->
+                    <div class="section-divider" style="margin-top: var(--spacing-6);">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Redan Machine Email</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="field-grid field-grid-2">
+                        <div class="input-group">
+                            <label class="input-label">Pre Reading</label>
+                            <input type="text" class="input" placeholder="Enter pre reading">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Post Reading</label>
+                            <input type="text" class="input" placeholder="Enter post reading">
+                        </div>
+                    </div>
+
+                    <!-- Quick References -->
+                    <div class="section-divider" style="margin-top: var(--spacing-6);">
+                        <div class="section-divider-line"></div>
+                        <span class="section-divider-text">Quick References</span>
+                        <div class="section-divider-line"></div>
+                    </div>
+
+                    <div class="field-grid">
+                        <div style="padding: var(--spacing-3); background: var(--muted); border-radius: var(--radius-md);">
+                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Charge #</div>
+                            <div style="font-weight: 600;">1771</div>
+                        </div>
+                        <div style="padding: var(--spacing-3); background: var(--muted); border-radius: var(--radius-md);">
+                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Dr Quick</div>
+                            <div style="font-weight: 600;">(206) 409-6412</div>
+                        </div>
+                        <div style="padding: var(--spacing-3); background: var(--muted); border-radius: var(--radius-md);">
+                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">INPT Fax</div>
+                            <div style="font-weight: 600;">602-528-1327</div>
+                        </div>
+                        <div style="padding: var(--spacing-3); background: var(--muted); border-radius: var(--radius-md);">
+                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">GRHC Fax</div>
+                            <div style="font-weight: 600;">602-271-7970</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Simple toggle functionality for checkboxes
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+
+                // Update the label if it exists
+                const label = this.nextElementSibling;
+                if (label && label.classList.contains('checklist-label')) {
+                    label.classList.toggle('completed');
+                }
+
+                // Update supply item background
+                const supplyItem = this.closest('.supply-item');
+                if (supplyItem) {
+                    supplyItem.classList.toggle('gathered');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
