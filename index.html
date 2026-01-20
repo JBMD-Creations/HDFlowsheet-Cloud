@@ -71,6 +71,12 @@
     v1.9.2 - Patient Tab Display Updates
         - Show hospital name instead of status pills when patient is hospitalized
         - Show missed tx type instead of status pills when patient has missed tx
+    v1.9.1 - Modern Compact Theme
+        - NEW: "Modern Compact" light theme - clean medical blue with tight spacing
+        - NEW: "Modern Compact Dark" theme - dark mode with medical blue accents
+        - NEW: Compact spacing across all UI components (cards, buttons, forms)
+        - NEW: Professional data-dense appearance for displaying more info at once
+        - KEPT: Existing color coding for hospitalizations/charting (blue/green)
     v1.9.0 - QA Checklist Section Reorder  
         - MOVED: QA Checklist (Pre Check, 30 Min, Meds, etc.) now above Assignment section
         - Order: At a Glance → Tech Check (Missing Items) → QA Checklist → Assignment → Treatment Orders...
@@ -324,6 +330,676 @@
             --theme-bg-alt: #f4f8fb;
             --theme-header-gradient: linear-gradient(135deg, #2a7de1 0%, #1c5ab0 100%);
             --theme-body-gradient: linear-gradient(135deg, #f4f8fb 0%, #eef6fc 100%);
+        }
+
+        /* Theme: Modern Compact Light - Clean medical grade theme with tight spacing */
+        [data-theme="modern-compact"] {
+            --theme-primary: #3b82f6;
+            --theme-primary-dark: #2563eb;
+            --theme-primary-light: #dbeafe;
+            --theme-primary-bg: #f8fafc;
+            --theme-accent: #22c55e;
+            --theme-accent-light: #dcfce7;
+            --theme-accent-bg: #f0fdf4;
+            --theme-text: #1e293b;
+            --theme-text-light: #64748b;
+            --theme-border: #e2e8f0;
+            --theme-bg: #ffffff;
+            --theme-bg-alt: #f8fafc;
+            --theme-header-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --theme-body-gradient: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            /* Compact spacing overrides */
+            --spacing-xs: 4px;
+            --spacing-sm: 6px;
+            --spacing-md: 10px;
+            --spacing-lg: 14px;
+            --spacing-xl: 18px;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --font-size-xs: 0.7em;
+            --font-size-sm: 0.8em;
+            --font-size-base: 0.9em;
+            --font-size-lg: 1em;
+        }
+
+        /* Theme: Modern Compact Dark - Dark medical grade theme with tight spacing */
+        [data-theme="modern-compact-dark"] {
+            --theme-primary: #60a5fa;
+            --theme-primary-dark: #3b82f6;
+            --theme-primary-light: #1e3a5f;
+            --theme-primary-bg: #1e293b;
+            --theme-accent: #4ade80;
+            --theme-accent-light: #166534;
+            --theme-accent-bg: #14532d;
+            --theme-text: #f1f5f9;
+            --theme-text-light: #94a3b8;
+            --theme-border: #334155;
+            --theme-bg: #0f172a;
+            --theme-bg-alt: #1e293b;
+            --theme-header-gradient: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            --theme-body-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            /* Compact spacing overrides */
+            --spacing-xs: 4px;
+            --spacing-sm: 6px;
+            --spacing-md: 10px;
+            --spacing-lg: 14px;
+            --spacing-xl: 18px;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --font-size-xs: 0.7em;
+            --font-size-sm: 0.8em;
+            --font-size-base: 0.9em;
+            --font-size-lg: 1em;
+        }
+
+        /* ========== MODERN COMPACT THEME OVERRIDES ========== */
+
+        /* Body styling for modern compact themes */
+        [data-theme="modern-compact"] body,
+        [data-theme="modern-compact-dark"] body {
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* Top navigation - compact */
+        [data-theme="modern-compact"] .top-nav,
+        [data-theme="modern-compact-dark"] .top-nav {
+            margin-bottom: 10px;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 6px;
+        }
+
+        [data-theme="modern-compact"] .top-nav-tab,
+        [data-theme="modern-compact-dark"] .top-nav-tab {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            border-width: 1px;
+        }
+
+        /* Main container - compact */
+        [data-theme="modern-compact"] .main-container,
+        [data-theme="modern-compact-dark"] .main-container {
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        /* Header - compact */
+        [data-theme="modern-compact"] .main-header,
+        [data-theme="modern-compact-dark"] .main-header {
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        [data-theme="modern-compact"] .main-header h1,
+        [data-theme="modern-compact-dark"] .main-header h1 {
+            font-size: 1.3em;
+        }
+
+        /* Pod tabs - compact */
+        [data-theme="modern-compact"] .pod-tabs,
+        [data-theme="modern-compact-dark"] .pod-tabs {
+            gap: 6px;
+            padding: 6px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        [data-theme="modern-compact"] .pod-tab,
+        [data-theme="modern-compact-dark"] .pod-tab {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 6px;
+        }
+
+        /* Patient cards - compact */
+        [data-theme="modern-compact"] .patient-card,
+        [data-theme="modern-compact-dark"] .patient-card {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        [data-theme="modern-compact-dark"] .patient-card {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* At-a-glance section - compact */
+        [data-theme="modern-compact"] .at-a-glance,
+        [data-theme="modern-compact-dark"] .at-a-glance {
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left-width: 3px;
+        }
+
+        [data-theme="modern-compact-dark"] .at-a-glance {
+            background: var(--theme-primary-bg);
+        }
+
+        [data-theme="modern-compact"] .glance-title,
+        [data-theme="modern-compact-dark"] .glance-title {
+            font-size: 0.95em;
+            margin-bottom: 6px;
+            gap: 6px;
+        }
+
+        [data-theme="modern-compact-dark"] .glance-title {
+            color: var(--theme-primary);
+        }
+
+        [data-theme="modern-compact"] .glance-grid,
+        [data-theme="modern-compact-dark"] .glance-grid {
+            gap: 6px;
+        }
+
+        [data-theme="modern-compact"] .glance-item,
+        [data-theme="modern-compact-dark"] .glance-item {
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] .glance-item {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact"] .glance-label,
+        [data-theme="modern-compact-dark"] .glance-label {
+            font-size: 0.7em;
+            margin-bottom: 2px;
+        }
+
+        [data-theme="modern-compact-dark"] .glance-label {
+            color: var(--theme-text-light);
+        }
+
+        [data-theme="modern-compact"] .glance-value,
+        [data-theme="modern-compact-dark"] .glance-value {
+            font-size: 0.9em;
+        }
+
+        [data-theme="modern-compact-dark"] .glance-value {
+            color: var(--theme-text);
+        }
+
+        /* Section headers - compact */
+        [data-theme="modern-compact"] .section-header,
+        [data-theme="modern-compact-dark"] .section-header {
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            gap: 6px;
+        }
+
+        /* Collapsible sections - compact */
+        [data-theme="modern-compact"] .collapsible-section,
+        [data-theme="modern-compact-dark"] .collapsible-section {
+            margin-bottom: 8px;
+        }
+
+        /* Form elements - compact */
+        [data-theme="modern-compact"] input[type="text"],
+        [data-theme="modern-compact"] input[type="number"],
+        [data-theme="modern-compact"] input[type="time"],
+        [data-theme="modern-compact"] select,
+        [data-theme="modern-compact"] textarea,
+        [data-theme="modern-compact-dark"] input[type="text"],
+        [data-theme="modern-compact-dark"] input[type="number"],
+        [data-theme="modern-compact-dark"] input[type="time"],
+        [data-theme="modern-compact-dark"] select,
+        [data-theme="modern-compact-dark"] textarea {
+            padding: 6px 10px;
+            font-size: 0.9em;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] input[type="text"],
+        [data-theme="modern-compact-dark"] input[type="number"],
+        [data-theme="modern-compact-dark"] input[type="time"],
+        [data-theme="modern-compact-dark"] select,
+        [data-theme="modern-compact-dark"] textarea {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] input::placeholder,
+        [data-theme="modern-compact-dark"] textarea::placeholder {
+            color: var(--theme-text-light);
+        }
+
+        /* Buttons - compact */
+        [data-theme="modern-compact"] button,
+        [data-theme="modern-compact"] .btn-add,
+        [data-theme="modern-compact-dark"] button,
+        [data-theme="modern-compact-dark"] .btn-add {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-radius: 4px;
+        }
+
+        /* Modals - compact */
+        [data-theme="modern-compact"] .settings-modal,
+        [data-theme="modern-compact-dark"] .settings-modal {
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        [data-theme="modern-compact-dark"] .settings-modal {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact"] .modal-header,
+        [data-theme="modern-compact-dark"] .modal-header {
+            font-size: 1.2em;
+            margin-bottom: 16px;
+        }
+
+        [data-theme="modern-compact-dark"] .modal-header {
+            color: var(--theme-text);
+        }
+
+        /* Theme selector section - compact */
+        [data-theme="modern-compact"] .theme-selector-section,
+        [data-theme="modern-compact-dark"] .theme-selector-section {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+        }
+
+        [data-theme="modern-compact-dark"] .theme-selector-section {
+            border-bottom-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact"] .theme-selector-title,
+        [data-theme="modern-compact-dark"] .theme-selector-title {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        [data-theme="modern-compact"] .theme-grid,
+        [data-theme="modern-compact-dark"] .theme-grid {
+            gap: 8px;
+        }
+
+        [data-theme="modern-compact"] .theme-option,
+        [data-theme="modern-compact-dark"] .theme-option {
+            padding: 8px;
+            border-radius: 6px;
+            border-width: 2px;
+        }
+
+        [data-theme="modern-compact-dark"] .theme-option {
+            background: var(--theme-bg);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .theme-option:hover {
+            border-color: var(--theme-primary);
+        }
+
+        [data-theme="modern-compact-dark"] .theme-option.active {
+            border-color: var(--theme-primary);
+            background: var(--theme-primary-bg);
+        }
+
+        [data-theme="modern-compact"] .theme-preview,
+        [data-theme="modern-compact-dark"] .theme-preview {
+            height: 32px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact"] .theme-option-name,
+        [data-theme="modern-compact-dark"] .theme-option-name {
+            font-size: 0.75em;
+        }
+
+        [data-theme="modern-compact-dark"] .theme-option-name {
+            color: var(--theme-text);
+        }
+
+        /* Status badges - compact */
+        [data-theme="modern-compact"] .status-badge,
+        [data-theme="modern-compact-dark"] .status-badge {
+            padding: 2px 8px;
+            font-size: 0.75em;
+            border-radius: 10px;
+        }
+
+        /* Checkbox items - compact */
+        [data-theme="modern-compact"] .checklist-item,
+        [data-theme="modern-compact-dark"] .checklist-item {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        [data-theme="modern-compact-dark"] .checklist-item {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Treatment grid - compact */
+        [data-theme="modern-compact"] .treatment-grid,
+        [data-theme="modern-compact-dark"] .treatment-grid {
+            gap: 8px;
+        }
+
+        [data-theme="modern-compact"] .treatment-row,
+        [data-theme="modern-compact-dark"] .treatment-row {
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] .treatment-row {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Labels - compact */
+        [data-theme="modern-compact"] label,
+        [data-theme="modern-compact-dark"] label {
+            font-size: 0.85em;
+        }
+
+        [data-theme="modern-compact-dark"] label {
+            color: var(--theme-text-light);
+        }
+
+        /* Floating nav sidebar - compact */
+        [data-theme="modern-compact"] .floating-nav-sidebar,
+        [data-theme="modern-compact-dark"] .floating-nav-sidebar {
+            padding: 6px;
+            border-radius: 8px;
+            gap: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] .floating-nav-sidebar {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact"] .floating-nav-btn,
+        [data-theme="modern-compact-dark"] .floating-nav-btn {
+            padding: 8px;
+            font-size: 1em;
+            border-radius: 6px;
+        }
+
+        [data-theme="modern-compact-dark"] .floating-nav-btn {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .floating-nav-btn:hover {
+            background: var(--theme-primary-bg);
+            border-color: var(--theme-primary);
+        }
+
+        /* Quick-add panel - compact */
+        [data-theme="modern-compact"] .quick-add-panel,
+        [data-theme="modern-compact-dark"] .quick-add-panel {
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        [data-theme="modern-compact-dark"] .quick-add-panel {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Patient list view - compact */
+        [data-theme="modern-compact"] .patient-list-header,
+        [data-theme="modern-compact-dark"] .patient-list-header {
+            padding: 8px 12px;
+            font-size: 0.85em;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] .patient-list-header {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Notes section - compact */
+        [data-theme="modern-compact"] .notes-section,
+        [data-theme="modern-compact-dark"] .notes-section {
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        [data-theme="modern-compact-dark"] .notes-section {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Dark theme - main container background */
+        [data-theme="modern-compact-dark"] .main-container {
+            background: var(--theme-bg-alt);
+            border: 1px solid var(--theme-border);
+        }
+
+        /* Dark theme - main header */
+        [data-theme="modern-compact-dark"] .main-header {
+            background: var(--theme-header-gradient);
+        }
+
+        /* Dark theme - top nav */
+        [data-theme="modern-compact-dark"] .top-nav {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        [data-theme="modern-compact-dark"] .top-nav-tab {
+            background: var(--theme-bg);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .top-nav-tab:hover {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-primary);
+        }
+
+        [data-theme="modern-compact-dark"] .top-nav-tab.active {
+            background: var(--theme-primary);
+            border-color: var(--theme-primary);
+            color: white;
+        }
+
+        /* Dark theme - pod tabs */
+        [data-theme="modern-compact-dark"] .pod-tabs {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .pod-tab {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--theme-text-light);
+        }
+
+        [data-theme="modern-compact-dark"] .pod-tab:hover {
+            background: var(--theme-bg-alt);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .pod-tab.active {
+            background: var(--theme-primary);
+            color: white;
+        }
+
+        /* Dark theme - settings modal overlay */
+        [data-theme="modern-compact-dark"] .settings-modal-overlay {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Dark theme - QA section items */
+        [data-theme="modern-compact-dark"] .qa-main-item {
+            background: var(--theme-bg) !important;
+            border-color: var(--theme-border) !important;
+        }
+
+        [data-theme="modern-compact-dark"] .qa-main-item.expanded {
+            background: var(--theme-primary-bg) !important;
+            border-color: var(--theme-primary) !important;
+        }
+
+        [data-theme="modern-compact-dark"] .qa-main-label {
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .qa-sub-items input[type="text"] {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        /* Dark theme - Tech list */
+        [data-theme="modern-compact-dark"] .tech-item {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .tech-name {
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .tech-pod {
+            color: var(--theme-text-light);
+        }
+
+        /* Dark theme - Add tech section */
+        [data-theme="modern-compact-dark"] .add-tech-section {
+            background: var(--theme-bg);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .add-tech-title {
+            color: var(--theme-primary);
+        }
+
+        /* Dark theme - Misc todo section */
+        [data-theme="modern-compact-dark"] .misc-todo-section {
+            background: var(--theme-bg);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .misc-todo-header {
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .misc-todo-item {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        /* Dark theme - Treatment orders */
+        [data-theme="modern-compact-dark"] .treatment-item {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .treatment-label {
+            color: var(--theme-text);
+        }
+
+        /* Dark theme - Expand all button */
+        [data-theme="modern-compact-dark"] .expand-all-btn {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .expand-all-btn:hover {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-primary);
+        }
+
+        /* Dark theme - Chart closed container */
+        [data-theme="modern-compact-dark"] .chart-closed-container {
+            background: var(--theme-bg);
+        }
+
+        [data-theme="modern-compact-dark"] .chart-closed-checkbox {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .chart-closed-label {
+            color: var(--theme-text);
+        }
+
+        /* Dark theme - Patient tab text */
+        [data-theme="modern-compact-dark"] .patient-tab {
+            background: var(--theme-bg);
+            border: 1px solid var(--theme-border);
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .patient-tab:hover {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-primary);
+        }
+
+        [data-theme="modern-compact-dark"] .patient-tab.active {
+            background: var(--theme-primary);
+            border-color: var(--theme-primary);
+            color: white;
+        }
+
+        /* Dark theme - Patient name */
+        [data-theme="modern-compact-dark"] .patient-name {
+            color: var(--theme-text);
+        }
+
+        [data-theme="modern-compact-dark"] .station-num {
+            color: var(--theme-primary);
+        }
+
+        /* Dark theme - Assignment section */
+        [data-theme="modern-compact-dark"] .assignment-grid {
+            background: var(--theme-bg);
+        }
+
+        [data-theme="modern-compact-dark"] .assignment-row {
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .assignment-label {
+            color: var(--theme-text-light);
+        }
+
+        /* Dark theme - Tech check section */
+        [data-theme="modern-compact-dark"] .tech-check-section {
+            background: var(--theme-bg);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .tech-check-category {
+            background: var(--theme-bg-alt);
+            border-color: var(--theme-border);
+        }
+
+        [data-theme="modern-compact-dark"] .tech-check-label {
+            color: var(--theme-text);
+        }
+
+        /* Dark theme - Keep special status colors visible */
+        [data-theme="modern-compact-dark"] .patient-tab.hospitalized,
+        [data-theme="modern-compact-dark"] .patient-tab.chart-closed,
+        [data-theme="modern-compact-dark"] .patient-tab.missed-tx {
+            color: white;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -15831,6 +16507,14 @@
                 <div class="theme-selector-section">
                     <div class="theme-selector-title">🎨 Color Theme</div>
                     <div class="theme-grid">
+                        <div class="theme-option" data-theme-value="modern-compact" onclick="setTheme('modern-compact')">
+                            <div class="theme-preview" style="background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%); border: 1px solid #e2e8f0;"></div>
+                            <div class="theme-option-name">Modern Compact</div>
+                        </div>
+                        <div class="theme-option" data-theme-value="modern-compact-dark" onclick="setTheme('modern-compact-dark')">
+                            <div class="theme-preview" style="background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); border: 1px solid #334155;"></div>
+                            <div class="theme-option-name">Modern Dark</div>
+                        </div>
                         <div class="theme-option" data-theme-value="clinical-blue" onclick="setTheme('clinical-blue')">
                             <div class="theme-preview" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);"></div>
                             <div class="theme-option-name">Clinical Blue</div>
