@@ -4576,10 +4576,15 @@
         function closeWidgetPicker(event) {
             if (event && event.target !== event.currentTarget) return;
             document.getElementById('widgetPickerOverlay').classList.remove('open');
+            currentTargetGrid = null;
         }
+
+        // Saved grid for inner grid picker flow
+        let savedTargetGrid = null;
 
         // Open grid picker (for inner grids)
         function openGridPicker() {
+            savedTargetGrid = currentTargetGrid; // Save before closing
             document.getElementById('widgetPickerOverlay').classList.remove('open');
             document.getElementById('gridPickerOverlay').classList.add('open');
         }
@@ -4588,7 +4593,7 @@
         function closeGridPicker(event) {
             if (event && event.target !== event.currentTarget) return;
             document.getElementById('gridPickerOverlay').classList.remove('open');
-            currentTargetGrid = null;
+            savedTargetGrid = null;
         }
 
         // Grid counter for unique IDs
@@ -4596,7 +4601,7 @@
 
         // Add inner grid to current grid
         function addInnerGrid(cols) {
-            const grid = document.getElementById(currentTargetGrid);
+            const grid = document.getElementById(savedTargetGrid);
             if (!grid) {
                 closeGridPicker();
                 return;
@@ -4675,7 +4680,11 @@
             if (widget && addBtn) {
                 grid.insertBefore(widget, addBtn);
                 // Re-initialize sortable to include new widget
-                initCardSortable();
+                try {
+                    initCardSortable();
+                } catch (e) {
+                    console.error('Error initializing sortable:', e);
+                }
             }
 
             closeWidgetPicker();
