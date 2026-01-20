@@ -1091,6 +1091,475 @@
         }
 
         /* ========================================
+           COLLAPSIBLE SECTIONS (Full Component)
+           ======================================== */
+        .collapsible-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-3) var(--spacing-4);
+            background: var(--muted);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: var(--secondary);
+        }
+
+        .collapsible-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .collapsible-header-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .collapsible-header-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .collapsible-chevron {
+            color: var(--muted-foreground);
+            font-size: 0.75rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .collapsible-chevron.expanded {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-body {
+            padding: var(--spacing-4);
+            border-top: 1px solid var(--border);
+        }
+
+        /* Input Row with Button */
+        .input-row {
+            display: flex;
+            gap: var(--spacing-3);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .input-row .input {
+            flex: 1;
+        }
+
+        /* Quick Action Chips/Tags */
+        .chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--foreground);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+            background: var(--accent);
+        }
+
+        /* Section Subheaders */
+        .section-subheader {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-3);
+        }
+
+        .section-subheader-icon {
+            font-size: 0.875rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: var(--spacing-4);
+            text-align: center;
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+
+        /* ========================================
+           SIDEBAR NAVIGATION
+           ======================================== */
+        .sidebar {
+            width: 220px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3) var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .sidebar-item:hover {
+            background: var(--muted);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .sidebar-item-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .sidebar-item.active .sidebar-item-icon {
+            color: var(--primary);
+        }
+
+        /* Nested Items */
+        .sidebar-nested {
+            margin-left: var(--spacing-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .sidebar-nested .sidebar-item {
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.8125rem;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: var(--spacing-2) 0;
+        }
+
+        /* Save Button Row */
+        .sidebar-save-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) var(--spacing-3);
+        }
+
+        /* User Profile */
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3);
+            background: var(--muted);
+            border-radius: var(--radius-md);
+        }
+
+        .sidebar-user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: var(--primary);
+            color: var(--primary-foreground);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sidebar-user-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        /* Hide Button */
+        .sidebar-hide {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2);
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .sidebar-hide:hover {
+            color: var(--foreground);
+        }
+
+        /* ========================================
+           WEIGHT CALCULATION CARDS
+           ======================================== */
+        .weight-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .weight-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-3) var(--spacing-4);
+            background: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .weight-header-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .weight-body {
+            padding: var(--spacing-4);
+        }
+
+        .weight-subtitle {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-3);
+        }
+
+        /* Equipment Item Row */
+        .equipment-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .equipment-row:last-child {
+            border-bottom: none;
+        }
+
+        .equipment-name {
+            flex: 1;
+        }
+
+        .equipment-value {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .equipment-input {
+            width: 70px;
+            text-align: right;
+        }
+
+        .equipment-unit {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            min-width: 24px;
+        }
+
+        .equipment-delete {
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+            background: var(--destructive);
+            color: var(--destructive-foreground);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        /* Weight Cards Grid */
+        .weight-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .weight-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+        }
+
+        .weight-card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .weight-card-icon {
+            font-size: 1rem;
+        }
+
+        /* Measured Row */
+        .measured-row {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .measured-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .measured-input {
+            width: 80px;
+        }
+
+        .measured-unit {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Deduction List */
+        .deduction-list {
+            margin-bottom: var(--spacing-4);
+        }
+
+        .deduction-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-2) 0;
+            font-size: 0.875rem;
+        }
+
+        .deduction-name {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            color: var(--foreground);
+        }
+
+        .deduction-check {
+            color: var(--primary);
+        }
+
+        .deduction-value {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Summary Rows */
+        .weight-summary {
+            border-top: 1px dashed var(--border);
+            padding-top: var(--spacing-3);
+        }
+
+        .summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-2) 0;
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .summary-value {
+            padding: var(--spacing-1) var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: var(--accent);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-md);
+        }
+
+        .summary-value.success {
+            background: var(--success-light);
+            color: var(--success-foreground);
+            border-color: var(--success);
+        }
+
+        /* Weight Action Button */
+        .weight-action {
+            margin-top: var(--spacing-4);
+        }
+
+        .weight-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            width: 100%;
+            padding: var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--primary-foreground);
+            background: var(--primary);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .weight-action-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* ========================================
            AVATAR
            ======================================== */
         .avatar {
@@ -1798,28 +2267,342 @@
             </div>
         </div>
 
-        <!-- SECTION HEADERS -->
+        <!-- COLLAPSIBLE SECTIONS -->
         <div class="section">
-            <h2 class="section-title">Section Headers (Collapsible)</h2>
+            <h2 class="section-title">Collapsible Sections</h2>
 
-            <div style="display: flex; flex-direction: column; gap: var(--spacing-2); max-width: 500px;">
-                <div class="section-header-component">
-                    <span class="section-header-title">
-                        <span>QA Checklist</span>
-                    </span>
-                    <span class="section-header-icon">&#9660;</span>
+            <div style="display: flex; flex-direction: column; gap: var(--spacing-4);">
+                <!-- QA Checklist (Expanded) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header">
+                        <div class="collapsible-header-left">
+                            <span class="collapsible-header-icon">✓</span>
+                            <span class="collapsible-header-title">QA Checklist</span>
+                        </div>
+                        <span class="collapsible-chevron expanded">▼</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--spacing-3);">
+                            <div class="card" style="padding: var(--spacing-3);">
+                                <label class="checkbox-wrapper" style="margin-bottom: var(--spacing-2);">
+                                    <div class="checkbox checked"></div>
+                                    <span class="checkbox-label" style="font-weight: 600;">Pre Check</span>
+                                </label>
+                                <div style="padding-left: 24px;">
+                                    <label class="checkbox-wrapper" style="margin-bottom: var(--spacing-1);">
+                                        <div class="checkbox"></div>
+                                        <span class="checkbox-label">Machine Check</span>
+                                    </label>
+                                    <label class="checkbox-wrapper" style="margin-bottom: var(--spacing-1);">
+                                        <div class="checkbox"></div>
+                                        <span class="checkbox-label">Pre Dialysis</span>
+                                    </label>
+                                    <label class="checkbox-wrapper">
+                                        <div class="checkbox"></div>
+                                        <span class="checkbox-label">Order Verify</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="card" style="padding: var(--spacing-3);">
+                                <label class="checkbox-wrapper">
+                                    <div class="checkbox"></div>
+                                    <span class="checkbox-label" style="font-weight: 600;">Meds</span>
+                                </label>
+                            </div>
+                            <div class="card" style="padding: var(--spacing-3);">
+                                <label class="checkbox-wrapper">
+                                    <div class="checkbox"></div>
+                                    <span class="checkbox-label" style="font-weight: 600;">Misc</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="section-header-component">
-                    <span class="section-header-title">
-                        <span>Weight & UF Management</span>
-                    </span>
-                    <span class="section-header-icon">&#9654;</span>
+
+                <!-- To-Do List (Expanded) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header">
+                        <div class="collapsible-header-left">
+                            <span class="collapsible-header-icon">📋</span>
+                            <span class="collapsible-header-title">Misc To-Do List</span>
+                        </div>
+                        <span class="collapsible-chevron expanded">▼</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="input-row">
+                            <input type="text" class="input" placeholder="Enter a to-do item...">
+                            <button class="btn btn-primary">+ Add To Do</button>
+                        </div>
+                        <div class="chip-row">
+                            <span class="chip">Access assessment chart</span>
+                            <span class="chip">Foot check</span>
+                            <span class="chip">Monthly progress note</span>
+                            <span class="chip">Daily progress note</span>
+                            <span class="chip">Notify MD/NP</span>
+                            <span class="chip">PHN Call</span>
+                        </div>
+                        <div class="section-subheader">
+                            <span class="section-subheader-icon">📁</span>
+                            <span>TO DO</span>
+                        </div>
+                        <div class="empty-state">No pending to-dos</div>
+                        <div class="section-subheader" style="margin-top: var(--spacing-4);">
+                            <span class="section-subheader-icon">✓</span>
+                            <span>COMPLETE</span>
+                        </div>
+                        <div class="empty-state">No completed to-dos</div>
+                    </div>
                 </div>
-                <div class="section-header-component">
-                    <span class="section-header-title">
-                        <span>Treatment Orders</span>
-                    </span>
-                    <span class="section-header-icon">&#9654;</span>
+
+                <!-- STAT Labs (Expanded) -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header">
+                        <div class="collapsible-header-left">
+                            <span class="collapsible-header-icon">🧪</span>
+                            <span class="collapsible-header-title">STAT Labs</span>
+                        </div>
+                        <span class="collapsible-chevron expanded">▼</span>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="input-row">
+                            <input type="text" class="input" placeholder="Enter a lab...">
+                            <button class="btn btn-primary">+ Add Lab</button>
+                        </div>
+                        <div class="chip-row">
+                            <span class="chip">H&H - Post Hosp.</span>
+                            <span class="chip">BMP - 2+ Missed Tx</span>
+                        </div>
+                        <div class="section-subheader">
+                            <span class="section-subheader-icon">🧪</span>
+                            <span>PENDING LABS</span>
+                        </div>
+                        <div class="empty-state">No pending labs</div>
+                        <div class="section-subheader" style="margin-top: var(--spacing-4);">
+                            <span class="section-subheader-icon">✓</span>
+                            <span>COMPLETED LABS</span>
+                        </div>
+                        <div class="empty-state">No completed labs</div>
+                    </div>
+                </div>
+
+                <!-- Collapsed Example -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header">
+                        <div class="collapsible-header-left">
+                            <span class="collapsible-header-icon">⚖️</span>
+                            <span class="collapsible-header-title">Weight & UF Management</span>
+                        </div>
+                        <span class="collapsible-chevron">▶</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR NAVIGATION -->
+        <div class="section">
+            <h2 class="section-title">Sidebar Navigation</h2>
+
+            <div class="sidebar">
+                <div class="sidebar-item active">
+                    <span class="sidebar-item-icon">📋</span>
+                    <span>Pt Charting</span>
+                </div>
+
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">⚙️</span>
+                    <span>Operations</span>
+                </div>
+                <div class="sidebar-nested">
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">📁</span>
+                        <span>Checklists</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">🧪</span>
+                        <span>Labs</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">✂️</span>
+                        <span>Snippets</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-item">
+                    <span class="sidebar-item-icon">📊</span>
+                    <span>Reports</span>
+                </div>
+                <div class="sidebar-nested">
+                    <div class="sidebar-item">
+                        <span class="sidebar-item-icon">📁</span>
+                        <span>End of Shift</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-divider"></div>
+
+                <div class="sidebar-save-row">
+                    <button class="btn btn-primary btn-sm">💾 Save</button>
+                    <div class="toggle active"></div>
+                </div>
+
+                <div class="sidebar-divider"></div>
+
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">B</div>
+                    <span class="sidebar-user-name">brownj623</span>
+                </div>
+
+                <button class="sidebar-hide">
+                    <span>▲</span>
+                    <span>Hide</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- WEIGHT CALCULATION -->
+        <div class="section">
+            <h2 class="section-title">Weight Calculation</h2>
+
+            <div class="weight-section">
+                <div class="weight-header">
+                    <div class="weight-header-title">
+                        <span>⚖️</span>
+                        <span>Wheelchair Weight Calculation</span>
+                    </div>
+                    <span class="collapsible-chevron expanded">▼</span>
+                </div>
+                <div class="weight-body">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-4);">
+                        <span class="weight-subtitle">Equipment Items (shared for Pre & Post)</span>
+                        <button class="btn btn-primary btn-sm">+ Add Item</button>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-6);">
+                        <div class="equipment-row">
+                            <input type="text" class="input equipment-name" value="Wheelchair">
+                            <div class="equipment-value">
+                                <input type="number" class="input equipment-input" value="19.8">
+                                <span class="equipment-unit">kg</span>
+                                <button class="equipment-delete">×</button>
+                            </div>
+                        </div>
+                        <div class="equipment-row">
+                            <input type="text" class="input equipment-name" value="Prosthetic Leg">
+                            <div class="equipment-value">
+                                <input type="number" class="input equipment-input" value="2.0">
+                                <span class="equipment-unit">kg</span>
+                                <button class="equipment-delete">×</button>
+                            </div>
+                        </div>
+                        <div class="equipment-row">
+                            <input type="text" class="input equipment-name" value="Shoes">
+                            <div class="equipment-value">
+                                <input type="number" class="input equipment-input" value="1.2">
+                                <span class="equipment-unit">kg</span>
+                                <button class="equipment-delete">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weight-cards">
+                        <!-- PRE Weight Card -->
+                        <div class="weight-card">
+                            <div class="weight-card-header">
+                                <span class="weight-card-icon">⬇️</span>
+                                <span>PRE Weight (Arrival)</span>
+                            </div>
+                            <div class="measured-row">
+                                <span class="measured-label">Measured:</span>
+                                <input type="number" class="input measured-input" placeholder="kg">
+                                <span class="measured-unit">kg</span>
+                            </div>
+                            <div class="deduction-list">
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Wheelchair</span>
+                                    </span>
+                                    <span class="deduction-value">19.8 kg</span>
+                                </div>
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Prosthetic Leg</span>
+                                    </span>
+                                    <span class="deduction-value">2.0 kg</span>
+                                </div>
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Shoes</span>
+                                    </span>
+                                    <span class="deduction-value">1.2 kg</span>
+                                </div>
+                            </div>
+                            <div class="weight-summary">
+                                <div class="summary-row">
+                                    <span class="summary-label">Equipment:</span>
+                                    <span class="summary-value">23.0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Actual Weight:</span>
+                                    <span class="summary-value success">—</span>
+                                </div>
+                            </div>
+                            <div class="weight-action">
+                                <button class="weight-action-btn">→ Pre Weight</button>
+                            </div>
+                        </div>
+
+                        <!-- POST Weight Card -->
+                        <div class="weight-card">
+                            <div class="weight-card-header">
+                                <span class="weight-card-icon">⬆️</span>
+                                <span>POST Weight (End)</span>
+                            </div>
+                            <div class="measured-row">
+                                <span class="measured-label">Measured:</span>
+                                <input type="number" class="input measured-input" placeholder="kg">
+                                <span class="measured-unit">kg</span>
+                            </div>
+                            <div class="deduction-list">
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Wheelchair</span>
+                                    </span>
+                                    <span class="deduction-value">19.8 kg</span>
+                                </div>
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Prosthetic Leg</span>
+                                    </span>
+                                    <span class="deduction-value">2.0 kg</span>
+                                </div>
+                                <div class="deduction-item">
+                                    <span class="deduction-name">
+                                        <span class="deduction-check">✓</span>
+                                        <span>Shoes</span>
+                                    </span>
+                                    <span class="deduction-value">1.2 kg</span>
+                                </div>
+                            </div>
+                            <div class="weight-summary">
+                                <div class="summary-row">
+                                    <span class="summary-label">Equipment:</span>
+                                    <span class="summary-value">23.0</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Actual Weight:</span>
+                                    <span class="summary-value success">—</span>
+                                </div>
+                            </div>
+                            <div class="weight-action">
+                                <button class="weight-action-btn">→ Post Weight</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
