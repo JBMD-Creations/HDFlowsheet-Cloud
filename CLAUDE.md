@@ -83,6 +83,7 @@ When creating HTML mockups for the user to review:
 |------|-------------|
 | `styleguide.html` | Design system reference - colors, typography, components |
 | `inpatient-mockup.html` | Inpatient dialysis flowsheet mockup |
+| `react-dnd-mockup.html` | React vs SortableJS drag-and-drop comparison |
 
 ### Naming Convention
 
