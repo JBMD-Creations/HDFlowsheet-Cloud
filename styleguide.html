@@ -1882,6 +1882,33 @@
             margin-top: var(--spacing-1);
         }
 
+        /* Subtext input for edit mode */
+        .checklist-card-item-subtext-input {
+            display: none;
+            width: 100%;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+            font-family: var(--font-sans);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        .checklist-card-item-subtext-input::placeholder {
+            color: var(--muted-foreground);
+            opacity: 0.6;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-subtext-input {
+            display: block;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-subtext {
+            display: none;
+        }
+
         /* Edit mode styles */
         .checklist-card.edit-mode {
             border-color: var(--primary);
@@ -3172,6 +3199,7 @@
                                     <div class="checklist-card-item-text">Check CERNER</div>
                                     <input type="text" class="checklist-card-item-input" value="Check CERNER">
                                     <div class="checklist-card-item-subtext">ED or INPT? Labs available?</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="ED or INPT? Labs available?" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3183,6 +3211,7 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Enter orders in CERNER</div>
                                     <input type="text" class="checklist-card-item-input" value="Enter orders in CERNER">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3194,6 +3223,7 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Text & Email Sahani for orders</div>
                                     <input type="text" class="checklist-card-item-input" value="Text & Email Sahani for orders">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3228,6 +3258,7 @@
                                     <div class="checklist-card-item-text">Identify Primary RN</div>
                                     <input type="text" class="checklist-card-item-input" value="Identify Primary RN">
                                     <div class="checklist-card-item-subtext">Tiffany Landis</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="Tiffany Landis" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3239,6 +3270,7 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Confirm patient ready</div>
                                     <input type="text" class="checklist-card-item-input" value="Confirm patient ready">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3273,6 +3305,7 @@
                                     <div class="checklist-card-item-text">Fax Hep B & Rounding</div>
                                     <input type="text" class="checklist-card-item-input" value="Fax Hep B & Rounding">
                                     <div class="checklist-card-item-subtext">GRHC Fax: 602-271-7970</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="GRHC Fax: 602-271-7970" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3284,6 +3317,7 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Add clinic to list (if new)</div>
                                     <input type="text" class="checklist-card-item-input" value="Add clinic to list (if new)">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
@@ -3323,6 +3357,8 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Check CERNER</div>
                                     <input type="text" class="checklist-card-item-input" value="Check CERNER">
+                                    <div class="checklist-card-item-subtext">ED or INPT? Labs available?</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="ED or INPT? Labs available?" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
@@ -3334,6 +3370,7 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Enter orders in CERNER</div>
                                     <input type="text" class="checklist-card-item-input" value="Enter orders in CERNER">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
@@ -3373,6 +3410,8 @@
                                 <div class="checklist-card-item-content">
                                     <div class="checklist-card-item-text">Sample task item</div>
                                     <input type="text" class="checklist-card-item-input" value="Sample task item">
+                                    <div class="checklist-card-item-subtext">This is example subtext</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="This is example subtext" placeholder="Add subtext (optional)">
                                 </div>
                                 <div class="checklist-card-item-actions">
                                     <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
@@ -3445,6 +3484,7 @@
                 <div class="checklist-card-item-content">
                     <div class="checklist-card-item-text">New item</div>
                     <input type="text" class="checklist-card-item-input" value="New item">
+                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
                 </div>
                 <div class="checklist-card-item-actions">
                     <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
