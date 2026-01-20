@@ -7484,6 +7484,40 @@
             margin-bottom: 15px;
             text-align: center;
         }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 15px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .auth-divider span {
+            padding: 0 12px;
+        }
+        .auth-guest-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-guest-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
         .user-menu-btn {
             display: flex;
             align-items: center;
@@ -7535,6 +7569,15 @@
             </form>
             <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 14px;">
                 <a href="#" onclick="showForgotPassword()" style="color: #3b82f6;">Forgot password?</a>
+            </p>
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+            <button type="button" class="auth-guest-btn" onclick="continueAsGuest()">
+                Continue as Guest
+            </button>
+            <p style="text-align: center; margin-top: 8px; color: #94a3b8; font-size: 12px;">
+                Data saved locally only. For testing/preview purposes.
             </p>
         </div>
     </div>
@@ -8217,6 +8260,27 @@
             document.getElementById('authModalOverlay').classList.remove('active');
             document.getElementById('authError').style.display = 'none';
             document.getElementById('authSuccess').style.display = 'none';
+        }
+
+        // Continue as guest (bypass auth for testing/preview)
+        let isGuestMode = false;
+        function continueAsGuest() {
+            isGuestMode = true;
+            // Create a fake guest user object for compatibility
+            currentUser = {
+                id: 'guest-' + Date.now(),
+                email: 'guest@local',
+                user_metadata: { display_name: 'Guest' }
+            };
+            hideAuthModal();
+            // Show the import modal
+            showImportModal();
+            console.log('Continuing as Guest - data will be saved locally only');
+        }
+
+        // Check if in guest mode (for save/load functions)
+        function isGuest() {
+            return isGuestMode;
         }
 
         // Switch between login and signup tabs
@@ -11482,6 +11546,12 @@
         }
 
         async function saveToServer(silent = false) {
+            // Skip server save in guest mode - only save locally
+            if (isGuestMode) {
+                saveState(); // Save to localStorage
+                if (!silent) showSaveStatus('Saved locally (Guest mode)', 'success');
+                return { success: true, guest: true };
+            }
             try {
                 if (!silent) showSaveStatus('Saving...');
                 const savedAt = new Date().toISOString();
@@ -11708,6 +11778,13 @@
         }
 
         async function loadFromServer(skipConfirm = false) {
+            // In guest mode, just load from localStorage
+            if (isGuestMode) {
+                showSaveStatus('Guest mode - loading from local storage', 'info');
+                loadState(); // Load from localStorage
+                renderAll();
+                return;
+            }
             if (!skipConfirm && !confirm('This will replace all current data. Continue?')) return;
 
             try {
