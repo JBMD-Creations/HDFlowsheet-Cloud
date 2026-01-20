@@ -6710,7 +6710,115 @@
         .info-box strong {
             font-weight: 700;
         }
-        
+
+        /* Developer Tools Section */
+        .dev-tools-section {
+            border-top: 1px dashed #e5e7eb;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        .dev-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .dev-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .dev-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .dev-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dev-toggle input:checked + .dev-toggle-slider {
+            background-color: #3b82f6;
+        }
+        .dev-toggle input:checked + .dev-toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .dev-tools-content {
+            margin-top: 15px;
+        }
+        .dev-tools-description {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        .dev-tools-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .dev-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dev-link-item:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+        .dev-link-icon {
+            font-size: 1.5em;
+        }
+        .dev-link-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .dev-link-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9em;
+        }
+        .dev-link-desc {
+            font-size: 0.75em;
+            color: #6b7280;
+        }
+        .dev-link-arrow {
+            color: #9ca3af;
+            font-size: 1.2em;
+            transition: transform 0.2s;
+        }
+        .dev-link-item:hover .dev-link-arrow {
+            color: #3b82f6;
+            transform: translateX(4px);
+        }
+        .dev-tools-note {
+            font-size: 0.75em;
+            color: #9ca3af;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
         /* Section Selector */
         .section-selector {
             background: white;
@@ -12091,13 +12199,43 @@
             document.getElementById('settingsModal').classList.remove('active');
             document.getElementById('newTechName').value = '';
             document.getElementById('newTechPod').value = '';
-            
+
             // Re-render patient cards to reflect any tech changes
             if (state.patients.length > 0) {
                 renderAll();
             }
         }
-        
+
+        // Developer Tools Functions
+        function toggleDevMode() {
+            const toggle = document.getElementById('devModeToggle');
+            const content = document.getElementById('devToolsContent');
+            if (toggle.checked) {
+                content.style.display = 'block';
+                localStorage.setItem('hd_dev_mode', 'true');
+            } else {
+                content.style.display = 'none';
+                localStorage.setItem('hd_dev_mode', 'false');
+            }
+        }
+
+        function openDevFile(filename) {
+            // Open the file in a new window/tab
+            const url = window.location.origin + '/' + filename;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // Initialize dev mode state on page load
+        function initDevMode() {
+            const devMode = localStorage.getItem('hd_dev_mode') === 'true';
+            const toggle = document.getElementById('devModeToggle');
+            const content = document.getElementById('devToolsContent');
+            if (toggle && content) {
+                toggle.checked = devMode;
+                content.style.display = devMode ? 'block' : 'none';
+            }
+        }
+
         function renderTechList() {
             const container = document.getElementById('techList');
             if (state.technicians.length === 0) {
@@ -16617,6 +16755,7 @@
             loadSection();
             loadSectionOrder(); // Load saved section order
             initFloatingNav(); // Initialize floating navigation sidebar
+            initDevMode(); // Initialize developer tools toggle state
 
             // Check if we're returning from a refresh (auto-load from server)
             const pendingServerLoad = localStorage.getItem('hd_pending_server_load');
@@ -17185,6 +17324,43 @@
                         <li>Edit tech to change their pod assignment</li>
                         <li>Delete removes tech from system</li>
                     </ul>
+                </div>
+
+                <!-- Developer Tools Section -->
+                <div class="theme-selector-section dev-tools-section">
+                    <div class="theme-selector-title" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>🛠️ Developer Tools</span>
+                        <label class="dev-toggle">
+                            <input type="checkbox" id="devModeToggle" onchange="toggleDevMode()">
+                            <span class="dev-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div id="devToolsContent" class="dev-tools-content" style="display: none;">
+                        <div class="dev-tools-description">
+                            View HTML mockups and design references without downloading files.
+                        </div>
+                        <div class="dev-tools-links">
+                            <div class="dev-link-item" onclick="openDevFile('styleguide.html')">
+                                <span class="dev-link-icon">🎨</span>
+                                <div class="dev-link-info">
+                                    <span class="dev-link-title">Style Guide</span>
+                                    <span class="dev-link-desc">Design system reference</span>
+                                </div>
+                                <span class="dev-link-arrow">→</span>
+                            </div>
+                            <div class="dev-link-item" onclick="openDevFile('inpatient-mockup.html')">
+                                <span class="dev-link-icon">🏥</span>
+                                <div class="dev-link-info">
+                                    <span class="dev-link-title">Inpatient Mockup</span>
+                                    <span class="dev-link-desc">Hospital dialysis flowsheet</span>
+                                </div>
+                                <span class="dev-link-arrow">→</span>
+                            </div>
+                        </div>
+                        <div class="dev-tools-note">
+                            Opens in new window. Files must exist in the project root.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

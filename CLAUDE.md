@@ -54,3 +54,36 @@ When the user reports a blank screen or missing content, check in this order:
 2. **CSS class states** - check for missing `.active` classes
 3. **Parent container visibility** - a hidden parent hides all children
 4. **Data state second** - only after confirming DOM structure is correct
+
+## Creating HTML Mockups
+
+When creating HTML mockups for the user to review:
+
+1. **Follow the styleguide** - Always use `styleguide.html` as the design reference. Use its CSS variables, component classes, colors, spacing, and typography.
+
+2. **Place in project root** - Save mockup files in the project root directory (e.g., `feature-mockup.html`)
+
+3. **Register in Developer Tools** - Add new mockups to the Developer Tools section in `index.html` settings modal:
+   ```html
+   <div class="dev-link-item" onclick="openDevFile('your-mockup.html')">
+       <span class="dev-link-icon">🎯</span>
+       <div class="dev-link-info">
+           <span class="dev-link-title">Your Mockup Title</span>
+           <span class="dev-link-desc">Brief description</span>
+       </div>
+       <span class="dev-link-arrow">→</span>
+   </div>
+   ```
+
+4. **Access mockups** - User can view mockups via: Settings (⚙️) → Developer Tools toggle → Click mockup link (opens in new window)
+
+### Available Mockups
+
+| File | Description |
+|------|-------------|
+| `styleguide.html` | Design system reference - colors, typography, components |
+| `inpatient-mockup.html` | Inpatient dialysis flowsheet mockup |
+
+### Naming Convention
+
+Use descriptive names with `-mockup.html` suffix: `feature-name-mockup.html`
