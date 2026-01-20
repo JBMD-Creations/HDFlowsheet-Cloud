@@ -1772,15 +1772,14 @@
         }
 
         /* Grid column layouts - force specific column counts */
+        .widget-grid.cols-1 {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
         .widget-grid.cols-2 {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-        }
-
-        .widget-grid.cols-2 > .widget-full,
-        .widget-grid.cols-2 > .widget-divider,
-        .widget-grid.cols-2 > .widget-reminder {
-            grid-column: 1 / -1;
         }
 
         .widget-grid.cols-3 {
@@ -1788,10 +1787,24 @@
             grid-template-columns: repeat(3, 1fr);
         }
 
-        .widget-grid.cols-3 > .widget-full,
-        .widget-grid.cols-3 > .widget-divider,
-        .widget-grid.cols-3 > .widget-reminder {
+        .widget-grid.cols-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* Full-width widgets span all columns in any grid */
+        .widget-grid[class*="cols-"] > .widget-full,
+        .widget-grid[class*="cols-"] > .widget-divider,
+        .widget-grid[class*="cols-"] > .widget-reminder {
             grid-column: 1 / -1;
+        }
+
+        /* In column grids, widgets stretch to fill their cell */
+        .widget-grid[class*="cols-"] > .widget,
+        .widget-grid[class*="cols-"] > .checklist-card {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
         }
 
         /* Widget base styles - all widgets inherit from this */
@@ -3711,6 +3724,15 @@
                 Add various widget types and arrange them in a fluid grid layout.
             </p>
 
+            <!-- Add Section Button -->
+            <button class="widget-add-btn" onclick="openSectionPicker()" style="margin-bottom: var(--spacing-4);">
+                <span class="widget-add-btn-icon">+</span>
+                <span class="widget-add-btn-text">Add Section</span>
+            </button>
+
+            <!-- Sections Container -->
+            <div id="sectionsContainer">
+
             <!-- Demo Section 1 -->
             <div class="widget-section" style="margin-bottom: var(--spacing-4);">
                 <div class="widget-section-header" onclick="toggleWidgetSection(this)">
@@ -4010,6 +4032,36 @@
                             <span class="widget-add-btn-icon">+</span>
                             <span class="widget-add-btn-text">Add Widget</span>
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- /sectionsContainer -->
+        </div>
+
+        <!-- Section Picker Modal -->
+        <div class="widget-picker-overlay" id="sectionPickerOverlay" onclick="closeSectionPicker(event)">
+            <div class="widget-picker" onclick="event.stopPropagation()">
+                <div class="widget-picker-header">
+                    <span class="widget-picker-title">Add Section</span>
+                    <button class="widget-picker-close" onclick="closeSectionPicker()">&times;</button>
+                </div>
+                <div class="widget-picker-body">
+                    <div class="widget-picker-item" onclick="addSection(1)">
+                        <span class="widget-picker-item-icon">▢</span>
+                        <span class="widget-picker-item-name">1 Column</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(2)">
+                        <span class="widget-picker-item-icon">▢▢</span>
+                        <span class="widget-picker-item-name">2 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(3)">
+                        <span class="widget-picker-item-icon">▢▢▢</span>
+                        <span class="widget-picker-item-name">3 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(4)">
+                        <span class="widget-picker-item-icon">▢▢▢▢</span>
+                        <span class="widget-picker-item-name">4 Columns</span>
                     </div>
                 </div>
             </div>
@@ -4386,6 +4438,60 @@
             section.classList.toggle('collapsed');
         }
 
+        // Section counter for unique IDs
+        let sectionCounter = 10;
+
+        // Open section picker
+        function openSectionPicker() {
+            document.getElementById('sectionPickerOverlay').classList.add('open');
+        }
+
+        // Close section picker
+        function closeSectionPicker(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('sectionPickerOverlay').classList.remove('open');
+        }
+
+        // Add new section with specified column count
+        function addSection(cols) {
+            const container = document.getElementById('sectionsContainer');
+            const gridId = 'grid' + (++sectionCounter);
+
+            const section = document.createElement('div');
+            section.className = 'widget-section';
+            section.style.marginBottom = 'var(--spacing-4)';
+            section.innerHTML = `
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon" contenteditable="true" onclick="event.stopPropagation()">📁</span>
+                    <span class="widget-section-title" contenteditable="true" onclick="event.stopPropagation()">New Section</span>
+                    <span class="widget-section-badge">0/0</span>
+                    <button class="widget-delete-btn" onclick="event.stopPropagation(); deleteSection(this)" title="Delete Section" style="position: relative; right: auto; top: auto; opacity: 1; margin-left: auto; margin-right: var(--spacing-2);">×</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid cols-${cols}" id="${gridId}">
+                        <button class="widget-add-btn" onclick="openWidgetPicker('${gridId}')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertBefore(section, container.firstChild);
+            closeSectionPicker();
+            initWidgetGridSortable();
+        }
+
+        // Delete section
+        function deleteSection(btn) {
+            const section = btn.closest('.widget-section');
+            if (section && confirm('Delete this section and all its widgets?')) {
+                section.remove();
+            }
+        }
+
         // Current target grid for adding widgets
         let currentTargetGrid = null;
 
@@ -4726,7 +4832,12 @@
                 });
             });
 
-            // Widget grids - drag widgets within sections
+            // Widget grids - call the separate function
+            initWidgetGridSortable();
+        }
+
+        // Initialize widget grid sortable (can be called after adding new sections)
+        function initWidgetGridSortable() {
             document.querySelectorAll('.widget-grid').forEach(grid => {
                 if (grid._sortable) {
                     grid._sortable.destroy();
