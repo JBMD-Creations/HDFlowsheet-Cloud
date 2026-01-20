@@ -1985,6 +1985,168 @@
             font-weight: 700;
         }
 
+        /* Data Widget */
+        .widget-data {
+            padding: var(--spacing-3);
+            text-align: center;
+        }
+
+        .widget-data-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .widget-data-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .widget-data-value.warning {
+            color: var(--warning);
+        }
+
+        .widget-data-value.danger {
+            color: var(--destructive);
+        }
+
+        /* Checkoff Widget */
+        .widget-checkoff {
+            padding: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .widget-checkoff.checked {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .widget-checkoff-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .widget-checkoff-location {
+            font-size: 0.7rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Form Widget */
+        .widget-form {
+            padding: var(--spacing-3);
+        }
+
+        .widget-form-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-3);
+            color: var(--muted-foreground);
+        }
+
+        .widget-form-field {
+            margin-bottom: var(--spacing-2);
+        }
+
+        .widget-form-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .widget-form-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            display: block;
+            margin-bottom: var(--spacing-1);
+        }
+
+        /* Widget drag handle */
+        .widget-drag-handle {
+            position: absolute;
+            top: var(--spacing-2);
+            right: var(--spacing-2);
+            cursor: grab;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            z-index: 1;
+        }
+
+        .widget:hover .widget-drag-handle {
+            opacity: 0.5;
+        }
+
+        .widget-drag-handle:hover {
+            opacity: 1 !important;
+            color: var(--primary);
+        }
+
+        .widget-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Widget delete button */
+        .widget-delete-btn {
+            position: absolute;
+            top: var(--spacing-2);
+            left: var(--spacing-2);
+            cursor: pointer;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            border: none;
+            z-index: 1;
+        }
+
+        .widget:hover .widget-delete-btn {
+            opacity: 0.5;
+        }
+
+        .widget-delete-btn:hover {
+            opacity: 1 !important;
+            color: var(--destructive);
+            background: var(--destructive);
+            color: white;
+        }
+
+        /* Make widgets position relative for absolute positioned handles */
+        .widget {
+            position: relative;
+        }
+
+        /* SortableJS states for widgets */
+        .widget.sortable-ghost {
+            opacity: 0.4;
+            background: var(--accent);
+        }
+
+        .widget.sortable-chosen {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .widget.sortable-drag {
+            opacity: 1 !important;
+        }
+
+        /* Full-width widgets shouldn't show drag in same way */
+        .widget-divider.sortable-ghost,
+        .widget-reminder.sortable-ghost {
+            opacity: 0.4;
+        }
+
         /* ========================================
            CHECKLIST CARD COMPONENT
            A reusable card with heading, checkboxes,
@@ -3552,26 +3714,36 @@
                             <div class="widget-divider-line"></div>
                         </div>
 
-                        <!-- Data Widgets (placeholder - will build next) -->
-                        <div class="widget widget-xs" style="padding: var(--spacing-3); text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Chlorine</div>
-                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);">0</div>
+                        <!-- Data Widgets -->
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Chlorine</div>
+                            <div class="widget-data-value">0</div>
                         </div>
-                        <div class="widget widget-xs" style="padding: var(--spacing-3); text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">pH</div>
-                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);">7.6</div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">pH</div>
+                            <div class="widget-data-value">7.6</div>
                         </div>
-                        <div class="widget widget-xs" style="padding: var(--spacing-3); text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Hardness</div>
-                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);">0</div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Hardness</div>
+                            <div class="widget-data-value">0</div>
                         </div>
-                        <div class="widget widget-xs" style="padding: var(--spacing-3); text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Rejection</div>
-                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);">91.2%</div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Rejection</div>
+                            <div class="widget-data-value">91.2%</div>
                         </div>
-                        <div class="widget widget-xs" style="padding: var(--spacing-3); text-align: center;">
-                            <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);">Permeate</div>
-                            <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);">46.6</div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Permeate</div>
+                            <div class="widget-data-value">46.6</div>
                         </div>
 
                         <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid2')">
@@ -3598,27 +3770,27 @@
                             <span class="widget-reminder-text"><strong>REMINDER:</strong> BRING LUNCH, WATER, SNACKS</span>
                         </div>
 
-                        <!-- Check Off Widgets (placeholder - will build next) -->
-                        <div class="widget widget-sm" style="padding: var(--spacing-3); display: flex; align-items: center; gap: var(--spacing-3); background: var(--success-light); border-color: var(--success);">
-                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)" style="flex-shrink: 0;"></div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 0.875rem; font-weight: 500;">Dialyzer</div>
-                            </div>
-                            <div style="font-size: 0.7rem; color: var(--muted-foreground);">Small & large storage</div>
+                        <!-- Check Off Widgets -->
+                        <div class="widget widget-sm widget-checkoff checked">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Dialyzer</div>
+                            <div class="widget-checkoff-location">Small & large storage</div>
                         </div>
-                        <div class="widget widget-sm" style="padding: var(--spacing-3); display: flex; align-items: center; gap: var(--spacing-3); background: var(--success-light); border-color: var(--success);">
-                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)" style="flex-shrink: 0;"></div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 0.875rem; font-weight: 500;">Bicarb</div>
-                            </div>
-                            <div style="font-size: 0.7rem; color: var(--muted-foreground);">Water room</div>
+                        <div class="widget widget-sm widget-checkoff checked">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Bicarb</div>
+                            <div class="widget-checkoff-location">Water room</div>
                         </div>
-                        <div class="widget widget-sm" style="padding: var(--spacing-3); display: flex; align-items: center; gap: var(--spacing-3);">
-                            <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)" style="flex-shrink: 0;"></div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 0.875rem; font-weight: 500;">Lines</div>
-                            </div>
-                            <div style="font-size: 0.7rem; color: var(--muted-foreground);">Small storage</div>
+                        <div class="widget widget-sm widget-checkoff">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Lines</div>
+                            <div class="widget-checkoff-location">Small storage</div>
                         </div>
 
                         <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid3')">
@@ -4043,6 +4215,8 @@
 
             if (widget && addBtn) {
                 grid.insertBefore(widget, addBtn);
+                // Re-initialize sortable to include new widget
+                initCardSortable();
             }
 
             closeWidgetPicker();
@@ -4081,7 +4255,9 @@
         function createDividerWidget() {
             const div = document.createElement('div');
             div.className = 'widget-divider';
+            div.style.position = 'relative';
             div.innerHTML = `
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete" style="left: auto; right: 0; top: 50%; transform: translateY(-50%);">×</button>
                 <div class="widget-divider-line"></div>
                 <span class="widget-divider-text" contenteditable="true">SECTION TITLE</span>
                 <div class="widget-divider-line"></div>
@@ -4093,7 +4269,9 @@
         function createReminderWidget() {
             const div = document.createElement('div');
             div.className = 'widget-reminder';
+            div.style.position = 'relative';
             div.innerHTML = `
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete" style="top: 50%; transform: translateY(-50%);">×</button>
                 <span class="widget-reminder-text"><strong>REMINDER:</strong> <span contenteditable="true">Enter reminder text here</span></span>
             `;
             return div;
@@ -4102,11 +4280,12 @@
         // Create Data Widget
         function createDataWidget() {
             const div = document.createElement('div');
-            div.className = 'widget widget-xs';
-            div.style.cssText = 'padding: var(--spacing-3); text-align: center;';
+            div.className = 'widget widget-xs widget-data';
             div.innerHTML = `
-                <div style="font-size: 0.75rem; color: var(--muted-foreground); margin-bottom: var(--spacing-1);" contenteditable="true">Label</div>
-                <div style="font-size: 1.25rem; font-weight: 600; color: var(--success);" contenteditable="true">0</div>
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="widget-data-label" contenteditable="true">Label</div>
+                <div class="widget-data-value" contenteditable="true">0</div>
             `;
             return div;
         }
@@ -4114,47 +4293,51 @@
         // Create Checkoff Widget
         function createCheckoffWidget() {
             const div = document.createElement('div');
-            div.className = 'widget widget-sm';
-            div.style.cssText = 'padding: var(--spacing-3); display: flex; align-items: center; gap: var(--spacing-3);';
+            div.className = 'widget widget-sm widget-checkoff';
             div.innerHTML = `
-                <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)" style="flex-shrink: 0;"></div>
-                <div style="flex: 1;">
-                    <div style="font-size: 0.875rem; font-weight: 500;" contenteditable="true">Item name</div>
-                </div>
-                <div style="font-size: 0.7rem; color: var(--muted-foreground);" contenteditable="true">Location</div>
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                <div class="widget-checkoff-name" contenteditable="true">Item name</div>
+                <div class="widget-checkoff-location" contenteditable="true">Location</div>
             `;
             return div;
         }
 
-        // Create Form Widget (placeholder)
+        // Create Form Widget
         function createFormWidget() {
             const div = document.createElement('div');
-            div.className = 'widget widget-md';
-            div.style.cssText = 'padding: var(--spacing-3);';
+            div.className = 'widget widget-md widget-form';
             div.innerHTML = `
-                <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--spacing-3); color: var(--muted-foreground);" contenteditable="true">FORM TITLE</div>
-                <div style="margin-bottom: var(--spacing-2);">
-                    <label style="font-size: 0.75rem; color: var(--muted-foreground); display: block; margin-bottom: var(--spacing-1);">Field 1</label>
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="widget-form-title" contenteditable="true">FORM TITLE</div>
+                <div class="widget-form-field">
+                    <label class="widget-form-label">Field 1</label>
                     <input type="text" class="input input-sm" placeholder="Enter value...">
                 </div>
-                <div>
-                    <label style="font-size: 0.75rem; color: var(--muted-foreground); display: block; margin-bottom: var(--spacing-1);">Field 2</label>
+                <div class="widget-form-field">
+                    <label class="widget-form-label">Field 2</label>
                     <input type="text" class="input input-sm" placeholder="Enter value...">
                 </div>
             `;
             return div;
+        }
+
+        // Delete widget
+        function deleteWidget(btn) {
+            const widget = btn.closest('.widget, .widget-divider, .widget-reminder');
+            if (widget && confirm('Delete this widget?')) {
+                widget.remove();
+            }
         }
 
         // Toggle checkoff widget checked state
         function toggleCheckoffWidget(checkbox) {
             checkbox.classList.toggle('checked');
-            const widget = checkbox.closest('.widget');
-            if (checkbox.classList.contains('checked')) {
-                widget.style.background = 'var(--success-light)';
-                widget.style.borderColor = 'var(--success)';
-            } else {
-                widget.style.background = '';
-                widget.style.borderColor = '';
+            const widget = checkbox.closest('.widget-checkoff');
+            if (widget) {
+                widget.classList.toggle('checked', checkbox.classList.contains('checked'));
             }
         }
 
@@ -4306,6 +4489,23 @@
                     chosenClass: 'sortable-chosen',
                     filter: '.checklist-card-add-item',
                     draggable: '.checklist-card-item'
+                });
+            });
+
+            // Widget grids - drag widgets within sections
+            document.querySelectorAll('.widget-grid').forEach(grid => {
+                if (grid._sortable) {
+                    grid._sortable.destroy();
+                }
+                grid._sortable = new Sortable(grid, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.widget-drag-handle, .checklist-card-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    filter: '.widget-add-btn',
+                    draggable: '.widget, .widget-divider, .widget-reminder, .checklist-card'
                 });
             });
         }
