@@ -1671,6 +1671,1057 @@
             justify-content: flex-end;
             gap: var(--spacing-2);
         }
+
+        /* ========================================
+           WIDGET SECTION & GRID LAYOUT
+           Modular page builder system with collapsible
+           sections containing flexible widget grids.
+           ======================================== */
+
+        /* Widget Section - Collapsible container */
+        .widget-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-4);
+            overflow: hidden;
+        }
+
+        .widget-section-header {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-3) var(--spacing-4);
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            gap: var(--spacing-3);
+        }
+
+        .widget-section-header:hover {
+            background: var(--muted);
+        }
+
+        .widget-section-drag-handle {
+            cursor: grab;
+            color: var(--muted-foreground);
+            font-size: 1rem;
+            padding: var(--spacing-1);
+        }
+
+        .widget-section-drag-handle:hover {
+            color: var(--foreground);
+        }
+
+        .widget-section-icon {
+            font-size: 1.125rem;
+        }
+
+        .widget-section-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--primary);
+            flex: 1;
+        }
+
+        .widget-section-badge {
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--success);
+            color: white;
+        }
+
+        .widget-section-badge.complete {
+            background: var(--success);
+            color: white;
+        }
+
+        .widget-section-badge.in-progress {
+            background: var(--warning);
+            color: var(--warning-foreground);
+        }
+
+        .widget-section-chevron {
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .widget-section.collapsed .widget-section-chevron {
+            transform: rotate(-90deg);
+        }
+
+        .widget-section.collapsed .widget-section-body {
+            display: none;
+        }
+
+        /* Section Edit Button */
+        .widget-section-edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: var(--spacing-1);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .widget-section-header:hover .widget-section-edit-btn {
+            opacity: 1;
+        }
+
+        .widget-section.edit-mode .widget-section-edit-btn {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        /* Hide Add Widget button when not in edit mode */
+        .widget-section:not(.edit-mode) .widget-add-btn {
+            display: none;
+        }
+
+        /* Widget Section Body */
+        .widget-section-body {
+            padding: var(--spacing-4);
+            background: var(--muted);
+        }
+
+        /* Widget Grid - Flexible container for widgets */
+        .widget-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-4);
+            align-items: flex-start;
+        }
+
+        /* Grid column layouts - force specific column counts */
+        .widget-grid.cols-1 {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .widget-grid.cols-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .widget-grid.cols-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .widget-grid.cols-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .widget-grid.cols-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .widget-grid.cols-6 {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .widget-grid.cols-7 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        /* Full-width widgets span all columns in any grid */
+        .widget-grid[class*="cols-"] > .widget-full,
+        .widget-grid[class*="cols-"] > .widget-divider,
+        .widget-grid[class*="cols-"] > .widget-reminder {
+            grid-column: 1 / -1;
+        }
+
+        /* In column grids, widgets stretch to fill their cell */
+        .widget-grid[class*="cols-"] > .widget,
+        .widget-grid[class*="cols-"] > .checklist-card {
+            width: 100%;
+            max-width: none;
+            min-width: 0;
+        }
+
+        /* Widget base styles - all widgets inherit from this */
+        .widget {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            transition: box-shadow var(--transition-normal);
+        }
+
+        .widget:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Widget size variants */
+        .widget-xs {
+            min-width: 120px;
+            max-width: 180px;
+            flex: 1;
+        }
+
+        .widget-sm {
+            min-width: 180px;
+            max-width: 250px;
+            flex: 1;
+        }
+
+        .widget-md {
+            min-width: 250px;
+            max-width: 350px;
+            flex: 1;
+        }
+
+        .widget-lg {
+            min-width: 350px;
+            max-width: 500px;
+            flex: 1;
+        }
+
+        .widget-full {
+            width: 100%;
+            flex: 1 1 100%;
+        }
+
+        /* Add Widget Button */
+        .widget-add-btn {
+            min-width: 120px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-4);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            background: transparent;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            flex: 1;
+            max-width: 180px;
+        }
+
+        .widget-add-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        .widget-add-btn-icon {
+            font-size: 1.5rem;
+        }
+
+        .widget-add-btn-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Widget Picker Modal */
+        .widget-picker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-picker-overlay.open {
+            display: flex;
+        }
+
+        .widget-picker {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .widget-picker-header {
+            padding: var(--spacing-4);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .widget-picker-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .widget-picker-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            padding: var(--spacing-1);
+        }
+
+        .widget-picker-close:hover {
+            color: var(--foreground);
+        }
+
+        .widget-picker-body {
+            padding: var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: var(--spacing-3);
+        }
+
+        .widget-picker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-4);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .widget-picker-item:hover {
+            border-color: var(--primary);
+            background: var(--accent);
+        }
+
+        .widget-picker-item-icon {
+            font-size: 1.5rem;
+        }
+
+        .widget-picker-item-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+            color: var(--foreground);
+        }
+
+        /* Section Divider Widget */
+        .widget-divider {
+            width: 100%;
+            flex: 1 1 100%;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) 0;
+            background: transparent;
+            border: none;
+            position: relative;
+        }
+
+        .widget-divider:hover .widget-drag-handle,
+        .widget-divider:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-divider .widget-drag-handle {
+            position: absolute;
+            left: -24px;
+            opacity: 0;
+        }
+
+        .widget-divider .widget-delete-btn {
+            position: absolute;
+            right: -24px;
+            opacity: 0;
+        }
+
+        .widget-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .widget-divider-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Reminder Bar Widget */
+        .widget-reminder {
+            width: 100%;
+            flex: 1 1 100%;
+            padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-md);
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .widget-reminder:hover .widget-drag-handle,
+        .widget-reminder:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-reminder .widget-drag-handle {
+            position: absolute;
+            left: -24px;
+            opacity: 0;
+        }
+
+        .widget-reminder .widget-delete-btn {
+            position: absolute;
+            right: -24px;
+            opacity: 0;
+        }
+
+        /* Reminder color variants - match alert colors from styleguide */
+        .widget-reminder.info {
+            background: var(--info-light);
+            border: 1px solid var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        .widget-reminder.info .widget-reminder-text {
+            color: var(--info-foreground);
+        }
+
+        .widget-reminder.success {
+            background: var(--success-light);
+            border: 1px solid var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .widget-reminder.success .widget-reminder-text {
+            color: var(--success-foreground);
+        }
+
+        .widget-reminder.warning {
+            background: var(--warning-light);
+            border: 1px solid var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .widget-reminder.warning .widget-reminder-text {
+            color: var(--warning-foreground);
+        }
+
+        .widget-reminder.error {
+            background: var(--destructive-light);
+            border: 1px solid var(--destructive);
+            border-left: 4px solid var(--destructive);
+        }
+
+        .widget-reminder.error .widget-reminder-text {
+            color: var(--destructive);
+        }
+
+        .widget-reminder-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .widget-reminder-text strong {
+            font-weight: 700;
+        }
+
+        /* Data Widget */
+        .widget-data {
+            padding: var(--spacing-3);
+            text-align: center;
+        }
+
+        .widget-data-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .widget-data-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .widget-data-value.warning {
+            color: var(--warning);
+        }
+
+        .widget-data-value.danger {
+            color: var(--destructive);
+        }
+
+        /* Checkoff Widget */
+        .widget-checkoff {
+            padding: var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .widget-checkoff.checked {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .widget-checkoff-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .widget-checkoff-location {
+            font-size: 0.7rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Form Widget */
+        .widget-form {
+            padding: var(--spacing-3);
+        }
+
+        .widget-form-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-3);
+            color: var(--muted-foreground);
+        }
+
+        .widget-form-field {
+            margin-bottom: var(--spacing-2);
+        }
+
+        .widget-form-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .widget-form-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            display: block;
+            margin-bottom: var(--spacing-1);
+        }
+
+        /* Widget drag handle */
+        .widget-drag-handle {
+            position: absolute;
+            top: var(--spacing-2);
+            right: var(--spacing-2);
+            cursor: grab;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            z-index: 1;
+        }
+
+        .widget:hover .widget-drag-handle {
+            opacity: 0.5;
+        }
+
+        .widget-drag-handle:hover {
+            opacity: 1 !important;
+            color: var(--primary);
+        }
+
+        .widget-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Widget delete button */
+        .widget-delete-btn {
+            position: absolute;
+            top: var(--spacing-2);
+            left: var(--spacing-2);
+            cursor: pointer;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            background: var(--card);
+            border-radius: var(--radius-sm);
+            border: none;
+            z-index: 1;
+        }
+
+        .widget:hover .widget-delete-btn {
+            opacity: 0.5;
+        }
+
+        .widget-delete-btn:hover {
+            opacity: 1 !important;
+            color: var(--destructive);
+            background: var(--destructive);
+            color: white;
+        }
+
+        /* Make widgets position relative for absolute positioned handles */
+        .widget {
+            position: relative;
+        }
+
+        /* SortableJS states for widgets */
+        .widget.sortable-ghost {
+            opacity: 0.4;
+            background: var(--accent);
+        }
+
+        .widget.sortable-chosen {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .widget.sortable-drag {
+            opacity: 1 !important;
+        }
+
+        /* Full-width widgets shouldn't show drag in same way */
+        .widget-divider.sortable-ghost,
+        .widget-reminder.sortable-ghost {
+            opacity: 0.4;
+        }
+
+        /* ========================================
+           CHECKLIST CARD COMPONENT
+           A reusable card with heading, checkboxes,
+           and optional subtext. Supports collapsed,
+           live, and edit modes.
+           ======================================== */
+
+        /* Card container for horizontal layout */
+        .checklist-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-4);
+        }
+
+        /* Base checklist card */
+        .checklist-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            min-width: 250px;
+            max-width: 350px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+        }
+
+        .checklist-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Card header - collapsible */
+        .checklist-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-2) var(--spacing-3);
+            background: var(--muted);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+            gap: var(--spacing-2);
+        }
+
+        .checklist-card-header:hover {
+            background: var(--secondary-hover);
+        }
+
+        /* Show edit button only on hover */
+        .checklist-card-header:hover .checklist-card-edit-btn {
+            opacity: 1;
+        }
+
+        .checklist-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .checklist-card-drag-handle {
+            cursor: grab;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 1rem;
+            opacity: 0.5;
+            transition: opacity var(--transition-fast), color var(--transition-fast);
+        }
+
+        .checklist-card-drag-handle:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .checklist-card-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .checklist-card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .checklist-card-header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .checklist-card-edit-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            padding: var(--spacing-1);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0; /* Hidden by default, shown on hover */
+        }
+
+        .checklist-card-edit-btn:hover {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        /* Always show edit button when in edit mode */
+        .checklist-card.edit-mode .checklist-card-edit-btn {
+            opacity: 1;
+        }
+
+        .checklist-card-chevron {
+            color: var(--muted-foreground);
+            font-size: 0.75rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .checklist-card.collapsed .checklist-card-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* Card body */
+        .checklist-card-body {
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .checklist-card.collapsed .checklist-card-body {
+            display: none;
+        }
+
+        /* Checklist items - Live mode */
+        .checklist-card-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-2);
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-md);
+            transition: background var(--transition-fast);
+        }
+
+        .checklist-card-item:hover {
+            background: var(--muted);
+        }
+
+        .checklist-card-item-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 1px;
+            transition: all var(--transition-fast);
+        }
+
+        .checklist-card-item-checkbox:hover {
+            border-color: var(--primary);
+        }
+
+        .checklist-card-item-checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checklist-card-item-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .checklist-card-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .checklist-card-item-text {
+            font-size: 0.875rem;
+            color: var(--foreground);
+            cursor: pointer;
+        }
+
+        .checklist-card-item.checked .checklist-card-item-text {
+            color: var(--muted-foreground);
+            text-decoration: line-through;
+        }
+
+        .checklist-card-item-subtext {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        /* Subtext input for edit mode */
+        .checklist-card-item-subtext-input {
+            display: none;
+            width: 100%;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+            font-family: var(--font-sans);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        .checklist-card-item-subtext-input::placeholder {
+            color: var(--muted-foreground);
+            opacity: 0.6;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-subtext-input {
+            display: block;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-subtext {
+            display: none;
+        }
+
+        /* Edit mode styles */
+        .checklist-card.edit-mode {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .checklist-card.edit-mode .checklist-card-header {
+            background: var(--accent);
+            border-bottom-color: var(--primary);
+        }
+
+        .checklist-card-item-drag-handle {
+            cursor: grab;
+            color: var(--muted-foreground);
+            padding: var(--spacing-1);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            display: none;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-drag-handle {
+            display: block;
+            opacity: 0.5;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item:hover .checklist-card-item-drag-handle {
+            opacity: 1;
+        }
+
+        .checklist-card-item-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .checklist-card-item-actions {
+            display: none;
+            align-items: center;
+            gap: var(--spacing-1);
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-actions {
+            display: flex;
+        }
+
+        .checklist-card-item-action-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            padding: var(--spacing-1);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            transition: all var(--transition-fast);
+        }
+
+        .checklist-card-item-action-btn:hover {
+            background: var(--secondary);
+        }
+
+        .checklist-card-item-action-btn.delete:hover {
+            background: var(--destructive);
+            color: var(--destructive-foreground);
+        }
+
+        /* Edit mode input for item text */
+        .checklist-card-item-input {
+            display: none;
+            width: 100%;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.875rem;
+            font-family: var(--font-sans);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-input {
+            display: block;
+        }
+
+        .checklist-card.edit-mode .checklist-card-item-text {
+            display: none;
+        }
+
+        /* Add item button */
+        .checklist-card-add-item {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2);
+            margin-top: var(--spacing-2);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--muted-foreground);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            width: 100%;
+        }
+
+        .checklist-card.edit-mode .checklist-card-add-item {
+            display: flex;
+        }
+
+        .checklist-card-add-item:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        /* Card footer - edit mode actions */
+        .checklist-card-footer {
+            display: none;
+            padding: var(--spacing-3);
+            border-top: 1px solid var(--border);
+            gap: var(--spacing-2);
+            justify-content: space-between;
+        }
+
+        .checklist-card.edit-mode .checklist-card-footer {
+            display: flex;
+        }
+
+        /* SortableJS states for cards */
+        .checklist-card.sortable-ghost {
+            opacity: 0.4;
+            background: var(--accent);
+        }
+
+        .checklist-card.sortable-chosen {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .checklist-card.sortable-drag {
+            opacity: 1 !important;
+        }
+
+        /* SortableJS states for items within card */
+        .checklist-card-item.sortable-ghost {
+            opacity: 0.4;
+            background: var(--accent);
+        }
+
+        .checklist-card-item.sortable-chosen {
+            background: var(--muted);
+        }
+
+        /* Card generator button */
+        .checklist-card-generator {
+            min-width: 250px;
+            max-width: 350px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-6);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            background: transparent;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .checklist-card-generator:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        .checklist-card-generator-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .checklist-card-generator-icon {
+            font-size: 1.5rem;
+        }
+
+        .checklist-card-generator-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -2705,6 +3756,1284 @@
             </div>
         </div>
 
+        <!-- WIDGET SECTION & GRID LAYOUT -->
+        <div class="section">
+            <h2 class="section-title">Widget Section & Grid Layout</h2>
+            <p style="color: var(--muted-foreground); margin-bottom: var(--spacing-4);">
+                Modular page builder with collapsible sections containing flexible widget grids.
+                Add various widget types and arrange them in a fluid grid layout.
+            </p>
+
+            <!-- Add Section Button -->
+            <button class="widget-add-btn" onclick="openSectionPicker()" style="margin-bottom: var(--spacing-4);">
+                <span class="widget-add-btn-icon">+</span>
+                <span class="widget-add-btn-text">Add Section</span>
+            </button>
+
+            <!-- Sections Container -->
+            <div id="sectionsContainer">
+
+            <!-- Demo Section 1 -->
+            <div class="widget-section" style="margin-bottom: var(--spacing-4);">
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon">📞</span>
+                    <span class="widget-section-title">Dialysis Requested</span>
+                    <span class="widget-section-badge">5/6 Complete</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid" id="demoGrid1">
+                        <!-- Checklist Cards will go here -->
+                        <div class="checklist-card widget-md" data-card-id="demo1">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title">CERNER TASKS</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Check CERNER</div>
+                                        <div class="checklist-card-item-subtext">ED or INPT? Labs available?</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Enter orders in CERNER</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Text & Email Sahani</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="checklist-card widget-md" data-card-id="demo2">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title">CALL FLOOR</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Identify Primary RN</div>
+                                        <div class="checklist-card-item-subtext">Tiffany Landis</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Confirm patient ready</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Widget Button -->
+                        <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid1')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Section 2 - With Divider and Data Widgets -->
+            <div class="widget-section" style="margin-bottom: var(--spacing-4);">
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon">🔧</span>
+                    <span class="widget-section-title">Setup Machine & RO Log</span>
+                    <span class="widget-section-badge complete">Complete</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid" id="demoGrid2">
+                        <!-- Section Divider -->
+                        <div class="widget-divider">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-divider-line"></div>
+                            <span class="widget-divider-text" contenteditable="true">Water Quality Readings</span>
+                            <div class="widget-divider-line"></div>
+                        </div>
+
+                        <!-- Data Widgets -->
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Chlorine</div>
+                            <div class="widget-data-value">0</div>
+                        </div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">pH</div>
+                            <div class="widget-data-value">7.6</div>
+                        </div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Hardness</div>
+                            <div class="widget-data-value">0</div>
+                        </div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Rejection</div>
+                            <div class="widget-data-value">91.2%</div>
+                        </div>
+                        <div class="widget widget-xs widget-data">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="widget-data-label">Permeate</div>
+                            <div class="widget-data-value">46.6</div>
+                        </div>
+
+                        <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid2')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Section 3 - With Reminder -->
+            <div class="widget-section">
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon">📦</span>
+                    <span class="widget-section-title">Gather Supplies</span>
+                    <span class="widget-section-badge in-progress">9/12 Gathered</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid" id="demoGrid3">
+                        <!-- Reminder Bar -->
+                        <div class="widget-reminder warning">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <span class="widget-reminder-text" contenteditable="true"><strong>REMINDER:</strong> BRING LUNCH, WATER, SNACKS</span>
+                        </div>
+
+                        <!-- Check Off Widgets -->
+                        <div class="widget widget-sm widget-checkoff checked">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Dialyzer</div>
+                            <div class="widget-checkoff-location">Small & large storage</div>
+                        </div>
+                        <div class="widget widget-sm widget-checkoff checked">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Bicarb</div>
+                            <div class="widget-checkoff-location">Water room</div>
+                        </div>
+                        <div class="widget widget-sm widget-checkoff">
+                            <span class="widget-drag-handle">⋮⋮</span>
+                            <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                            <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                            <div class="widget-checkoff-name">Lines</div>
+                            <div class="widget-checkoff-location">Small storage</div>
+                        </div>
+
+                        <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid3')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Demo Section 4 - 2 Column Grid Layout -->
+            <div class="widget-section" style="margin-bottom: var(--spacing-4);">
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon">🩺</span>
+                    <span class="widget-section-title">Pre/Post Assessment Charting</span>
+                    <span class="widget-section-badge in-progress">In Progress</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">✏️</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid cols-2" id="demoGrid4">
+                        <!-- Pre Treatment Card -->
+                        <div class="checklist-card" data-card-id="preTx">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title" style="color: var(--primary);">Pre Treatment</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">PreProcedure Time Out</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item checked">
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Pre-Treatment Assessment</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Dialysis Access</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Vital Signs</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Neurological</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Post Treatment Card -->
+                        <div class="checklist-card" data-card-id="postTx">
+                            <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                <div class="checklist-card-header-left">
+                                    <span class="checklist-card-drag-handle">⋮⋮</span>
+                                    <span class="checklist-card-title" style="color: var(--primary);">Post Treatment</span>
+                                </div>
+                                <div class="checklist-card-header-right">
+                                    <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">✏️</button>
+                                    <span class="checklist-card-chevron">▼</span>
+                                </div>
+                            </div>
+                            <div class="checklist-card-body">
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Dialysis Access</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">End Treatment</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Vital Signs</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Neurological</div>
+                                    </div>
+                                </div>
+                                <div class="checklist-card-item">
+                                    <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                    <div class="checklist-card-item-content">
+                                        <div class="checklist-card-item-text">Mental Status / Cognition</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="widget-add-btn" onclick="openWidgetPicker('demoGrid4')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- /sectionsContainer -->
+        </div>
+
+        <!-- Section Picker Modal -->
+        <div class="widget-picker-overlay" id="sectionPickerOverlay" onclick="closeSectionPicker(event)">
+            <div class="widget-picker" onclick="event.stopPropagation()">
+                <div class="widget-picker-header">
+                    <span class="widget-picker-title">Add Section</span>
+                    <button class="widget-picker-close" onclick="closeSectionPicker()">&times;</button>
+                </div>
+                <div class="widget-picker-body">
+                    <div class="widget-picker-item" onclick="addSection(1)">
+                        <span class="widget-picker-item-icon">▢</span>
+                        <span class="widget-picker-item-name">1 Column</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(2)">
+                        <span class="widget-picker-item-icon">▢▢</span>
+                        <span class="widget-picker-item-name">2 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(3)">
+                        <span class="widget-picker-item-icon">▢▢▢</span>
+                        <span class="widget-picker-item-name">3 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(4)">
+                        <span class="widget-picker-item-icon">▢▢▢▢</span>
+                        <span class="widget-picker-item-name">4 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(5)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">5 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(6)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">6 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addSection(7)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">7 Columns</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Widget Picker Modal -->
+        <div class="widget-picker-overlay" id="widgetPickerOverlay" onclick="closeWidgetPicker(event)">
+            <div class="widget-picker" onclick="event.stopPropagation()">
+                <div class="widget-picker-header">
+                    <span class="widget-picker-title">Add Widget</span>
+                    <button class="widget-picker-close" onclick="closeWidgetPicker()">&times;</button>
+                </div>
+                <div class="widget-picker-body">
+                    <div class="widget-picker-item" onclick="addWidget('checklist')">
+                        <span class="widget-picker-item-icon">☑️</span>
+                        <span class="widget-picker-item-name">Checklist Card</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('form')">
+                        <span class="widget-picker-item-icon">📝</span>
+                        <span class="widget-picker-item-name">Form Card</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('checkoff')">
+                        <span class="widget-picker-item-icon">✅</span>
+                        <span class="widget-picker-item-name">Check Off Widget</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('data')">
+                        <span class="widget-picker-item-icon">📊</span>
+                        <span class="widget-picker-item-name">Data Widget</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('divider')">
+                        <span class="widget-picker-item-icon">➖</span>
+                        <span class="widget-picker-item-name">Section Divider</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-info')" style="border-left: 4px solid var(--info);">
+                        <span class="widget-picker-item-icon">ℹ️</span>
+                        <span class="widget-picker-item-name">Info Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-success')" style="border-left: 4px solid var(--success);">
+                        <span class="widget-picker-item-icon">✅</span>
+                        <span class="widget-picker-item-name">Success Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-warning')" style="border-left: 4px solid var(--warning);">
+                        <span class="widget-picker-item-icon">⚠️</span>
+                        <span class="widget-picker-item-name">Warning Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addWidget('reminder-error')" style="border-left: 4px solid var(--destructive);">
+                        <span class="widget-picker-item-icon">❌</span>
+                        <span class="widget-picker-item-name">Error Alert</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="openGridPicker()" style="border-top: 2px solid var(--primary); margin-top: var(--spacing-2); padding-top: var(--spacing-4);">
+                        <span class="widget-picker-item-icon">⊞</span>
+                        <span class="widget-picker-item-name">Inner Grid</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Picker Modal (for inner grids) -->
+        <div class="widget-picker-overlay" id="gridPickerOverlay" onclick="closeGridPicker(event)">
+            <div class="widget-picker" onclick="event.stopPropagation()">
+                <div class="widget-picker-header">
+                    <span class="widget-picker-title">Select Grid Columns</span>
+                    <button class="widget-picker-close" onclick="closeGridPicker()">&times;</button>
+                </div>
+                <div class="widget-picker-body">
+                    <div class="widget-picker-item" onclick="addInnerGrid(1)">
+                        <span class="widget-picker-item-icon">▢</span>
+                        <span class="widget-picker-item-name">1 Column</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(2)">
+                        <span class="widget-picker-item-icon">▢▢</span>
+                        <span class="widget-picker-item-name">2 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(3)">
+                        <span class="widget-picker-item-icon">▢▢▢</span>
+                        <span class="widget-picker-item-name">3 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(4)">
+                        <span class="widget-picker-item-icon">▢▢▢▢</span>
+                        <span class="widget-picker-item-name">4 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(5)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">5 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(6)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">6 Columns</span>
+                    </div>
+                    <div class="widget-picker-item" onclick="addInnerGrid(7)">
+                        <span class="widget-picker-item-icon">▢▢▢▢▢▢▢</span>
+                        <span class="widget-picker-item-name">7 Columns</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHECKLIST CARD -->
+        <div class="section">
+            <h2 class="section-title">Checklist Card</h2>
+            <p style="color: var(--muted-foreground); margin-bottom: var(--spacing-4);">
+                A flexible card component with heading, checkboxes, and optional subtext.
+                Supports collapsed, live, and edit modes. Cards can be reordered horizontally.
+            </p>
+
+            <!-- State 1: Collapsed -->
+            <div class="subsection">
+                <h3 class="subsection-title">State 1: Collapsed</h3>
+                <div class="checklist-card-container">
+                    <div class="checklist-card collapsed" data-card-id="1">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">CERNER TASKS</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <!-- Hidden when collapsed -->
+                        </div>
+                    </div>
+
+                    <div class="checklist-card collapsed" data-card-id="2">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">CALL FLOOR</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <!-- Hidden when collapsed -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 2: Expanded - Live Mode -->
+            <div class="subsection">
+                <h3 class="subsection-title">State 2: Expanded (Live Mode)</h3>
+                <div class="checklist-card-container" id="liveCardsContainer">
+                    <div class="checklist-card" data-card-id="3">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">CERNER TASKS</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <div class="checklist-card-item checked">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Check CERNER</div>
+                                    <input type="text" class="checklist-card-item-input" value="Check CERNER">
+                                    <div class="checklist-card-item-subtext">ED or INPT? Labs available?</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="ED or INPT? Labs available?" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="checklist-card-item checked">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Enter orders in CERNER</div>
+                                    <input type="text" class="checklist-card-item-input" value="Enter orders in CERNER">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Text & Email Sahani for orders</div>
+                                    <input type="text" class="checklist-card-item-input" value="Text & Email Sahani for orders">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                                <span>+</span> Add Item
+                            </button>
+                        </div>
+                        <div class="checklist-card-footer">
+                            <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                            <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                        </div>
+                    </div>
+
+                    <div class="checklist-card" data-card-id="4">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">CALL FLOOR</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <div class="checklist-card-item checked">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Identify Primary RN</div>
+                                    <input type="text" class="checklist-card-item-input" value="Identify Primary RN">
+                                    <div class="checklist-card-item-subtext">Tiffany Landis</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="Tiffany Landis" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Confirm patient ready</div>
+                                    <input type="text" class="checklist-card-item-input" value="Confirm patient ready">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                                <span>+</span> Add Item
+                            </button>
+                        </div>
+                        <div class="checklist-card-footer">
+                            <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                            <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                        </div>
+                    </div>
+
+                    <div class="checklist-card" data-card-id="5">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">CALL PT HD CLINIC</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <div class="checklist-card-item checked">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Fax Hep B & Rounding</div>
+                                    <input type="text" class="checklist-card-item-input" value="Fax Hep B & Rounding">
+                                    <div class="checklist-card-item-subtext">GRHC Fax: 602-271-7970</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="GRHC Fax: 602-271-7970" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Add clinic to list (if new)</div>
+                                    <input type="text" class="checklist-card-item-input" value="Add clinic to list (if new)">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete">🗑️</button>
+                                </div>
+                            </div>
+                            <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                                <span>+</span> Add Item
+                            </button>
+                        </div>
+                        <div class="checklist-card-footer">
+                            <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                            <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- State 3: Edit Mode -->
+            <div class="subsection">
+                <h3 class="subsection-title">State 3: Edit Mode</h3>
+                <div class="checklist-card-container">
+                    <div class="checklist-card edit-mode" data-card-id="6">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <input type="text" class="input input-sm" value="CERNER TASKS" style="max-width: 150px; text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em;" onclick="event.stopPropagation()">
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Done editing" style="color: var(--primary);">✓</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body" id="editModeItemsContainer">
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Check CERNER</div>
+                                    <input type="text" class="checklist-card-item-input" value="Check CERNER">
+                                    <div class="checklist-card-item-subtext">ED or INPT? Labs available?</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="ED or INPT? Labs available?" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Enter orders in CERNER</div>
+                                    <input type="text" class="checklist-card-item-input" value="Enter orders in CERNER">
+                                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
+                                </div>
+                            </div>
+                            <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                                <span>+</span> Add Item
+                            </button>
+                        </div>
+                        <div class="checklist-card-footer">
+                            <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                            <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Generator -->
+            <div class="subsection">
+                <h3 class="subsection-title">Card Generator</h3>
+                <div class="checklist-card-container" id="generatorContainer">
+                    <div class="checklist-card" data-card-id="gen1">
+                        <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                            <div class="checklist-card-header-left">
+                                <span class="checklist-card-drag-handle">⋮⋮</span>
+                                <span class="checklist-card-title">SAMPLE CARD</span>
+                            </div>
+                            <div class="checklist-card-header-right">
+                                <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Edit card">✏️</button>
+                                <span class="checklist-card-chevron">▼</span>
+                            </div>
+                        </div>
+                        <div class="checklist-card-body">
+                            <div class="checklist-card-item">
+                                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                <div class="checklist-card-item-content">
+                                    <div class="checklist-card-item-text">Sample task item</div>
+                                    <input type="text" class="checklist-card-item-input" value="Sample task item">
+                                    <div class="checklist-card-item-subtext">This is example subtext</div>
+                                    <input type="text" class="checklist-card-item-subtext-input" value="This is example subtext" placeholder="Add subtext (optional)">
+                                </div>
+                                <div class="checklist-card-item-actions">
+                                    <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
+                                </div>
+                            </div>
+                            <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                                <span>+</span> Add Item
+                            </button>
+                        </div>
+                        <div class="checklist-card-footer">
+                            <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                            <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                        </div>
+                    </div>
+
+                    <!-- Generator Button -->
+                    <button class="checklist-card-generator" onclick="generateNewCard()">
+                        <div class="checklist-card-generator-content">
+                            <span class="checklist-card-generator-icon">+</span>
+                            <span class="checklist-card-generator-text">Add Checklist Card</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <!-- SortableJS for drag-and-drop -->
+    <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        // ========================================
+        // WIDGET SECTION FUNCTIONS
+        // ========================================
+
+        // Toggle widget section collapse
+        function toggleWidgetSection(header) {
+            const section = header.closest('.widget-section');
+            section.classList.toggle('collapsed');
+        }
+
+        // Toggle section edit mode
+        function toggleSectionEditMode(btn) {
+            const section = btn.closest('.widget-section');
+            section.classList.toggle('edit-mode');
+            // Update button text based on mode
+            if (section.classList.contains('edit-mode')) {
+                btn.textContent = '✓';
+                btn.title = 'Done Editing';
+            } else {
+                btn.textContent = '✏️';
+                btn.title = 'Edit Section';
+            }
+        }
+
+        // Section counter for unique IDs
+        let sectionCounter = 10;
+
+        // Open section picker
+        function openSectionPicker() {
+            document.getElementById('sectionPickerOverlay').classList.add('open');
+        }
+
+        // Close section picker
+        function closeSectionPicker(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('sectionPickerOverlay').classList.remove('open');
+        }
+
+        // Add new section with specified column count
+        function addSection(cols) {
+            const container = document.getElementById('sectionsContainer');
+            const gridId = 'grid' + (++sectionCounter);
+
+            const section = document.createElement('div');
+            section.className = 'widget-section edit-mode'; // Start in edit mode so user can add widgets
+            section.style.marginBottom = 'var(--spacing-4)';
+            section.innerHTML = `
+                <div class="widget-section-header" onclick="toggleWidgetSection(this)">
+                    <span class="widget-section-drag-handle">⋮⋮</span>
+                    <span class="widget-section-icon" contenteditable="true" onclick="event.stopPropagation()">📁</span>
+                    <span class="widget-section-title" contenteditable="true" onclick="event.stopPropagation()">New Section</span>
+                    <span class="widget-section-badge">0/0</span>
+                    <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Done Editing">✓</button>
+                    <button class="widget-delete-btn" onclick="event.stopPropagation(); deleteSection(this)" title="Delete Section" style="position: relative; right: auto; top: auto; opacity: 1; margin-right: var(--spacing-2);">×</button>
+                    <span class="widget-section-chevron">▼</span>
+                </div>
+                <div class="widget-section-body">
+                    <div class="widget-grid cols-${cols}" id="${gridId}">
+                        <button class="widget-add-btn" onclick="openWidgetPicker('${gridId}')">
+                            <span class="widget-add-btn-icon">+</span>
+                            <span class="widget-add-btn-text">Add Widget</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.insertBefore(section, container.firstChild);
+            closeSectionPicker();
+            initWidgetGridSortable();
+        }
+
+        // Delete section
+        function deleteSection(btn) {
+            const section = btn.closest('.widget-section');
+            if (section && confirm('Delete this section and all its widgets?')) {
+                section.remove();
+            }
+        }
+
+        // Current target grid for adding widgets
+        let currentTargetGrid = null;
+
+        // Open widget picker
+        function openWidgetPicker(gridId) {
+            currentTargetGrid = gridId;
+            document.getElementById('widgetPickerOverlay').classList.add('open');
+        }
+
+        // Close widget picker
+        function closeWidgetPicker(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('widgetPickerOverlay').classList.remove('open');
+            currentTargetGrid = null;
+        }
+
+        // Saved grid for inner grid picker flow
+        let savedTargetGrid = null;
+
+        // Open grid picker (for inner grids)
+        function openGridPicker() {
+            savedTargetGrid = currentTargetGrid; // Save before closing
+            document.getElementById('widgetPickerOverlay').classList.remove('open');
+            document.getElementById('gridPickerOverlay').classList.add('open');
+        }
+
+        // Close grid picker
+        function closeGridPicker(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('gridPickerOverlay').classList.remove('open');
+            savedTargetGrid = null;
+        }
+
+        // Grid counter for unique IDs
+        let gridCounter = 100;
+
+        // Add inner grid to current grid
+        function addInnerGrid(cols) {
+            const grid = document.getElementById(savedTargetGrid);
+            if (!grid) {
+                closeGridPicker();
+                return;
+            }
+
+            const addBtn = grid.querySelector('.widget-add-btn');
+            const innerGridId = 'innerGrid' + (++gridCounter);
+
+            const innerGrid = document.createElement('div');
+            innerGrid.className = 'widget-grid cols-' + cols;
+            innerGrid.id = innerGridId;
+            innerGrid.style.gridColumn = '1 / -1';
+            innerGrid.style.width = '100%';
+            innerGrid.innerHTML = `
+                <button class="widget-add-btn" onclick="openWidgetPicker('${innerGridId}')">
+                    <span class="widget-add-btn-icon">+</span>
+                    <span class="widget-add-btn-text">Add Widget</span>
+                </button>
+            `;
+
+            if (addBtn) {
+                grid.insertBefore(innerGrid, addBtn);
+            } else {
+                grid.appendChild(innerGrid);
+            }
+
+            closeGridPicker();
+            initWidgetGridSortable();
+        }
+
+        // Add widget to grid (placeholder - will expand with each widget type)
+        function addWidget(type) {
+            try {
+                const grid = document.getElementById(currentTargetGrid);
+                if (!grid) {
+                    closeWidgetPicker();
+                    return;
+                }
+
+                const addBtn = grid.querySelector('.widget-add-btn');
+                let widget;
+
+                switch(type) {
+                    case 'checklist':
+                        widget = createChecklistWidget();
+                        break;
+                    case 'divider':
+                        widget = createDividerWidget();
+                        break;
+                    case 'reminder-info':
+                        widget = createReminderWidget('info');
+                        break;
+                    case 'reminder-success':
+                        widget = createReminderWidget('success');
+                        break;
+                    case 'reminder-warning':
+                        widget = createReminderWidget('warning');
+                        break;
+                    case 'reminder-error':
+                        widget = createReminderWidget('error');
+                        break;
+                    case 'data':
+                        widget = createDataWidget();
+                        break;
+                    case 'checkoff':
+                        widget = createCheckoffWidget();
+                        break;
+                    case 'form':
+                        widget = createFormWidget();
+                        break;
+                    default:
+                        console.log('Widget type not implemented yet:', type);
+                        closeWidgetPicker();
+                        return;
+                }
+
+                if (widget && addBtn) {
+                    grid.insertBefore(widget, addBtn);
+                }
+
+                // Re-initialize sortable to include new widget
+                try {
+                    initCardSortable();
+                } catch (e) {
+                    console.error('Error initializing sortable:', e);
+                }
+            } catch (e) {
+                console.error('Error adding widget:', e);
+            } finally {
+                closeWidgetPicker();
+            }
+        }
+
+        // Create Checklist Widget
+        function createChecklistWidget() {
+            const div = document.createElement('div');
+            div.className = 'checklist-card widget-md edit-mode';
+            div.setAttribute('data-card-id', 'new-' + Date.now());
+            div.innerHTML = `
+                <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                    <div class="checklist-card-header-left">
+                        <span class="checklist-card-drag-handle">⋮⋮</span>
+                        <input type="text" class="input input-sm" value="NEW CHECKLIST" style="max-width: 150px; text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em;" onclick="event.stopPropagation()">
+                    </div>
+                    <div class="checklist-card-header-right">
+                        <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" style="color: var(--primary);">✓</button>
+                        <span class="checklist-card-chevron">▼</span>
+                    </div>
+                </div>
+                <div class="checklist-card-body">
+                    <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                        <span>+</span> Add Item
+                    </button>
+                </div>
+                <div class="checklist-card-footer">
+                    <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                    <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                </div>
+            `;
+            return div;
+        }
+
+        // Create Divider Widget
+        function createDividerWidget() {
+            const div = document.createElement('div');
+            div.className = 'widget-divider';
+            div.innerHTML = `
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="widget-divider-line"></div>
+                <span class="widget-divider-text" contenteditable="true">SECTION TITLE</span>
+                <div class="widget-divider-line"></div>
+            `;
+            return div;
+        }
+
+        // Create Reminder Widget with color variant
+        function createReminderWidget(color = 'warning') {
+            const div = document.createElement('div');
+            div.className = 'widget-reminder ' + color;
+            div.innerHTML = `
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <span class="widget-reminder-text" contenteditable="true"><strong>REMINDER:</strong> Enter reminder text here</span>
+            `;
+            return div;
+        }
+
+        // Create Data Widget
+        function createDataWidget() {
+            const div = document.createElement('div');
+            div.className = 'widget widget-xs widget-data';
+            div.innerHTML = `
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="widget-data-label" contenteditable="true">Label</div>
+                <div class="widget-data-value" contenteditable="true">0</div>
+            `;
+            return div;
+        }
+
+        // Create Checkoff Widget
+        function createCheckoffWidget() {
+            const div = document.createElement('div');
+            div.className = 'widget widget-sm widget-checkoff';
+            div.innerHTML = `
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                <div class="widget-checkoff-name" contenteditable="true">Item name</div>
+                <div class="widget-checkoff-location" contenteditable="true">Location</div>
+            `;
+            return div;
+        }
+
+        // Create Form Widget
+        function createFormWidget() {
+            const div = document.createElement('div');
+            div.className = 'widget widget-md widget-form';
+            div.innerHTML = `
+                <span class="widget-drag-handle">⋮⋮</span>
+                <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">×</button>
+                <div class="widget-form-title" contenteditable="true">FORM TITLE</div>
+                <div class="widget-form-field">
+                    <label class="widget-form-label">Field 1</label>
+                    <input type="text" class="input input-sm" placeholder="Enter value...">
+                </div>
+                <div class="widget-form-field">
+                    <label class="widget-form-label">Field 2</label>
+                    <input type="text" class="input input-sm" placeholder="Enter value...">
+                </div>
+            `;
+            return div;
+        }
+
+        // Delete widget
+        function deleteWidget(btn) {
+            const widget = btn.closest('.widget, .widget-divider, .widget-reminder');
+            if (widget && confirm('Delete this widget?')) {
+                widget.remove();
+            }
+        }
+
+        // Toggle checkoff widget checked state
+        function toggleCheckoffWidget(checkbox) {
+            checkbox.classList.toggle('checked');
+            const widget = checkbox.closest('.widget-checkoff');
+            if (widget) {
+                widget.classList.toggle('checked', checkbox.classList.contains('checked'));
+            }
+        }
+
+        // ========================================
+        // CHECKLIST CARD FUNCTIONS
+        // ========================================
+
+        // Toggle card collapse
+        function toggleChecklistCard(header) {
+            const card = header.closest('.checklist-card');
+            // Don't toggle if in edit mode
+            if (card.classList.contains('edit-mode')) return;
+            card.classList.toggle('collapsed');
+        }
+
+        // Toggle checkbox
+        function toggleChecklistItem(checkbox) {
+            checkbox.classList.toggle('checked');
+            const item = checkbox.closest('.checklist-card-item');
+            item.classList.toggle('checked');
+        }
+
+        // Toggle edit mode
+        function toggleCardEditMode(btn) {
+            const card = btn.closest('.checklist-card');
+            card.classList.toggle('edit-mode');
+
+            // Update button icon
+            if (card.classList.contains('edit-mode')) {
+                btn.textContent = '✓';
+                btn.style.color = 'var(--primary)';
+            } else {
+                btn.textContent = '✏️';
+                btn.style.color = '';
+            }
+        }
+
+        // Add new checklist item
+        function addChecklistItem(btn) {
+            const body = btn.closest('.checklist-card-body');
+            const newItem = document.createElement('div');
+            newItem.className = 'checklist-card-item';
+            newItem.innerHTML = `
+                <span class="checklist-card-item-drag-handle">⋮⋮</span>
+                <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                <div class="checklist-card-item-content">
+                    <div class="checklist-card-item-text">New item</div>
+                    <input type="text" class="checklist-card-item-input" value="New item">
+                    <input type="text" class="checklist-card-item-subtext-input" value="" placeholder="Add subtext (optional)">
+                </div>
+                <div class="checklist-card-item-actions">
+                    <button class="checklist-card-item-action-btn delete" title="Delete" onclick="deleteChecklistItem(this)">🗑️</button>
+                </div>
+            `;
+            body.insertBefore(newItem, btn);
+
+            // Focus the input if in edit mode
+            const card = body.closest('.checklist-card');
+            if (card.classList.contains('edit-mode')) {
+                newItem.querySelector('.checklist-card-item-input').focus();
+                newItem.querySelector('.checklist-card-item-input').select();
+            }
+        }
+
+        // Delete checklist item
+        function deleteChecklistItem(btn) {
+            const item = btn.closest('.checklist-card-item');
+            item.remove();
+        }
+
+        // Delete card
+        function deleteCard(btn) {
+            const card = btn.closest('.checklist-card');
+            if (confirm('Delete this card?')) {
+                card.remove();
+            }
+        }
+
+        // Generate new card
+        let cardIdCounter = 100;
+        function generateNewCard() {
+            const container = document.getElementById('generatorContainer');
+            const generatorBtn = container.querySelector('.checklist-card-generator');
+
+            const newCard = document.createElement('div');
+            newCard.className = 'checklist-card edit-mode';
+            newCard.setAttribute('data-card-id', 'gen' + (++cardIdCounter));
+            newCard.innerHTML = `
+                <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                    <div class="checklist-card-header-left">
+                        <span class="checklist-card-drag-handle">⋮⋮</span>
+                        <input type="text" class="input input-sm" value="NEW CARD" style="max-width: 150px; text-transform: uppercase; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.05em;" onclick="event.stopPropagation()">
+                    </div>
+                    <div class="checklist-card-header-right">
+                        <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)" title="Done editing" style="color: var(--primary);">✓</button>
+                        <span class="checklist-card-chevron">▼</span>
+                    </div>
+                </div>
+                <div class="checklist-card-body">
+                    <button class="checklist-card-add-item" onclick="addChecklistItem(this)">
+                        <span>+</span> Add Item
+                    </button>
+                </div>
+                <div class="checklist-card-footer">
+                    <button class="btn btn-sm btn-destructive" onclick="deleteCard(this)">Delete Card</button>
+                    <button class="btn btn-sm btn-primary" onclick="toggleCardEditMode(this.closest('.checklist-card').querySelector('.checklist-card-edit-btn'))">Done</button>
+                </div>
+            `;
+
+            container.insertBefore(newCard, generatorBtn);
+
+            // Focus the title input
+            newCard.querySelector('.checklist-card-header-left input').focus();
+            newCard.querySelector('.checklist-card-header-left input').select();
+
+            // Re-initialize sortable to include new card
+            initCardSortable();
+        }
+
+        // Initialize SortableJS for card containers
+        function initCardSortable() {
+            // Cards horizontal sorting
+            document.querySelectorAll('.checklist-card-container').forEach(container => {
+                if (container._sortable) {
+                    container._sortable.destroy();
+                }
+                container._sortable = new Sortable(container, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.checklist-card-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    filter: '.checklist-card-generator', // Don't drag the generator button
+                    draggable: '.checklist-card'
+                });
+            });
+
+            // Items within cards (only when in edit mode)
+            document.querySelectorAll('.checklist-card-body').forEach(body => {
+                if (body._sortable) {
+                    body._sortable.destroy();
+                }
+                body._sortable = new Sortable(body, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.checklist-card-item-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    filter: '.checklist-card-add-item',
+                    draggable: '.checklist-card-item'
+                });
+            });
+
+            // Widget grids - call the separate function
+            initWidgetGridSortable();
+        }
+
+        // Initialize widget grid sortable (can be called after adding new sections)
+        function initWidgetGridSortable() {
+            document.querySelectorAll('.widget-grid').forEach(grid => {
+                if (grid._sortable) {
+                    grid._sortable.destroy();
+                }
+                grid._sortable = new Sortable(grid, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.widget-drag-handle, .checklist-card-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    filter: '.widget-add-btn',
+                    draggable: '.widget, .widget-divider, .widget-reminder, .checklist-card'
+                });
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initCardSortable);
+    </script>
 </body>
 </html>

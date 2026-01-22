@@ -3650,24 +3650,38 @@
             opacity: 0;
         }
 
-        /* Draggable Section Styles */
-        .collapsible-section.dragging {
-            opacity: 0.5;
-            background: #dbeafe;
-            border-radius: 8px;
-        }
-        .collapsible-section.drag-over {
-            border-top: 3px solid #3b82f6;
-        }
+        /* Draggable Section Styles - SortableJS */
         .section-drag-handle {
             cursor: grab;
             color: rgba(255,255,255,0.7);
-            padding: 0 5px;
-            font-size: 1em;
-            margin-right: 5px;
+            padding: 0 8px;
+            font-size: 1rem;
+            margin-right: 6px;
+            transition: color 0.15s;
+            display: flex;
+            align-items: center;
+        }
+        .section-drag-handle:hover {
+            color: rgba(255,255,255,1);
         }
         .section-drag-handle:active {
             cursor: grabbing;
+        }
+        /* SortableJS ghost (placeholder) */
+        .collapsible-section.sortable-ghost {
+            opacity: 0.4;
+            background: #dbeafe !important;
+        }
+        /* SortableJS chosen (selected item) */
+        .collapsible-section.sortable-chosen {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 2px solid #3b82f6 !important;
+        }
+        /* SortableJS drag (item being dragged) */
+        .collapsible-section.sortable-drag {
+            opacity: 1 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: scale(1.02);
         }
         .sections-container {
             min-height: 50px;
@@ -6710,7 +6724,115 @@
         .info-box strong {
             font-weight: 700;
         }
-        
+
+        /* Developer Tools Section */
+        .dev-tools-section {
+            border-top: 1px dashed #e5e7eb;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        .dev-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .dev-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .dev-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .dev-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .dev-toggle input:checked + .dev-toggle-slider {
+            background-color: #3b82f6;
+        }
+        .dev-toggle input:checked + .dev-toggle-slider:before {
+            transform: translateX(20px);
+        }
+        .dev-tools-content {
+            margin-top: 15px;
+        }
+        .dev-tools-description {
+            font-size: 0.85em;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        .dev-tools-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .dev-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dev-link-item:hover {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            transform: translateX(4px);
+        }
+        .dev-link-icon {
+            font-size: 1.5em;
+        }
+        .dev-link-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .dev-link-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9em;
+        }
+        .dev-link-desc {
+            font-size: 0.75em;
+            color: #6b7280;
+        }
+        .dev-link-arrow {
+            color: #9ca3af;
+            font-size: 1.2em;
+            transition: transform 0.2s;
+        }
+        .dev-link-item:hover .dev-link-arrow {
+            color: #3b82f6;
+            transform: translateX(4px);
+        }
+        .dev-tools-note {
+            font-size: 0.75em;
+            color: #9ca3af;
+            margin-top: 12px;
+            font-style: italic;
+        }
+
         /* Section Selector */
         .section-selector {
             background: white;
@@ -7376,6 +7498,40 @@
             margin-bottom: 15px;
             text-align: center;
         }
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 15px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        .auth-divider span {
+            padding: 0 12px;
+        }
+        .auth-guest-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-guest-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #475569;
+        }
         .user-menu-btn {
             display: flex;
             align-items: center;
@@ -7405,6 +7561,8 @@
     </style>
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- SortableJS for smooth drag-and-drop -->
+    <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
     <!-- Auth Modal -->
@@ -7427,6 +7585,15 @@
             </form>
             <p style="text-align: center; margin-top: 15px; color: #64748b; font-size: 14px;">
                 <a href="#" onclick="showForgotPassword()" style="color: #3b82f6;">Forgot password?</a>
+            </p>
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+            <button type="button" class="auth-guest-btn" onclick="continueAsGuest()">
+                Continue as Guest
+            </button>
+            <p style="text-align: center; margin-top: 8px; color: #94a3b8; font-size: 12px;">
+                Data saved locally only. For testing/preview purposes.
             </p>
         </div>
     </div>
@@ -8109,6 +8276,27 @@
             document.getElementById('authModalOverlay').classList.remove('active');
             document.getElementById('authError').style.display = 'none';
             document.getElementById('authSuccess').style.display = 'none';
+        }
+
+        // Continue as guest (bypass auth for testing/preview)
+        let isGuestMode = false;
+        function continueAsGuest() {
+            isGuestMode = true;
+            // Create a fake guest user object for compatibility
+            currentUser = {
+                id: 'guest-' + Date.now(),
+                email: 'guest@local',
+                user_metadata: { display_name: 'Guest' }
+            };
+            hideAuthModal();
+            // Show the import modal
+            showImportModal();
+            console.log('Continuing as Guest - data will be saved locally only');
+        }
+
+        // Check if in guest mode (for save/load functions)
+        function isGuest() {
+            return isGuestMode;
         }
 
         // Switch between login and signup tabs
@@ -11374,6 +11562,12 @@
         }
 
         async function saveToServer(silent = false) {
+            // Skip server save in guest mode - only save locally
+            if (isGuestMode) {
+                saveState(); // Save to localStorage
+                if (!silent) showSaveStatus('Saved locally (Guest mode)', 'success');
+                return { success: true, guest: true };
+            }
             try {
                 if (!silent) showSaveStatus('Saving...');
                 const savedAt = new Date().toISOString();
@@ -11600,6 +11794,13 @@
         }
 
         async function loadFromServer(skipConfirm = false) {
+            // In guest mode, just load from localStorage
+            if (isGuestMode) {
+                showSaveStatus('Guest mode - loading from local storage', 'info');
+                loadState(); // Load from localStorage
+                renderAll();
+                return;
+            }
             if (!skipConfirm && !confirm('This will replace all current data. Continue?')) return;
 
             try {
@@ -12091,13 +12292,43 @@
             document.getElementById('settingsModal').classList.remove('active');
             document.getElementById('newTechName').value = '';
             document.getElementById('newTechPod').value = '';
-            
+
             // Re-render patient cards to reflect any tech changes
             if (state.patients.length > 0) {
                 renderAll();
             }
         }
-        
+
+        // Developer Tools Functions
+        function toggleDevMode() {
+            const toggle = document.getElementById('devModeToggle');
+            const content = document.getElementById('devToolsContent');
+            if (toggle.checked) {
+                content.style.display = 'block';
+                localStorage.setItem('hd_dev_mode', 'true');
+            } else {
+                content.style.display = 'none';
+                localStorage.setItem('hd_dev_mode', 'false');
+            }
+        }
+
+        function openDevFile(filename) {
+            // Open the file in a new window/tab
+            const url = window.location.origin + '/' + filename;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // Initialize dev mode state on page load
+        function initDevMode() {
+            const devMode = localStorage.getItem('hd_dev_mode') === 'true';
+            const toggle = document.getElementById('devModeToggle');
+            const content = document.getElementById('devToolsContent');
+            if (toggle && content) {
+                toggle.checked = devMode;
+                content.style.display = devMode ? 'block' : 'none';
+            }
+        }
+
         function renderTechList() {
             const container = document.getElementById('techList');
             if (state.technicians.length === 0) {
@@ -12793,13 +13024,6 @@
             });
         }
 
-        // Section drag state
-        let sectionDragState = {
-            draggedSection: null,
-            draggedSectionId: null,
-            patientId: null
-        };
-
         // Initialize section order in state if needed
         function initSectionOrder() {
             if (!state.sectionOrder) {
@@ -12807,72 +13031,66 @@
             }
         }
 
-        // Section drag and drop handlers
-        function handleSectionDragStart(event, patientId) {
-            initSectionOrder();
-            const section = event.target.closest('.collapsible-section');
-            sectionDragState.draggedSection = section;
-            sectionDragState.draggedSectionId = section.dataset.sectionId;
-            sectionDragState.patientId = patientId;
-            section.classList.add('dragging');
-            event.dataTransfer.effectAllowed = 'move';
-        }
+        // Store SortableJS instances to avoid duplicates
+        const sortableInstances = new Map();
 
-        function handleSectionDragEnd(event) {
-            event.target.closest('.collapsible-section').classList.remove('dragging');
-            document.querySelectorAll('.collapsible-section.drag-over').forEach(el => el.classList.remove('drag-over'));
-            sectionDragState.draggedSection = null;
-            sectionDragState.draggedSectionId = null;
-            sectionDragState.patientId = null;
-        }
-
-        function handleSectionDragOver(event) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'move';
-            const section = event.target.closest('.collapsible-section');
-            if (section && section !== sectionDragState.draggedSection) {
-                // Remove drag-over from all sections first
-                document.querySelectorAll('.collapsible-section.drag-over').forEach(el => el.classList.remove('drag-over'));
-                section.classList.add('drag-over');
+        // Initialize SortableJS on all sections containers
+        function initSectionSortable() {
+            if (typeof Sortable === 'undefined') {
+                console.warn('SortableJS not loaded');
+                return;
             }
-        }
-
-        function handleSectionDragLeave(event) {
-            const section = event.target.closest('.collapsible-section');
-            if (section) {
-                section.classList.remove('drag-over');
-            }
-        }
-
-        function handleSectionDrop(event, patientId) {
-            event.preventDefault();
-            const targetSection = event.target.closest('.collapsible-section');
-            if (targetSection) targetSection.classList.remove('drag-over');
-
-            if (!sectionDragState.draggedSectionId) return;
-
-            const targetSectionId = targetSection?.dataset.sectionId;
-            if (!targetSectionId || sectionDragState.draggedSectionId === targetSectionId) return;
 
             initSectionOrder();
 
-            // Get current order
-            const order = [...state.sectionOrder];
-            const draggedIndex = order.indexOf(sectionDragState.draggedSectionId);
-            const targetIndex = order.indexOf(targetSectionId);
+            // Initialize sortable on each patient's sections container
+            document.querySelectorAll('.sections-container').forEach(container => {
+                // Skip if already initialized
+                if (sortableInstances.has(container.id)) {
+                    return;
+                }
 
-            if (draggedIndex === -1 || targetIndex === -1) return;
+                const sortable = new Sortable(container, {
+                    animation: 200,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                    handle: '.section-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    dragClass: 'sortable-drag',
+                    forceFallback: false,
 
-            // Remove dragged item and insert at new position
-            order.splice(draggedIndex, 1);
-            order.splice(targetIndex, 0, sectionDragState.draggedSectionId);
+                    onStart: function(evt) {
+                        document.body.style.cursor = 'grabbing';
+                    },
 
-            // Update state
-            state.sectionOrder = order;
-            saveState();
+                    onEnd: function(evt) {
+                        document.body.style.cursor = '';
 
-            // Reorder the sections in the DOM for ALL patients
-            reorderSectionsInDOM();
+                        // Get new order from DOM
+                        const sections = container.querySelectorAll('.collapsible-section');
+                        const newOrder = Array.from(sections).map(s => s.dataset.sectionId);
+
+                        // Update state with new order
+                        state.sectionOrder = newOrder;
+                        saveState();
+
+                        // Apply same order to ALL patient containers
+                        reorderSectionsInDOM();
+                    }
+                });
+
+                sortableInstances.set(container.id, sortable);
+            });
+        }
+
+        // Clean up sortable instances when containers are removed
+        function cleanupSortableInstances() {
+            sortableInstances.forEach((sortable, containerId) => {
+                if (!document.getElementById(containerId)) {
+                    sortable.destroy();
+                    sortableInstances.delete(containerId);
+                }
+            });
         }
 
         // Reorder sections in DOM based on saved order
@@ -15258,12 +15476,7 @@
                     <div class="sections-container" id="sectionsContainer_${patient.id}">
 
                     <!-- Tech Check (Missing Chart Items) - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="techcheck" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="techcheck">
                         <div class="section-header" data-section="${patient.id}_techcheck" onclick="toggleSection(${patient.id}, 'techcheck')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             🔍 Tech Check (Missing Chart Items)
@@ -15348,12 +15561,7 @@
                     </div>
 
                     <!-- QA Checklist - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="qa" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="qa">
                         <div class="section-header" data-section="${patient.id}_qa" onclick="toggleSection(${patient.id}, 'qa')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ✅ QA Checklist
@@ -15715,12 +15923,7 @@
                     </div>
 
                     <!-- Assignment - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="assignment" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="assignment">
                         <div class="section-header ${state.collapsedSections[`${patient.id}_assignment`] ? 'collapsed' : ''}" data-section="${patient.id}_assignment" onclick="toggleSection(${patient.id}, 'assignment')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             👤 Assignment (Tech/Pod/Chair)
@@ -15765,12 +15968,7 @@
                     </div>
 
                     <!-- Treatment Orders - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="orders" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="orders">
                         <div class="section-header ${state.collapsedSections[`${patient.id}_orders`] ? 'collapsed' : ''}" data-section="${patient.id}_orders" onclick="toggleSection(${patient.id}, 'orders')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             📋 Treatment Orders
@@ -15844,12 +16042,7 @@
                     </div>
 
                     <!-- Weight Management - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="weight" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="weight">
                         <div class="section-header" data-section="${patient.id}_weight" onclick="toggleSection(${patient.id}, 'weight')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ⚖️ Weight & UF Management
@@ -16035,12 +16228,7 @@
                     </div>
 
                     <!-- Time Tracking - COLLAPSIBLE -->
-                    <div class="collapsible-section" data-section-id="time" draggable="true"
-                         ondragstart="handleSectionDragStart(event, ${patient.id})"
-                         ondragend="handleSectionDragEnd(event)"
-                         ondragover="handleSectionDragOver(event)"
-                         ondragleave="handleSectionDragLeave(event)"
-                         ondrop="handleSectionDrop(event, ${patient.id})">
+                    <div class="collapsible-section" data-section-id="time">
                         <div class="section-header" data-section="${patient.id}_time" onclick="toggleSection(${patient.id}, 'time')">
                             <span class="section-drag-handle" onclick="event.stopPropagation()">⋮⋮</span>
                             ⏱️ Treatment Time Tracking
@@ -16243,6 +16431,8 @@
             renderSummary();
             renderTabs();
             renderTabContents();
+            // Initialize SortableJS for section reordering
+            initSectionSortable();
         }
         
         // ===== DRAWER CONTROL FUNCTIONS =====
@@ -16617,6 +16807,7 @@
             loadSection();
             loadSectionOrder(); // Load saved section order
             initFloatingNav(); // Initialize floating navigation sidebar
+            initDevMode(); // Initialize developer tools toggle state
 
             // Check if we're returning from a refresh (auto-load from server)
             const pendingServerLoad = localStorage.getItem('hd_pending_server_load');
@@ -17185,6 +17376,51 @@
                         <li>Edit tech to change their pod assignment</li>
                         <li>Delete removes tech from system</li>
                     </ul>
+                </div>
+
+                <!-- Developer Tools Section -->
+                <div class="theme-selector-section dev-tools-section">
+                    <div class="theme-selector-title" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>🛠️ Developer Tools</span>
+                        <label class="dev-toggle">
+                            <input type="checkbox" id="devModeToggle" onchange="toggleDevMode()">
+                            <span class="dev-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div id="devToolsContent" class="dev-tools-content" style="display: none;">
+                        <div class="dev-tools-description">
+                            View HTML mockups and design references without downloading files.
+                        </div>
+                        <div class="dev-tools-links">
+                            <div class="dev-link-item" onclick="openDevFile('styleguide.html')">
+                                <span class="dev-link-icon">🎨</span>
+                                <div class="dev-link-info">
+                                    <span class="dev-link-title">Style Guide</span>
+                                    <span class="dev-link-desc">Design system reference</span>
+                                </div>
+                                <span class="dev-link-arrow">→</span>
+                            </div>
+                            <div class="dev-link-item" onclick="openDevFile('inpatient-mockup.html')">
+                                <span class="dev-link-icon">🏥</span>
+                                <div class="dev-link-info">
+                                    <span class="dev-link-title">Inpatient Mockup</span>
+                                    <span class="dev-link-desc">Hospital dialysis flowsheet</span>
+                                </div>
+                                <span class="dev-link-arrow">→</span>
+                            </div>
+                            <div class="dev-link-item" onclick="openDevFile('react-dnd-mockup.html')">
+                                <span class="dev-link-icon">🔄</span>
+                                <div class="dev-link-info">
+                                    <span class="dev-link-title">Drag & Drop Comparison</span>
+                                    <span class="dev-link-desc">React vs SortableJS side-by-side</span>
+                                </div>
+                                <span class="dev-link-arrow">→</span>
+                            </div>
+                        </div>
+                        <div class="dev-tools-note">
+                            Opens in new window. Files must exist in the project root.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
