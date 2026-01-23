@@ -10,7 +10,7 @@
     <style>
         /* ========================================
            HD FLOWSHEET - INPATIENT INTEGRATION
-           Shows how Inpatient tab integrates into main app
+           Preserves original sidebar design + pagebuilder
            ======================================== */
 
         :root {
@@ -47,16 +47,18 @@
             --warning-light: #fffbeb;
             --warning-foreground: #92400e;
 
+            --info: #3b82f6;
+            --info-light: #eff6ff;
+            --info-foreground: #1e40af;
+
             --border: #e5e7eb;
             --input: #e5e7eb;
             --ring: #3b82f6;
 
             /* === TYPOGRAPHY === */
             --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 
             /* === SPACING === */
-            --spacing-0: 0;
             --spacing-1: 0.25rem;
             --spacing-2: 0.5rem;
             --spacing-3: 0.75rem;
@@ -64,7 +66,6 @@
             --spacing-5: 1.25rem;
             --spacing-6: 1.5rem;
             --spacing-8: 2rem;
-            --spacing-10: 2.5rem;
 
             /* === BORDER RADIUS === */
             --radius-sm: 0.25rem;
@@ -82,7 +83,6 @@
             --transition-normal: 200ms ease;
         }
 
-        /* === BASE STYLES === */
         * {
             margin: 0;
             padding: 0;
@@ -97,181 +97,120 @@
             background: var(--muted);
         }
 
-        /* === APP LAYOUT === */
+        /* === LAYOUT === */
         .app-container {
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* === TOP NAVIGATION BAR === */
-        .top-nav-bar {
+        /* === SIDEBAR (Original Design) === */
+        .sidebar {
+            width: 220px;
             background: var(--card);
-            border-bottom: 1px solid var(--border);
-            padding: var(--spacing-2) var(--spacing-6);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-3);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
+            flex-direction: column;
+            gap: var(--spacing-1);
+            position: fixed;
             top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
             z-index: 100;
         }
 
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-6);
+        .sidebar-header {
+            padding: var(--spacing-3);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: var(--spacing-2);
         }
 
-        .app-logo {
-            font-size: 1.25rem;
+        .sidebar-logo {
+            font-size: 1.125rem;
             font-weight: 700;
             color: var(--primary);
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: var(--spacing-1);
-            background: var(--muted);
-            padding: var(--spacing-1);
-            border-radius: var(--radius-md);
-        }
-
-        .nav-tab {
-            padding: var(--spacing-2) var(--spacing-4);
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--muted-foreground);
-            background: transparent;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .nav-tab:hover {
-            color: var(--foreground);
-            background: var(--background);
-        }
-
-        .nav-tab.active {
-            background: var(--background);
-            color: var(--foreground);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .nav-right {
+        .sidebar-item {
             display: flex;
             align-items: center;
             gap: var(--spacing-3);
+            padding: var(--spacing-3);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
         }
 
-        .sync-status {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-2);
-            font-size: 0.75rem;
-            color: var(--success-foreground);
-            background: var(--success-light);
-            padding: var(--spacing-1) var(--spacing-3);
-            border-radius: var(--radius-full);
+        .sidebar-item:hover {
+            background: var(--muted);
         }
 
-        .sync-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+        .sidebar-item.active {
+            background: var(--accent);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--primary);
-            color: var(--primary-foreground);
-            border-radius: var(--radius-full);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        /* === PAGE CONTAINERS === */
-        .page {
-            display: none;
-            flex: 1;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* === PT CHARTING PAGE (placeholder) === */
-        .pt-charting-page {
-            padding: var(--spacing-6);
+        .sidebar-item-icon {
+            width: 20px;
             text-align: center;
+            font-size: 1rem;
             color: var(--muted-foreground);
         }
 
-        .placeholder-content {
-            max-width: 400px;
-            margin: var(--spacing-10) auto;
-            padding: var(--spacing-8);
-            background: var(--card);
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-lg);
+        .sidebar-item.active .sidebar-item-icon {
+            color: var(--primary);
         }
 
-        .placeholder-icon {
-            font-size: 3rem;
-            margin-bottom: var(--spacing-4);
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: var(--spacing-2) 0;
         }
 
-        .placeholder-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--foreground);
-            margin-bottom: var(--spacing-2);
-        }
-
-        .placeholder-text {
-            font-size: 0.875rem;
-        }
-
-        /* === INPATIENT PAGE === */
-        .inpatient-page {
+        /* === MAIN CONTENT === */
+        .main-content {
             flex: 1;
+            margin-left: 220px;
             display: flex;
             flex-direction: column;
         }
 
-        /* Inpatient Header Bar */
-        .inpatient-header {
+        /* === PAGE HEADER === */
+        .page-header {
             background: var(--card);
             border-bottom: 1px solid var(--border);
             padding: var(--spacing-4) var(--spacing-6);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
-        .inpatient-title-section {
+        .page-header-left {
             display: flex;
             align-items: center;
             gap: var(--spacing-4);
         }
 
-        .inpatient-title {
-            font-size: 1.25rem;
+        .page-title {
+            font-size: 1.5rem;
             font-weight: 600;
             color: var(--foreground);
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
         }
 
         .treatment-badge {
@@ -286,7 +225,7 @@
             border-radius: var(--radius-full);
         }
 
-        .inpatient-actions {
+        .page-actions {
             display: flex;
             gap: var(--spacing-3);
         }
@@ -305,13 +244,7 @@
             border: 1px solid transparent;
             cursor: pointer;
             transition: all var(--transition-fast);
-            text-decoration: none;
             white-space: nowrap;
-        }
-
-        .btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
         }
 
         .btn-primary {
@@ -322,17 +255,6 @@
 
         .btn-primary:hover {
             background: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .btn-secondary {
-            background: var(--secondary);
-            color: var(--secondary-foreground);
-            border-color: var(--secondary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--secondary-hover);
         }
 
         .btn-outline {
@@ -345,29 +267,13 @@
             background: var(--muted);
         }
 
-        .btn-ghost {
-            background: transparent;
-            color: var(--foreground);
-            border-color: transparent;
-        }
-
-        .btn-ghost:hover {
-            background: var(--muted);
-        }
-
         .btn-sm {
             padding: var(--spacing-1) var(--spacing-3);
             font-size: 0.75rem;
         }
 
-        .btn-success {
-            background: var(--success);
-            color: var(--primary-foreground);
-            border-color: var(--success);
-        }
-
-        /* === INPATIENT MAIN CONTENT === */
-        .inpatient-content {
+        /* === PAGE BODY === */
+        .page-body {
             flex: 1;
             padding: var(--spacing-6);
             overflow-y: auto;
@@ -410,7 +316,6 @@
             align-items: center;
             padding: var(--spacing-1) var(--spacing-2);
             font-size: 0.75rem;
-            font-weight: 500;
             border-radius: var(--radius-full);
             width: fit-content;
         }
@@ -420,148 +325,64 @@
             color: var(--accent-foreground);
         }
 
-        .badge-ed {
-            background: var(--warning-light);
-            color: var(--warning-foreground);
-        }
-
-        /* === INPUTS === */
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-1);
-        }
-
-        .input-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--foreground);
-        }
-
-        .input {
-            width: 100%;
-            padding: var(--spacing-2) var(--spacing-3);
-            font-size: 0.875rem;
-            font-family: var(--font-sans);
-            color: var(--foreground);
-            background: var(--background);
-            border: 1px solid var(--input);
-            border-radius: var(--radius-md);
-            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-        }
-
-        .input::placeholder {
-            color: var(--muted-foreground);
-        }
-
-        .input:focus {
-            outline: none;
-            border-color: var(--ring);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-        }
-
-        .input-sm {
-            padding: var(--spacing-1) var(--spacing-2);
-            font-size: 0.75rem;
-        }
-
-        select.input {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 8px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: var(--spacing-8);
-        }
-
-        textarea.input {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        /* === COLLAPSIBLE SECTIONS === */
-        .collapsible-section {
+        /* === WIDGET SECTION (Pagebuilder) === */
+        .widget-section {
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             overflow: hidden;
             margin-bottom: var(--spacing-4);
-            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+            transition: box-shadow 0.2s, border-color 0.2s;
         }
 
-        .collapsible-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--spacing-3) var(--spacing-4);
-            background: #eff6ff;
-            border-bottom: 1px solid #bfdbfe;
-            cursor: pointer;
-            transition: background var(--transition-fast);
-            user-select: none;
-        }
-
-        .collapsible-header:hover {
-            background: #dbeafe;
-        }
-
-        /* Drag handle */
-        .section-drag-handle {
-            cursor: grab;
-            color: #9ca3af;
-            padding: 0 var(--spacing-2);
-            margin-right: var(--spacing-2);
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            transition: color 0.15s;
-        }
-
-        .section-drag-handle:hover {
-            color: var(--primary);
-        }
-
-        .section-drag-handle:active {
-            cursor: grabbing;
-        }
-
-        /* SortableJS drag states */
-        .collapsible-section.sortable-ghost {
+        .widget-section.sortable-ghost {
             opacity: 0.4;
-            background: #dbeafe;
         }
 
-        .collapsible-section.sortable-chosen {
+        .widget-section.sortable-chosen {
             box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
 
-        .collapsible-section.sortable-drag {
-            opacity: 1 !important;
-            box-shadow: var(--shadow-lg);
-            transform: scale(1.02);
-        }
-
-        .collapsible-header-left {
+        .widget-section-header {
             display: flex;
             align-items: center;
             gap: var(--spacing-2);
+            padding: var(--spacing-3) var(--spacing-4);
+            background: #eff6ff;
+            border-bottom: 1px solid #bfdbfe;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .collapsible-header-icon {
+        .widget-section-header:hover {
+            background: #dbeafe;
+        }
+
+        .widget-section-drag-handle {
+            cursor: grab;
+            color: #9ca3af;
             font-size: 1rem;
-            width: 20px;
-            text-align: center;
-            color: #3b82f6;
+            transition: color 0.15s;
         }
 
-        .collapsible-header-title {
+        .widget-section-drag-handle:hover {
+            color: var(--primary);
+        }
+
+        .widget-section-icon {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .widget-section-title {
             font-size: 0.875rem;
             font-weight: 600;
             color: #1e40af;
+            flex: 1;
         }
 
-        .collapsible-header-badge {
+        .widget-section-badge {
             display: inline-flex;
             align-items: center;
             padding: var(--spacing-1) var(--spacing-2);
@@ -570,65 +391,195 @@
             background: var(--success-light);
             color: var(--success-foreground);
             border-radius: var(--radius-full);
-            margin-left: var(--spacing-2);
         }
 
-        .collapsible-header-badge.pending {
+        .widget-section-badge.in-progress {
             background: var(--warning-light);
             color: var(--warning-foreground);
         }
 
-        .collapsible-chevron {
-            color: #3b82f6;
+        .widget-section-edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            opacity: 0.5;
+            padding: var(--spacing-1);
+            transition: opacity var(--transition-fast);
+        }
+
+        .widget-section-header:hover .widget-section-edit-btn {
+            opacity: 1;
+        }
+
+        .widget-section.edit-mode .widget-section-edit-btn {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .widget-section-chevron {
+            color: var(--primary);
             font-size: 0.75rem;
             transition: transform var(--transition-fast);
         }
 
-        .collapsible-body {
-            padding: var(--spacing-4);
-        }
-
-        .collapsible-section.collapsed .collapsible-body {
-            display: none;
-        }
-
-        .collapsible-section.collapsed .collapsible-chevron {
+        .widget-section.collapsed .widget-section-chevron {
             transform: rotate(-90deg);
         }
 
-        /* === CHECKLIST STYLES === */
-        .checklist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--spacing-4);
+        .widget-section-body {
+            padding: var(--spacing-4);
+            background: var(--muted);
         }
 
+        .widget-section.collapsed .widget-section-body {
+            display: none;
+        }
+
+        /* Hide Add Widget button when not in edit mode */
+        .widget-section:not(.edit-mode) .widget-add-btn {
+            display: none;
+        }
+
+        /* === WIDGET GRID === */
+        .widget-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-4);
+            align-items: flex-start;
+        }
+
+        .widget-grid.cols-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .widget-grid.cols-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .widget-grid.cols-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* === CHECKLIST CARD (Widget) === */
         .checklist-card {
-            background: var(--muted);
+            background: var(--background);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            padding: var(--spacing-3);
+            overflow: hidden;
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .checklist-card.sortable-ghost {
+            opacity: 0.4;
+        }
+
+        .checklist-card.sortable-chosen {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
         }
 
         .checklist-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-2) var(--spacing-3);
+            background: var(--muted);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .checklist-card-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .checklist-card-drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .checklist-card-drag-handle:hover {
+            color: var(--primary);
+        }
+
+        .checklist-card-title {
             font-size: 0.75rem;
             font-weight: 600;
             color: var(--muted-foreground);
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: var(--spacing-3);
-            padding-bottom: var(--spacing-2);
-            border-bottom: 1px solid var(--border);
         }
 
-        .checklist-item {
+        .checklist-card-header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-1);
+        }
+
+        .checklist-card-edit-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.75rem;
+            opacity: 0;
+            padding: var(--spacing-1);
+            transition: opacity var(--transition-fast);
+        }
+
+        .checklist-card-header:hover .checklist-card-edit-btn {
+            opacity: 0.6;
+        }
+
+        .checklist-card-edit-btn:hover {
+            opacity: 1 !important;
+        }
+
+        .checklist-card.edit-mode .checklist-card-edit-btn {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .checklist-card-chevron {
+            font-size: 0.625rem;
+            color: var(--muted-foreground);
+            transition: transform var(--transition-fast);
+        }
+
+        .checklist-card.collapsed .checklist-card-chevron {
+            transform: rotate(-90deg);
+        }
+
+        .checklist-card-body {
+            padding: var(--spacing-3);
+        }
+
+        .checklist-card.collapsed .checklist-card-body {
+            display: none;
+        }
+
+        /* === CHECKLIST ITEM === */
+        .checklist-card-item {
             display: flex;
             align-items: flex-start;
             gap: var(--spacing-2);
             padding: var(--spacing-2) 0;
+            border-bottom: 1px solid var(--border);
         }
 
-        .checkbox {
+        .checklist-card-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-card-item-checkbox {
             width: 16px;
             height: 16px;
             border: 1px solid var(--input);
@@ -637,279 +588,418 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all var(--transition-fast);
-            flex-shrink: 0;
             cursor: pointer;
+            flex-shrink: 0;
             margin-top: 2px;
+            transition: all var(--transition-fast);
         }
 
-        .checkbox.checked {
+        .checklist-card-item-checkbox.checked {
             background: var(--primary);
             border-color: var(--primary);
         }
 
-        .checkbox.checked::after {
+        .checklist-card-item-checkbox.checked::after {
             content: '\2713';
             color: white;
             font-size: 10px;
             font-weight: bold;
         }
 
-        .checklist-label {
-            font-size: 0.875rem;
-            color: var(--foreground);
+        .checklist-card-item-content {
             flex: 1;
         }
 
-        .checklist-label.completed {
+        .checklist-card-item-text {
+            font-size: 0.875rem;
+            color: var(--foreground);
+        }
+
+        .checklist-card-item.checked .checklist-card-item-text {
             color: var(--muted-foreground);
             text-decoration: line-through;
         }
 
-        .checklist-sublabel {
+        .checklist-card-item-sublabel {
             font-size: 0.75rem;
             color: var(--muted-foreground);
             margin-top: var(--spacing-1);
         }
 
-        /* === FIELD GRID === */
-        .field-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: var(--spacing-4);
-        }
-
-        .field-grid-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .field-grid-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .field-grid-4 {
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        /* === SECTION DIVIDER === */
-        .section-divider {
+        /* === ADD WIDGET BUTTON === */
+        .widget-add-btn {
+            min-width: 120px;
+            min-height: 80px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: var(--spacing-3);
-            margin: var(--spacing-4) 0;
-        }
-
-        .section-divider-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .section-divider-text {
-            font-size: 0.75rem;
-            font-weight: 600;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-4);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            background: transparent;
             color: var(--muted-foreground);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            flex: 1;
+            max-width: 180px;
         }
 
-        /* === SUPPLY CHECKLIST === */
-        .supply-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: var(--spacing-3);
+        .widget-add-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
         }
 
-        .supply-item {
+        .widget-add-btn-icon {
+            font-size: 1.5rem;
+        }
+
+        .widget-add-btn-text {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* === ADD SECTION BUTTON === */
+        .add-section-btn {
+            width: 100%;
+            padding: var(--spacing-4);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            background: transparent;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .add-section-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--accent);
+        }
+
+        /* === WIDGET PICKER MODAL === */
+        .widget-picker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-picker-overlay.open {
+            display: flex;
+        }
+
+        .widget-picker {
+            background: var(--card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .widget-picker-header {
+            padding: var(--spacing-4);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .widget-picker-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .widget-picker-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            padding: var(--spacing-1);
+        }
+
+        .widget-picker-close:hover {
+            color: var(--foreground);
+        }
+
+        .widget-picker-body {
+            padding: var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: var(--spacing-3);
-            padding: var(--spacing-2) var(--spacing-3);
-            background: var(--background);
+        }
+
+        .widget-picker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-4);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
+            background: var(--muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
 
-        .supply-item.gathered {
-            background: var(--success-light);
-            border-color: var(--success);
+        .widget-picker-item:hover {
+            border-color: var(--primary);
+            background: var(--accent);
         }
 
-        .supply-name {
-            flex: 1;
-            font-size: 0.875rem;
+        .widget-picker-item-icon {
+            font-size: 1.5rem;
         }
 
-        .supply-location {
+        .widget-picker-item-name {
             font-size: 0.75rem;
-            color: var(--muted-foreground);
+            font-weight: 500;
+            text-align: center;
         }
 
-        /* === WATER QUALITY CARD === */
-        .water-quality-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: var(--spacing-3);
-        }
-
-        .water-quality-item {
+        /* === DATA WIDGET === */
+        .widget-data {
             background: var(--background);
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             padding: var(--spacing-3);
             text-align: center;
+            position: relative;
+            min-width: 100px;
         }
 
-        .water-quality-label {
+        .widget-data:hover .widget-drag-handle,
+        .widget-data:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-data-label {
             font-size: 0.75rem;
             color: var(--muted-foreground);
             margin-bottom: var(--spacing-1);
         }
 
-        .water-quality-value {
+        .widget-data-value {
             font-size: 1.125rem;
             font-weight: 600;
             color: var(--foreground);
         }
 
-        .water-quality-value.pass {
+        .widget-data-value.pass {
             color: var(--success);
         }
 
-        .water-quality-value.fail {
-            color: var(--destructive);
+        /* === WIDGET CONTROLS (Drag/Delete) === */
+        .widget-drag-handle {
+            position: absolute;
+            left: var(--spacing-1);
+            top: var(--spacing-1);
+            cursor: grab;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
         }
 
-        /* === TREATMENT SELECTOR (No active treatment) === */
-        .no-treatment-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-            text-align: center;
-            padding: var(--spacing-8);
-        }
-
-        .no-treatment-icon {
-            font-size: 4rem;
-            margin-bottom: var(--spacing-4);
-            opacity: 0.5;
-        }
-
-        .no-treatment-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--foreground);
-            margin-bottom: var(--spacing-2);
-        }
-
-        .no-treatment-text {
-            font-size: 0.875rem;
-            color: var(--muted-foreground);
-            margin-bottom: var(--spacing-6);
-            max-width: 400px;
-        }
-
-        .treatment-history {
-            margin-top: var(--spacing-8);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .treatment-history-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: var(--foreground);
-            margin-bottom: var(--spacing-3);
-            text-align: left;
-        }
-
-        .treatment-history-list {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-        }
-
-        .treatment-history-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--spacing-3) var(--spacing-4);
-            border-bottom: 1px solid var(--border);
+        .widget-delete-btn {
+            position: absolute;
+            right: var(--spacing-1);
+            top: var(--spacing-1);
+            background: none;
+            border: none;
             cursor: pointer;
-            transition: background var(--transition-fast);
+            color: var(--destructive);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            padding: 0;
+            line-height: 1;
         }
 
-        .treatment-history-item:last-child {
-            border-bottom: none;
+        /* === REMINDER BAR WIDGET === */
+        .widget-reminder {
+            width: 100%;
+            flex: 1 1 100%;
+            padding: var(--spacing-3) var(--spacing-4);
+            border-radius: var(--radius-md);
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        .treatment-history-item:hover {
-            background: var(--muted);
+        .widget-reminder:hover .widget-drag-handle,
+        .widget-reminder:hover .widget-delete-btn {
+            opacity: 1;
         }
 
-        .treatment-info {
+        .widget-reminder .widget-drag-handle {
+            left: var(--spacing-2);
+        }
+
+        .widget-reminder .widget-delete-btn {
+            right: var(--spacing-2);
+        }
+
+        .widget-reminder.warning {
+            background: var(--warning-light);
+            border: 1px solid var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+
+        .widget-reminder.warning .widget-reminder-text {
+            color: var(--warning-foreground);
+        }
+
+        .widget-reminder.info {
+            background: var(--info-light);
+            border: 1px solid var(--info);
+            border-left: 4px solid var(--info);
+        }
+
+        .widget-reminder-text {
+            flex: 1;
+            margin-left: var(--spacing-4);
+            margin-right: var(--spacing-4);
+        }
+
+        /* === CHECKOFF WIDGET === */
+        .widget-checkoff {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-2) var(--spacing-3);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            position: relative;
+            min-width: 200px;
+            flex: 1;
+            max-width: 280px;
+        }
+
+        .widget-checkoff.checked {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .widget-checkoff:hover .widget-drag-handle,
+        .widget-checkoff:hover .widget-delete-btn {
+            opacity: 1;
+        }
+
+        .widget-checkoff .widget-drag-handle {
+            position: static;
+            opacity: 0.3;
+        }
+
+        .widget-checkoff .widget-delete-btn {
+            position: static;
+            opacity: 0;
+        }
+
+        .widget-checkoff-name {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .widget-checkoff-location {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* === FORM WIDGET === */
+        .widget-form {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+        }
+
+        .widget-form-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-3);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .widget-form-grid {
+            display: grid;
+            gap: var(--spacing-2);
+        }
+
+        .input-group {
             display: flex;
             flex-direction: column;
             gap: var(--spacing-1);
         }
 
-        .treatment-date {
-            font-size: 0.875rem;
+        .input-label {
+            font-size: 0.75rem;
             font-weight: 500;
             color: var(--foreground);
         }
 
-        .treatment-details {
-            font-size: 0.75rem;
-            color: var(--muted-foreground);
-        }
-
-        .treatment-status {
-            font-size: 0.75rem;
-            font-weight: 500;
+        .input {
+            width: 100%;
             padding: var(--spacing-1) var(--spacing-2);
-            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            background: var(--background);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
         }
 
-        .treatment-status.completed {
-            background: var(--success-light);
-            color: var(--success-foreground);
+        .input:focus {
+            outline: none;
+            border-color: var(--ring);
         }
 
-        .treatment-status.in-progress {
-            background: var(--accent);
-            color: var(--accent-foreground);
+        select.input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 4px center;
+            background-repeat: no-repeat;
+            background-size: 14px;
+            padding-right: var(--spacing-6);
         }
 
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
-            .top-nav-bar {
-                padding: var(--spacing-2) var(--spacing-3);
-                flex-wrap: wrap;
-                gap: var(--spacing-2);
+            .sidebar {
+                display: none;
             }
-
-            .nav-left {
-                gap: var(--spacing-3);
+            .main-content {
+                margin-left: 0;
             }
-
-            .nav-tabs {
-                order: 3;
-                width: 100%;
-            }
-
-            .inpatient-header {
-                flex-direction: column;
-                gap: var(--spacing-3);
-                align-items: flex-start;
-            }
-
-            .field-grid-2,
-            .field-grid-3,
-            .field-grid-4 {
+            .widget-grid.cols-2,
+            .widget-grid.cols-3,
+            .widget-grid.cols-4 {
                 grid-template-columns: 1fr;
             }
         }
@@ -963,187 +1053,195 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Navigation Bar (shared across all pages) -->
-        <nav class="top-nav-bar">
-            <div class="nav-left">
-                <div class="app-logo">HDFlowsheet</div>
-                <div class="nav-tabs">
-                    <button class="nav-tab" data-page="pt-charting" onclick="switchPage('pt-charting')">Pt Charting</button>
-                    <button class="nav-tab active" data-page="inpatient" onclick="switchPage('inpatient')">Inpatient</button>
-                    <button class="nav-tab" data-page="operations" onclick="switchPage('operations')">Operations</button>
-                    <button class="nav-tab" data-page="reports" onclick="switchPage('reports')">Reports</button>
-                </div>
+        <!-- Sidebar Navigation (Original Design) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">HDFlowsheet</div>
             </div>
-            <div class="nav-right">
-                <div class="sync-status">
-                    <span class="sync-dot"></span>
-                    <span>Synced</span>
-                </div>
-                <button class="btn btn-ghost btn-sm">Settings</button>
-                <div class="user-avatar">JM</div>
-            </div>
+
+            <a href="#" class="sidebar-item" onclick="switchPage('pt-charting')">
+                <span class="sidebar-item-icon">&#128203;</span>
+                Pt Charting
+            </a>
+            <a href="#" class="sidebar-item active" onclick="switchPage('inpatient')">
+                <span class="sidebar-item-icon">&#127973;</span>
+                Inpatient
+            </a>
+            <a href="#" class="sidebar-item" onclick="switchPage('operations')">
+                <span class="sidebar-item-icon">&#9881;</span>
+                Operations
+            </a>
+            <a href="#" class="sidebar-item" onclick="switchPage('reports')">
+                <span class="sidebar-item-icon">&#128202;</span>
+                Reports
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">&#128190;</span>
+                Save
+            </a>
+            <a href="#" class="sidebar-item">
+                <span class="sidebar-item-icon">&#128228;</span>
+                Export
+            </a>
         </nav>
 
-        <!-- Pt Charting Page (placeholder) -->
-        <div class="page pt-charting-page" id="pt-charting-page">
-            <div class="placeholder-content">
-                <div class="placeholder-icon">📋</div>
-                <div class="placeholder-title">Pt Charting</div>
-                <div class="placeholder-text">
-                    Outpatient chronic dialysis flowsheet with multiple patients, pods, and shifts.
-                    <br><br>
-                    <em>(Current main app functionality)</em>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-left">
+                    <div>
+                        <h1 class="page-title">Inpatient Dialysis Flowsheet</h1>
+                        <p class="page-subtitle">Hospital HD Treatment Documentation</p>
+                    </div>
+                    <span class="treatment-badge">In Progress</span>
                 </div>
-            </div>
-        </div>
-
-        <!-- Inpatient Page (full design) -->
-        <div class="page inpatient-page active" id="inpatient-page">
-            <!-- Inpatient Header -->
-            <div class="inpatient-header">
-                <div class="inpatient-title-section">
-                    <h1 class="inpatient-title">Inpatient Dialysis Flowsheet</h1>
-                    <span class="treatment-badge">
-                        <span>In Progress</span>
-                    </span>
-                </div>
-                <div class="inpatient-actions">
-                    <button class="btn btn-outline" onclick="toggleTreatmentState()">
-                        <span>📄</span> New Treatment
+                <div class="page-actions">
+                    <button class="btn btn-outline">
+                        <span>&#128196;</span> New Treatment
                     </button>
                     <button class="btn btn-primary">
-                        <span>💾</span> Save Progress
+                        <span>&#128190;</span> Save Progress
                     </button>
                 </div>
             </div>
 
-            <!-- Inpatient Content (scrollable) -->
-            <div class="inpatient-content" id="inpatient-content">
-                <!-- Active Treatment View -->
-                <div id="active-treatment-view">
-                    <!-- Patient Info Card -->
-                    <div class="patient-info-card">
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">Location</span>
-                            <span class="patient-info-value badge badge-inpatient">INPT - Room 1218</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">Charge Code</span>
-                            <span class="patient-info-value">1771</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">Primary RN</span>
-                            <span class="patient-info-value">Tiffany Landis</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">Home Clinic</span>
-                            <span class="patient-info-value">DaVita - Sells</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">Access Type</span>
-                            <span class="patient-info-value">LCVC</span>
-                        </div>
-                        <div class="patient-info-item">
-                            <span class="patient-info-label">A&Ox4</span>
-                            <span class="patient-info-value">Yes</span>
-                        </div>
+            <!-- Page Body -->
+            <div class="page-body">
+                <!-- Patient Info Card -->
+                <div class="patient-info-card">
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">Location</span>
+                        <span class="patient-info-value badge badge-inpatient">INPT - Room 1218</span>
                     </div>
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">Charge Code</span>
+                        <span class="patient-info-value">1771</span>
+                    </div>
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">Primary RN</span>
+                        <span class="patient-info-value">Tiffany Landis</span>
+                    </div>
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">Home Clinic</span>
+                        <span class="patient-info-value">DaVita - Sells</span>
+                    </div>
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">Access Type</span>
+                        <span class="patient-info-value">LCVC</span>
+                    </div>
+                    <div class="patient-info-item">
+                        <span class="patient-info-label">A&Ox4</span>
+                        <span class="patient-info-value">Yes</span>
+                    </div>
+                </div>
 
-                    <!-- Sortable Sections Container -->
-                    <div id="sortable-sections">
+                <!-- Add Section Button -->
+                <button class="add-section-btn" onclick="openSectionPicker()">
+                    <span>+</span> Add Section
+                </button>
 
-                    <!-- Section 1: Dialysis Requested -->
-                    <div class="collapsible-section" data-section-id="dialysis">
-                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
-                            <div class="collapsible-header-left">
-                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
-                                <span class="collapsible-header-icon">&#128222;</span>
-                                <span class="collapsible-header-title">Dialysis Requested</span>
-                                <span class="collapsible-header-badge">5/6 Complete</span>
-                            </div>
-                            <span class="collapsible-chevron">&#9660;</span>
+                <!-- Sections Container (Sortable) -->
+                <div id="sectionsContainer">
+
+                    <!-- Section 1: Dialysis Requested (with edit mode demo) -->
+                    <div class="widget-section edit-mode" data-section-id="dialysis">
+                        <div class="widget-section-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <span class="widget-section-drag-handle">&#8942;&#8942;</span>
+                            <span class="widget-section-icon">&#128222;</span>
+                            <span class="widget-section-title">Dialysis Requested</span>
+                            <span class="widget-section-badge">5/6 Complete</span>
+                            <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">&#9998;</button>
+                            <span class="widget-section-chevron">&#9660;</span>
                         </div>
-                        <div class="collapsible-body">
-                            <div class="checklist-grid">
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">CERNER Tasks</div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Check CERNER</div>
-                                            <div class="checklist-sublabel">ED or INPT? Labs available?</div>
+                        <div class="widget-section-body">
+                            <div class="widget-grid" id="grid-dialysis">
+                                <!-- Checklist Card 1 -->
+                                <div class="checklist-card" data-card-id="cerner-tasks">
+                                    <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                        <div class="checklist-card-header-left">
+                                            <span class="checklist-card-drag-handle">&#8942;&#8942;</span>
+                                            <span class="checklist-card-title">CERNER Tasks</span>
+                                        </div>
+                                        <div class="checklist-card-header-right">
+                                            <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">&#9998;</button>
+                                            <span class="checklist-card-chevron">&#9660;</span>
                                         </div>
                                     </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Enter orders in CERNER</div>
+                                    <div class="checklist-card-body">
+                                        <div class="checklist-card-item checked">
+                                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                            <div class="checklist-card-item-content">
+                                                <div class="checklist-card-item-text">Check CERNER</div>
+                                                <div class="checklist-card-item-sublabel">ED or INPT? Labs available?</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Text & Email Sahani for orders</div>
+                                        <div class="checklist-card-item checked">
+                                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                            <div class="checklist-card-item-content">
+                                                <div class="checklist-card-item-text">Enter orders in CERNER</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">Call Floor</div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Identify Primary RN</div>
-                                            <div class="checklist-sublabel">Tiffany Landis</div>
-                                        </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox"></div>
-                                        <div>
-                                            <div class="checklist-label">Confirm patient ready</div>
+                                        <div class="checklist-card-item checked">
+                                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                            <div class="checklist-card-item-content">
+                                                <div class="checklist-card-item-text">Text & Email Sahani for orders</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">Call Pt HD Clinic</div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Fax Hep B & Rounding</div>
-                                            <div class="checklist-sublabel">GRHC Fax: 602-271-7970</div>
+                                <!-- Checklist Card 2 -->
+                                <div class="checklist-card" data-card-id="call-floor">
+                                    <div class="checklist-card-header" onclick="toggleChecklistCard(this)">
+                                        <div class="checklist-card-header-left">
+                                            <span class="checklist-card-drag-handle">&#8942;&#8942;</span>
+                                            <span class="checklist-card-title">Call Floor</span>
+                                        </div>
+                                        <div class="checklist-card-header-right">
+                                            <button class="checklist-card-edit-btn" onclick="event.stopPropagation(); toggleCardEditMode(this)">&#9998;</button>
+                                            <span class="checklist-card-chevron">&#9660;</span>
                                         </div>
                                     </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox"></div>
-                                        <div>
-                                            <div class="checklist-label">Add clinic to list (if new)</div>
+                                    <div class="checklist-card-body">
+                                        <div class="checklist-card-item checked">
+                                            <div class="checklist-card-item-checkbox checked" onclick="toggleChecklistItem(this)"></div>
+                                            <div class="checklist-card-item-content">
+                                                <div class="checklist-card-item-text">Identify Primary RN</div>
+                                                <div class="checklist-card-item-sublabel">Tiffany Landis</div>
+                                            </div>
+                                        </div>
+                                        <div class="checklist-card-item">
+                                            <div class="checklist-card-item-checkbox" onclick="toggleChecklistItem(this)"></div>
+                                            <div class="checklist-card-item-content">
+                                                <div class="checklist-card-item-text">Confirm patient ready</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">Rounding Report Orders</div>
-                                    <div class="field-grid" style="gap: var(--spacing-2);">
+                                <!-- Form Widget - Rounding Orders -->
+                                <div class="widget-form">
+                                    <div class="widget-form-title">Rounding Report Orders</div>
+                                    <div class="widget-form-grid">
                                         <div class="input-group">
                                             <label class="input-label">DW</label>
-                                            <input type="text" class="input input-sm" placeholder="kg">
+                                            <input type="text" class="input" placeholder="kg">
                                         </div>
                                         <div class="input-group">
                                             <label class="input-label">Dialyzer</label>
-                                            <input type="text" class="input input-sm" placeholder="">
+                                            <input type="text" class="input" placeholder="">
                                         </div>
                                         <div class="input-group">
                                             <label class="input-label">BFR/DFR</label>
-                                            <input type="text" class="input input-sm" placeholder="">
-                                        </div>
-                                        <div class="input-group">
-                                            <label class="input-label">NA/Bicarb</label>
-                                            <input type="text" class="input input-sm" placeholder="">
+                                            <input type="text" class="input" placeholder="">
                                         </div>
                                         <div class="input-group">
                                             <label class="input-label">Heparin?</label>
-                                            <select class="input input-sm">
+                                            <select class="input">
                                                 <option>Select...</option>
                                                 <option>Yes</option>
                                                 <option>No</option>
@@ -1152,237 +1250,210 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Add Widget Button (visible in edit mode) -->
+                                <button class="widget-add-btn" onclick="openWidgetPicker('grid-dialysis')">
+                                    <span class="widget-add-btn-icon">+</span>
+                                    <span class="widget-add-btn-text">Add Widget</span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 2: Visit Patient -->
-                    <div class="collapsible-section" data-section-id="visit">
-                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
-                            <div class="collapsible-header-left">
-                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
-                                <span class="collapsible-header-icon">&#128100;</span>
-                                <span class="collapsible-header-title">Visit Patient</span>
-                                <span class="collapsible-header-badge">8/8 Complete</span>
-                            </div>
-                            <span class="collapsible-chevron">&#9660;</span>
+                    <!-- Section 2: Setup Machine & RO Log (with data widgets) -->
+                    <div class="widget-section" data-section-id="setup">
+                        <div class="widget-section-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <span class="widget-section-drag-handle">&#8942;&#8942;</span>
+                            <span class="widget-section-icon">&#128295;</span>
+                            <span class="widget-section-title">Setup Machine & RO Log</span>
+                            <span class="widget-section-badge">Complete</span>
+                            <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">&#9998;</button>
+                            <span class="widget-section-chevron">&#9660;</span>
                         </div>
-                        <div class="collapsible-body">
-                            <div class="checklist-grid">
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">Initial Assessment</div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div class="checklist-label completed">Introduce self</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div class="checklist-label completed">Assess patient</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div class="checklist-label completed">Verify access & location (LCVC)</div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div class="checklist-label completed">Check if pt needs restroom</div>
-                                    </div>
+                        <div class="widget-section-body">
+                            <div class="widget-grid" id="grid-setup">
+                                <!-- Data Widgets for Water Quality -->
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Chlorine</div>
+                                    <div class="widget-data-value pass">0</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">pH</div>
+                                    <div class="widget-data-value pass">7.6</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Water Hardness</div>
+                                    <div class="widget-data-value pass">0</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Rejection Rate</div>
+                                    <div class="widget-data-value">91.2%</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Permeate</div>
+                                    <div class="widget-data-value">46.6</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Feed Water</div>
+                                    <div class="widget-data-value">530.4</div>
+                                </div>
+                                <div class="widget-data">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <div class="widget-data-label">Temp</div>
+                                    <div class="widget-data-value">23&deg;C</div>
                                 </div>
 
-                                <div class="checklist-card">
-                                    <div class="checklist-card-header">Clinical Assessment</div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">A&O Status</div>
-                                            <div class="checklist-sublabel">A&Ox4: Yes</div>
-                                        </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Vitals trends</div>
-                                            <div class="checklist-sublabel">BP Low side</div>
-                                        </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Pain assessment</div>
-                                            <div class="checklist-sublabel">Pain: 0/10</div>
-                                        </div>
-                                    </div>
-                                    <div class="checklist-item">
-                                        <div class="checkbox checked"></div>
-                                        <div>
-                                            <div class="checklist-label completed">Code Status confirmed</div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Add Widget Button (hidden - not in edit mode) -->
+                                <button class="widget-add-btn" onclick="openWidgetPicker('grid-setup')">
+                                    <span class="widget-add-btn-icon">+</span>
+                                    <span class="widget-add-btn-text">Add Widget</span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Section 3: Setup & RO Log -->
-                    <div class="collapsible-section" data-section-id="setup">
-                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
-                            <div class="collapsible-header-left">
-                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
-                                <span class="collapsible-header-icon">&#128295;</span>
-                                <span class="collapsible-header-title">Setup Machine & RO Log</span>
-                                <span class="collapsible-header-badge">Complete</span>
-                            </div>
-                            <span class="collapsible-chevron">&#9660;</span>
+                    <!-- Section 3: Gather Supplies (with checkoff widgets) -->
+                    <div class="widget-section" data-section-id="supplies">
+                        <div class="widget-section-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <span class="widget-section-drag-handle">&#8942;&#8942;</span>
+                            <span class="widget-section-icon">&#128230;</span>
+                            <span class="widget-section-title">Gather Supplies</span>
+                            <span class="widget-section-badge in-progress">9/12 Gathered</span>
+                            <button class="widget-section-edit-btn" onclick="event.stopPropagation(); toggleSectionEditMode(this)" title="Edit Section">&#9998;</button>
+                            <span class="widget-section-chevron">&#9660;</span>
                         </div>
-                        <div class="collapsible-body">
-                            <div class="section-divider">
-                                <div class="section-divider-line"></div>
-                                <span class="section-divider-text">Water Quality Readings</span>
-                                <div class="section-divider-line"></div>
-                            </div>
+                        <div class="widget-section-body">
+                            <div class="widget-grid" id="grid-supplies">
+                                <!-- Reminder Bar -->
+                                <div class="widget-reminder warning">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
+                                    <span class="widget-reminder-text"><strong>REMINDER:</strong> BRING LUNCH, WATER, SNACKS</span>
+                                </div>
 
-                            <div class="water-quality-grid">
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Chlorine</div>
-                                    <div class="water-quality-value pass">0</div>
+                                <!-- Checkoff Widgets -->
+                                <div class="widget-checkoff checked">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                                    <div class="widget-checkoff-name">Dialyzer</div>
+                                    <div class="widget-checkoff-location">Small & large storage</div>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
                                 </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">pH</div>
-                                    <div class="water-quality-value pass">7.6</div>
+                                <div class="widget-checkoff checked">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                                    <div class="widget-checkoff-name">Bicarb</div>
+                                    <div class="widget-checkoff-location">Water room</div>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
                                 </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Water Hardness</div>
-                                    <div class="water-quality-value pass">0</div>
+                                <div class="widget-checkoff checked">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <div class="checklist-card-item-checkbox checked" onclick="toggleCheckoffWidget(this)"></div>
+                                    <div class="widget-checkoff-name">Lines</div>
+                                    <div class="widget-checkoff-location">Small & large storage</div>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
                                 </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Rejection Rate</div>
-                                    <div class="water-quality-value">91.2%</div>
+                                <div class="widget-checkoff">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                                    <div class="widget-checkoff-name">(ED) Red biohazard bag</div>
+                                    <div class="widget-checkoff-location">Small storage</div>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
                                 </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Permeate Conductivity</div>
-                                    <div class="water-quality-value">46.6</div>
+                                <div class="widget-checkoff">
+                                    <span class="widget-drag-handle">&#8942;&#8942;</span>
+                                    <div class="checklist-card-item-checkbox" onclick="toggleCheckoffWidget(this)"></div>
+                                    <div class="widget-checkoff-name">(AVF) Extra gauze</div>
+                                    <div class="widget-checkoff-location">Small storage</div>
+                                    <button class="widget-delete-btn" onclick="deleteWidget(this)" title="Delete">&times;</button>
                                 </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Feed Water Conductivity</div>
-                                    <div class="water-quality-value">530.4</div>
-                                </div>
-                                <div class="water-quality-item">
-                                    <div class="water-quality-label">Feed Water Temp</div>
-                                    <div class="water-quality-value">23&deg;C</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Section 4: Gather Supplies (collapsed by default for demo) -->
-                    <div class="collapsible-section collapsed" data-section-id="supplies">
-                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
-                            <div class="collapsible-header-left">
-                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
-                                <span class="collapsible-header-icon">&#128230;</span>
-                                <span class="collapsible-header-title">Gather Supplies</span>
-                                <span class="collapsible-header-badge">9/12 Gathered</span>
-                            </div>
-                            <span class="collapsible-chevron">&#9660;</span>
-                        </div>
-                        <div class="collapsible-body">
-                            <div class="supply-grid">
-                                <div class="supply-item gathered">
-                                    <div class="checkbox checked"></div>
-                                    <div class="supply-name">Dialyzer</div>
-                                    <div class="supply-location">Small & large storage</div>
-                                </div>
-                                <div class="supply-item gathered">
-                                    <div class="checkbox checked"></div>
-                                    <div class="supply-name">Bicarb</div>
-                                    <div class="supply-location">Water room</div>
-                                </div>
-                                <div class="supply-item gathered">
-                                    <div class="checkbox checked"></div>
-                                    <div class="supply-name">Lines</div>
-                                    <div class="supply-location">Small & large storage</div>
-                                </div>
-                                <div class="supply-item">
-                                    <div class="checkbox"></div>
-                                    <div class="supply-name">(ED) Red biohazard bag</div>
-                                    <div class="supply-location">Small storage room</div>
-                                </div>
+                                <!-- Add Widget Button -->
+                                <button class="widget-add-btn" onclick="openWidgetPicker('grid-supplies')">
+                                    <span class="widget-add-btn-icon">+</span>
+                                    <span class="widget-add-btn-text">Add Widget</span>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- More sections would follow... -->
-                    <!-- CERNER Notes, Pre/Post Assessment, Treatment Tracking, etc. -->
+                </div><!-- /sectionsContainer -->
+            </div>
+        </main>
+    </div>
 
-                    </div><!-- End sortable-sections -->
+    <!-- Widget Picker Modal -->
+    <div class="widget-picker-overlay" id="widgetPickerOverlay" onclick="closeWidgetPicker(event)">
+        <div class="widget-picker" onclick="event.stopPropagation()">
+            <div class="widget-picker-header">
+                <span class="widget-picker-title">Add Widget</span>
+                <button class="widget-picker-close" onclick="closeWidgetPicker()">&times;</button>
+            </div>
+            <div class="widget-picker-body">
+                <div class="widget-picker-item" onclick="addWidget('checklist')">
+                    <span class="widget-picker-item-icon">&#9745;</span>
+                    <span class="widget-picker-item-name">Checklist Card</span>
                 </div>
-
-                <!-- No Active Treatment View (hidden by default) -->
-                <div id="no-treatment-view" style="display: none;">
-                    <div class="no-treatment-state">
-                        <div class="no-treatment-icon">&#127973;</div>
-                        <div class="no-treatment-title">No Active Treatment</div>
-                        <div class="no-treatment-text">
-                            Start a new inpatient treatment or continue a previous session.
-                            Data syncs automatically to the cloud.
-                        </div>
-                        <button class="btn btn-primary" onclick="toggleTreatmentState()">
-                            <span>&#10133;</span> Start New Treatment
-                        </button>
-
-                        <div class="treatment-history">
-                            <div class="treatment-history-title">Recent Treatments</div>
-                            <div class="treatment-history-list">
-                                <div class="treatment-history-item" onclick="toggleTreatmentState()">
-                                    <div class="treatment-info">
-                                        <div class="treatment-date">January 22, 2026 - Room 1218</div>
-                                        <div class="treatment-details">INPT - 3hr treatment - UF 2.5L removed</div>
-                                    </div>
-                                    <span class="treatment-status completed">Completed</span>
-                                </div>
-                                <div class="treatment-history-item">
-                                    <div class="treatment-info">
-                                        <div class="treatment-date">January 20, 2026 - ED Bay 4</div>
-                                        <div class="treatment-details">ED - 2.5hr treatment - UF 1.8L removed</div>
-                                    </div>
-                                    <span class="treatment-status completed">Completed</span>
-                                </div>
-                                <div class="treatment-history-item">
-                                    <div class="treatment-info">
-                                        <div class="treatment-date">January 18, 2026 - Room 915</div>
-                                        <div class="treatment-details">INPT - 3hr treatment - UF 2.2L removed</div>
-                                    </div>
-                                    <span class="treatment-status completed">Completed</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="widget-picker-item" onclick="addWidget('checkoff')">
+                    <span class="widget-picker-item-icon">&#9744;</span>
+                    <span class="widget-picker-item-name">Check Off Item</span>
+                </div>
+                <div class="widget-picker-item" onclick="addWidget('data')">
+                    <span class="widget-picker-item-icon">&#128202;</span>
+                    <span class="widget-picker-item-name">Data Widget</span>
+                </div>
+                <div class="widget-picker-item" onclick="addWidget('form')">
+                    <span class="widget-picker-item-icon">&#128221;</span>
+                    <span class="widget-picker-item-name">Form Widget</span>
+                </div>
+                <div class="widget-picker-item" onclick="addWidget('divider')">
+                    <span class="widget-picker-item-icon">&#8213;</span>
+                    <span class="widget-picker-item-name">Section Divider</span>
+                </div>
+                <div class="widget-picker-item" onclick="addWidget('reminder')">
+                    <span class="widget-picker-item-icon">&#9888;</span>
+                    <span class="widget-picker-item-name">Reminder Bar</span>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Operations Page (placeholder) -->
-        <div class="page" id="operations-page">
-            <div class="placeholder-content">
-                <div class="placeholder-icon">&#9881;</div>
-                <div class="placeholder-title">Operations</div>
-                <div class="placeholder-text">
-                    Checklists, Labs, and Snippets management.
-                    <br><br>
-                    <em>(Existing Operations functionality)</em>
-                </div>
+    <!-- Section Picker Modal -->
+    <div class="widget-picker-overlay" id="sectionPickerOverlay" onclick="closeSectionPicker(event)">
+        <div class="widget-picker" onclick="event.stopPropagation()">
+            <div class="widget-picker-header">
+                <span class="widget-picker-title">Add Section</span>
+                <button class="widget-picker-close" onclick="closeSectionPicker()">&times;</button>
             </div>
-        </div>
-
-        <!-- Reports Page (placeholder) -->
-        <div class="page" id="reports-page">
-            <div class="placeholder-content">
-                <div class="placeholder-icon">&#128202;</div>
-                <div class="placeholder-title">Reports</div>
-                <div class="placeholder-text">
-                    End of Shift Report and other reports.
-                    <br><br>
-                    <em>(Existing Reports functionality)</em>
+            <div class="widget-picker-body">
+                <div class="widget-picker-item" onclick="addSection(1)">
+                    <span class="widget-picker-item-icon">&#9632;</span>
+                    <span class="widget-picker-item-name">1 Column</span>
+                </div>
+                <div class="widget-picker-item" onclick="addSection(2)">
+                    <span class="widget-picker-item-icon">&#9632;&#9632;</span>
+                    <span class="widget-picker-item-name">2 Columns</span>
+                </div>
+                <div class="widget-picker-item" onclick="addSection(3)">
+                    <span class="widget-picker-item-icon">&#9632;&#9632;&#9632;</span>
+                    <span class="widget-picker-item-name">3 Columns</span>
+                </div>
+                <div class="widget-picker-item" onclick="addSection(4)">
+                    <span class="widget-picker-item-icon">&#9632;&#9632;&#9632;&#9632;</span>
+                    <span class="widget-picker-item-name">4 Columns</span>
                 </div>
             </div>
         </div>
@@ -1390,156 +1461,145 @@
 
     <!-- Demo Toggle Panel -->
     <div class="demo-toggle">
-        <div class="demo-toggle-title">Demo: Toggle View</div>
+        <div class="demo-toggle-title">Demo: Edit Mode</div>
         <div class="demo-toggle-buttons">
-            <button class="demo-btn active" id="demo-active" onclick="setTreatmentState(true)">Active Treatment</button>
-            <button class="demo-btn" id="demo-empty" onclick="setTreatmentState(false)">No Treatment</button>
+            <button class="demo-btn active" id="demo-edit-on" onclick="setEditMode(true)">Edit On</button>
+            <button class="demo-btn" id="demo-edit-off" onclick="setEditMode(false)">Edit Off</button>
         </div>
     </div>
 
     <!-- SortableJS CDN -->
     <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
     <script>
-        // Page switching
-        function switchPage(pageId) {
-            // Update tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.page === pageId);
-            });
-
-            // Update pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.toggle('active', page.id === pageId + '-page');
-            });
-        }
-
-        // Treatment state toggle
-        let hasActiveTreatment = true;
-
-        function toggleTreatmentState() {
-            setTreatmentState(!hasActiveTreatment);
-        }
-
-        function setTreatmentState(active) {
-            hasActiveTreatment = active;
-            document.getElementById('active-treatment-view').style.display = active ? 'block' : 'none';
-            document.getElementById('no-treatment-view').style.display = active ? 'none' : 'block';
-
-            // Update demo buttons
-            document.getElementById('demo-active').classList.toggle('active', active);
-            document.getElementById('demo-empty').classList.toggle('active', !active);
-
-            // Update header badge
-            const badge = document.querySelector('.treatment-badge');
-            if (badge) {
-                badge.style.display = active ? 'inline-flex' : 'none';
-            }
-        }
-
-        // Simple toggle functionality for checkboxes
-        document.querySelectorAll('.checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', function() {
-                this.classList.toggle('checked');
-
-                // Update the label if it exists
-                const label = this.nextElementSibling;
-                if (label && label.classList.contains('checklist-label')) {
-                    label.classList.toggle('completed');
-                }
-
-                // Or check within a parent div
-                const parentDiv = this.nextElementSibling;
-                if (parentDiv && parentDiv.querySelector) {
-                    const nestedLabel = parentDiv.querySelector('.checklist-label');
-                    if (nestedLabel) {
-                        nestedLabel.classList.toggle('completed');
-                    }
-                }
-
-                // Update supply item background
-                const supplyItem = this.closest('.supply-item');
-                if (supplyItem) {
-                    supplyItem.classList.toggle('gathered');
-                }
-            });
-        });
-
-        // Track if user is dragging to prevent accidental collapse
+        // Track current target grid for widget picker
+        let currentTargetGrid = null;
         let isDragging = false;
 
-        // Handle section header clicks - only toggle if not dragging and not clicking drag handle
+        // Page switching
+        function switchPage(pageId) {
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.sidebar-item').classList.add('active');
+        }
+
+        // Section collapse/expand
         function handleSectionClick(event, section) {
-            // Don't toggle if clicking the drag handle
-            if (event.target.closest('.section-drag-handle')) {
-                return;
-            }
-            // Don't toggle if we just finished dragging
-            if (isDragging) {
-                return;
-            }
+            if (event.target.closest('.widget-section-drag-handle')) return;
+            if (event.target.closest('.widget-section-edit-btn')) return;
+            if (isDragging) return;
             section.classList.toggle('collapsed');
         }
 
-        // Initialize SortableJS for section reordering
-        const sortableContainer = document.getElementById('sortable-sections');
-        if (sortableContainer && typeof Sortable !== 'undefined') {
-            const sortable = new Sortable(sortableContainer, {
-                animation: 200,
-                easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
-                handle: '.section-drag-handle',
-                ghostClass: 'sortable-ghost',
-                chosenClass: 'sortable-chosen',
-                dragClass: 'sortable-drag',
-                forceFallback: false,
-
-                onStart: function(evt) {
-                    isDragging = true;
-                    document.body.style.cursor = 'grabbing';
-                },
-
-                onEnd: function(evt) {
-                    document.body.style.cursor = '';
-                    // Small delay to prevent click event from firing
-                    setTimeout(() => {
-                        isDragging = false;
-                    }, 100);
-
-                    // Save section order to localStorage
-                    saveSectionOrder();
-                }
-            });
+        // Toggle section edit mode
+        function toggleSectionEditMode(btn) {
+            const section = btn.closest('.widget-section');
+            section.classList.toggle('edit-mode');
         }
 
-        // Save section order to localStorage
-        function saveSectionOrder() {
-            const sections = document.querySelectorAll('#sortable-sections .collapsible-section');
-            const order = Array.from(sections).map(section => section.dataset.sectionId);
-            localStorage.setItem('inpatient-section-order', JSON.stringify(order));
+        // Toggle checklist card collapse
+        function toggleChecklistCard(header) {
+            const card = header.closest('.checklist-card');
+            card.classList.toggle('collapsed');
         }
 
-        // Load and apply saved section order
-        function loadSectionOrder() {
-            const savedOrder = localStorage.getItem('inpatient-section-order');
-            if (!savedOrder) return;
+        // Toggle card edit mode
+        function toggleCardEditMode(btn) {
+            const card = btn.closest('.checklist-card');
+            card.classList.toggle('edit-mode');
+        }
 
-            try {
-                const order = JSON.parse(savedOrder);
-                const container = document.getElementById('sortable-sections');
-                if (!container) return;
+        // Toggle checklist item
+        function toggleChecklistItem(checkbox) {
+            checkbox.classList.toggle('checked');
+            const item = checkbox.closest('.checklist-card-item');
+            item.classList.toggle('checked');
+        }
 
-                order.forEach(sectionId => {
-                    const section = container.querySelector(`[data-section-id="${sectionId}"]`);
-                    if (section) {
-                        container.appendChild(section);
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to load section order:', e);
+        // Toggle checkoff widget
+        function toggleCheckoffWidget(checkbox) {
+            checkbox.classList.toggle('checked');
+            const widget = checkbox.closest('.widget-checkoff');
+            widget.classList.toggle('checked');
+        }
+
+        // Delete widget
+        function deleteWidget(btn) {
+            const widget = btn.closest('.widget-data, .widget-checkoff, .widget-reminder, .checklist-card');
+            if (widget && confirm('Delete this widget?')) {
+                widget.remove();
             }
         }
 
-        // Load saved order on page load
-        loadSectionOrder();
+        // Widget Picker
+        function openWidgetPicker(gridId) {
+            currentTargetGrid = gridId;
+            document.getElementById('widgetPickerOverlay').classList.add('open');
+        }
+
+        function closeWidgetPicker(event) {
+            if (!event || event.target === event.currentTarget) {
+                document.getElementById('widgetPickerOverlay').classList.remove('open');
+                currentTargetGrid = null;
+            }
+        }
+
+        function addWidget(type) {
+            // In real implementation, this would add a widget to the grid
+            alert('Add ' + type + ' widget to ' + currentTargetGrid + '\n\n(Demo only - full implementation in main app)');
+            closeWidgetPicker();
+        }
+
+        // Section Picker
+        function openSectionPicker() {
+            document.getElementById('sectionPickerOverlay').classList.add('open');
+        }
+
+        function closeSectionPicker(event) {
+            if (!event || event.target === event.currentTarget) {
+                document.getElementById('sectionPickerOverlay').classList.remove('open');
+            }
+        }
+
+        function addSection(columns) {
+            alert('Add ' + columns + '-column section\n\n(Demo only - full implementation in main app)');
+            closeSectionPicker();
+        }
+
+        // Demo: Toggle edit mode on all sections
+        function setEditMode(enabled) {
+            document.querySelectorAll('.widget-section').forEach(section => {
+                section.classList.toggle('edit-mode', enabled);
+            });
+            document.getElementById('demo-edit-on').classList.toggle('active', enabled);
+            document.getElementById('demo-edit-off').classList.toggle('active', !enabled);
+        }
+
+        // Initialize SortableJS for sections
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        if (sectionsContainer && typeof Sortable !== 'undefined') {
+            new Sortable(sectionsContainer, {
+                animation: 200,
+                handle: '.widget-section-drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                onStart: () => { isDragging = true; },
+                onEnd: () => { setTimeout(() => { isDragging = false; }, 100); }
+            });
+        }
+
+        // Initialize SortableJS for each widget grid
+        document.querySelectorAll('.widget-grid').forEach(grid => {
+            if (typeof Sortable !== 'undefined') {
+                new Sortable(grid, {
+                    animation: 200,
+                    handle: '.checklist-card-drag-handle, .widget-drag-handle',
+                    ghostClass: 'sortable-ghost',
+                    chosenClass: 'sortable-chosen',
+                    filter: '.widget-add-btn'
+                });
+            }
+        });
     </script>
 </body>
 </html>
