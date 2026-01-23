@@ -8814,7 +8814,8 @@
             activeChecklistId: null,
             completions: {},  // {date_checklistId: {completedItems: [], timestamp}}
             editingChecklistId: null,  // null = new, number = editing existing
-            activeFolders: {}  // {checklistId: folderId} - tracks active tab for each checklist (null = uncategorized)
+            activeFolders: {},  // {checklistId: folderId} - tracks active tab for each checklist (null = uncategorized)
+            loadedFromServer: false  // Flag to prevent saving empty checklists before server data loads
         };
 
         // Drag state for reordering
@@ -11162,6 +11163,7 @@
                         const opsData = opsResult.data || opsResult;
                         if (opsData.checklists) opsState.checklists = opsData.checklists;
                         if (opsData.completions) opsState.completions = opsData.completions;
+                        opsState.loadedFromServer = true; // Mark as loaded after restore
                         saveOpsData(true); // Skip auto-save since we just loaded from server
                         renderChecklistTabs();
                     }
@@ -11201,6 +11203,7 @@
                             const opsData = opsResult.data || opsResult;
                             if (opsData.checklists) opsState.checklists = opsData.checklists;
                             if (opsData.completions) opsState.completions = opsData.completions;
+                            opsState.loadedFromServer = true; // Mark as loaded after recovery
                             saveOpsData(true);
                             renderChecklistTabs();
                         }
@@ -11299,10 +11302,12 @@
                 if (result.success && result.data) {
                     opsState.checklists = result.data.checklists || [];
                     opsState.completions = result.data.completions || {};
+                    opsState.loadedFromServer = true; // Mark as loaded
                     saveOpsData(); // Also save to localStorage
                     renderChecklistTabs();
                     alert('Checklists loaded from server!');
                 } else {
+                    opsState.loadedFromServer = true; // Mark as loaded even if empty
                     alert('No checklists found on server or error: ' + (result.error || ''));
                 }
             } catch (err) {
@@ -11341,6 +11346,7 @@
                             opsState.checklists = data.checklists;
                             opsState.completions = data.completions || {};
                             opsState.activeChecklistId = opsState.checklists.length > 0 ? opsState.checklists[0].id : null;
+                            opsState.loadedFromServer = true; // Allow saving after import
                             saveOpsData();
                             renderChecklistTabs();
                             alert('Operations data imported successfully!');
@@ -11674,6 +11680,13 @@
 
         // Async version of saveOpsToServer for use in saveAll (dedicated checklists tables)
         async function saveOpsToServerAsync() {
+            // CRITICAL: Prevent saving empty checklists before server data has loaded
+            // This prevents race conditions where empty localStorage overwrites server data
+            if (!opsState.loadedFromServer) {
+                console.warn('Skipping checklist save - server data not yet loaded');
+                return { success: true, skipped: true }; // Return success to not block other saves
+            }
+
             try {
                 const response = await authFetch('/api/checklists', {
                     method: 'POST',
@@ -11807,48 +11820,57 @@
                 showSaveStatus('Loading...');
                 const response = await authFetch('/api/load');
 
+                let hasPatientData = false;
+
+                // Handle patient data loading (may be 404 if no patients saved)
                 if (response.status === 404) {
-                    showSaveStatus('No saved data found on server.', true);
-                    return;
+                    // No patient data on server - that's OK, continue to load checklists
+                    console.log('No patient data on server, but will still load checklists');
+                } else if (!response.ok) {
+                    throw new Error('Server error loading patient data');
+                } else {
+                    const result = await response.json();
+                    const data = result.data || result;
+                    hasPatientData = true;
+
+                    // Clear EOSR edits and labs data from previous session
+                    clearEOSRAndLabsState();
+
+                    // Restore state (skip auto-save since we're loading from server)
+                    if (data.patients) state.patients = data.patients;
+                    if (data.technicians) {
+                        state.technicians = data.technicians;
+                        saveTechnicians(true);
+                    }
+                    if (data.currentSection) {
+                        state.currentSection = data.currentSection;
+                        saveSection(true);
+                    }
+                    if (data.selectedShifts) {
+                        state.selectedShifts = data.selectedShifts;
+                        state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
+                        saveShifts(true);
+                    }
+                    if (data.sectionOrder) {
+                        state.sectionOrder = data.sectionOrder;
+                        saveSectionOrder(true);
+                    }
+                    if (data.timestampLogs) {
+                        timestampState.logs = data.timestampLogs;
+                        saveTimestampLogs(true);
+                    }
                 }
 
-                if (!response.ok) throw new Error('Server error');
-
-                const result = await response.json();
-                const data = result.data || result;
-
-                // Clear EOSR edits and labs data from previous session
-                clearEOSRAndLabsState();
-
-                // Restore state (skip auto-save since we're loading from server)
-                if (data.patients) state.patients = data.patients;
-                if (data.technicians) {
-                    state.technicians = data.technicians;
-                    saveTechnicians(true);
-                }
-                if (data.currentSection) {
-                    state.currentSection = data.currentSection;
-                    saveSection(true);
-                }
-                if (data.selectedShifts) {
-                    state.selectedShifts = data.selectedShifts;
-                    state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
-                    saveShifts(true);
-                }
-                if (data.sectionOrder) {
-                    state.sectionOrder = data.sectionOrder;
-                    saveSectionOrder(true);
-                }
-                if (data.timestampLogs) {
-                    timestampState.logs = data.timestampLogs;
-                    saveTimestampLogs(true);
-                }
-
-                // Load operations, snippets, labs, timestamps, and wheelchair data
+                // ALWAYS load checklists, snippets, labs, timestamps, and wheelchair data
+                // This is critical - checklists must load even if no patient data exists!
                 await loadOpsAndSnippetsFromServer();
 
                 renderAll();
-                showSaveStatus(`Loaded data from ${data.savedAt || 'server'}`);
+                if (hasPatientData) {
+                    showSaveStatus('Data loaded from server');
+                } else {
+                    showSaveStatus('Checklists loaded (no patient data on server)');
+                }
             } catch (error) {
                 console.error('Load error:', error);
                 showSaveStatus('Failed to load. Check console for details.', true);
@@ -11917,11 +11939,21 @@
                     const opsData = result.data || result;
                     if (opsData.checklists) opsState.checklists = opsData.checklists;
                     if (opsData.completions) opsState.completions = opsData.completions;
+                    // Mark checklists as loaded from server - this enables saving
+                    opsState.loadedFromServer = true;
                     saveOpsData(true); // Skip auto-save since we just loaded from server
                     renderChecklistTabs();
+                    console.log('Checklists loaded from server:', opsState.checklists.length, 'checklists');
+                } else {
+                    // Even if server returns no data, mark as loaded to allow saving new checklists
+                    opsState.loadedFromServer = true;
+                    console.log('No checklists on server, but ready to save new ones');
                 }
             } catch (err) {
                 console.warn('Could not load checklists data:', err);
+                // On error, still mark as loaded to prevent blocking saves indefinitely
+                // User can manually load/recover if needed
+                opsState.loadedFromServer = true;
             }
 
             try {
@@ -11992,48 +12024,57 @@
                 showSaveStatus('Auto-loading saved data...');
                 const response = await authFetch('/api/load');
 
+                let hasPatientData = false;
+
+                // Handle patient data loading (may be 404 if no patients saved)
                 if (response.status === 404) {
-                    showSaveStatus('No saved data found on server.', true);
-                    return false;
+                    // No patient data on server - that's OK, continue to load checklists
+                    console.log('No patient data on server, but will still load checklists');
+                } else if (!response.ok) {
+                    throw new Error('Server error loading patient data');
+                } else {
+                    const result = await response.json();
+                    const data = result.data || result;
+                    hasPatientData = true;
+
+                    // Clear EOSR edits and labs data from previous session
+                    clearEOSRAndLabsState();
+
+                    // Restore state (skip auto-save since we're loading from server)
+                    if (data.patients) state.patients = data.patients;
+                    if (data.technicians) {
+                        state.technicians = data.technicians;
+                        saveTechnicians(true);
+                    }
+                    if (data.currentSection) {
+                        state.currentSection = data.currentSection;
+                        saveSection(true);
+                    }
+                    if (data.selectedShifts) {
+                        state.selectedShifts = data.selectedShifts;
+                        state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
+                        saveShifts(true);
+                    }
+                    if (data.sectionOrder) {
+                        state.sectionOrder = data.sectionOrder;
+                        saveSectionOrder(true);
+                    }
+                    if (data.timestampLogs) {
+                        timestampState.logs = data.timestampLogs;
+                        saveTimestampLogs(true);
+                    }
                 }
 
-                if (!response.ok) throw new Error('Server error');
-
-                const result = await response.json();
-                const data = result.data || result;
-
-                // Clear EOSR edits and labs data from previous session
-                clearEOSRAndLabsState();
-
-                // Restore state (skip auto-save since we're loading from server)
-                if (data.patients) state.patients = data.patients;
-                if (data.technicians) {
-                    state.technicians = data.technicians;
-                    saveTechnicians(true);
-                }
-                if (data.currentSection) {
-                    state.currentSection = data.currentSection;
-                    saveSection(true);
-                }
-                if (data.selectedShifts) {
-                    state.selectedShifts = data.selectedShifts;
-                    state.activeShift = data.selectedShifts[0] || '1st'; // Sync active shift
-                    saveShifts(true);
-                }
-                if (data.sectionOrder) {
-                    state.sectionOrder = data.sectionOrder;
-                    saveSectionOrder(true);
-                }
-                if (data.timestampLogs) {
-                    timestampState.logs = data.timestampLogs;
-                    saveTimestampLogs(true);
-                }
-
-                // Load operations, snippets, labs, timestamps, and wheelchair data
+                // ALWAYS load checklists, snippets, labs, timestamps, and wheelchair data
+                // This is critical - checklists must load even if no patient data exists!
                 await loadOpsAndSnippetsFromServer();
 
                 renderAll();
-                showSaveStatus(`Data restored from server (${data.savedAt || 'saved'})`);
+                if (hasPatientData) {
+                    showSaveStatus('Data restored from server');
+                } else {
+                    showSaveStatus('Checklists loaded (no patient data on server)');
+                }
                 return true;
             } catch (error) {
                 console.error('Auto-load error:', error);
