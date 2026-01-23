@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFlowsheet - Inpatient Integration Mockup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           HD FLOWSHEET - INPATIENT INTEGRATION
+           Shows how Inpatient tab integrates into main app
+           ======================================== */
+
+        :root {
+            /* === COLORS === */
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-foreground: #ffffff;
+
+            --secondary: #f3f4f6;
+            --secondary-hover: #e5e7eb;
+            --secondary-foreground: #4b5563;
+
+            --accent: #e0f2fe;
+            --accent-foreground: #1e3a8a;
+
+            --background: #ffffff;
+            --foreground: #111827;
+
+            --card: #ffffff;
+            --card-foreground: #111827;
+
+            --muted: #f9fafb;
+            --muted-foreground: #6b7280;
+
+            --destructive: #ef4444;
+            --destructive-hover: #dc2626;
+            --destructive-foreground: #ffffff;
+
+            --success: #22c55e;
+            --success-light: #f0fdf4;
+            --success-foreground: #166534;
+
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --warning-foreground: #92400e;
+
+            --border: #e5e7eb;
+            --input: #e5e7eb;
+            --ring: #3b82f6;
+
+            /* === TYPOGRAPHY === */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+            /* === SPACING === */
+            --spacing-0: 0;
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-5: 1.25rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+            --spacing-10: 2.5rem;
+
+            /* === BORDER RADIUS === */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+            --radius-full: 9999px;
+
+            /* === SHADOWS === */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+
+            /* === TRANSITIONS === */
+            --transition-fast: 150ms ease;
+            --transition-normal: 200ms ease;
+        }
+
+        /* === BASE STYLES === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--foreground);
+            background: var(--muted);
+        }
+
+        /* === APP LAYOUT === */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === TOP NAVIGATION BAR === */
+        .top-nav-bar {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-2) var(--spacing-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-6);
+        }
+
+        .app-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-1);
+            background: var(--muted);
+            padding: var(--spacing-1);
+            border-radius: var(--radius-md);
+        }
+
+        .nav-tab {
+            padding: var(--spacing-2) var(--spacing-4);
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-tab:hover {
+            color: var(--foreground);
+            background: var(--background);
+        }
+
+        .nav-tab.active {
+            background: var(--background);
+            color: var(--foreground);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            font-size: 0.75rem;
+            color: var(--success-foreground);
+            background: var(--success-light);
+            padding: var(--spacing-1) var(--spacing-3);
+            border-radius: var(--radius-full);
+        }
+
+        .sync-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* === PAGE CONTAINERS === */
+        .page {
+            display: none;
+            flex: 1;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* === PT CHARTING PAGE (placeholder) === */
+        .pt-charting-page {
+            padding: var(--spacing-6);
+            text-align: center;
+            color: var(--muted-foreground);
+        }
+
+        .placeholder-content {
+            max-width: 400px;
+            margin: var(--spacing-10) auto;
+            padding: var(--spacing-8);
+            background: var(--card);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+        }
+
+        .placeholder-icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .placeholder-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .placeholder-text {
+            font-size: 0.875rem;
+        }
+
+        /* === INPATIENT PAGE === */
+        .inpatient-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Inpatient Header Bar */
+        .inpatient-header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-4) var(--spacing-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .inpatient-title-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-4);
+        }
+
+        .inpatient-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .treatment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-1) var(--spacing-3);
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: var(--accent);
+            color: var(--accent-foreground);
+            border-radius: var(--radius-full);
+        }
+
+        .inpatient-actions {
+            display: flex;
+            gap: var(--spacing-3);
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) var(--spacing-4);
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--foreground);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--muted);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--foreground);
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--muted);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-1) var(--spacing-3);
+            font-size: 0.75rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: var(--primary-foreground);
+            border-color: var(--success);
+        }
+
+        /* === INPATIENT MAIN CONTENT === */
+        .inpatient-content {
+            flex: 1;
+            padding: var(--spacing-6);
+            overflow-y: auto;
+        }
+
+        /* === PATIENT INFO CARD === */
+        .patient-info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .patient-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .patient-info-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .patient-info-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .patient-info-value.badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            width: fit-content;
+        }
+
+        .badge-inpatient {
+            background: var(--accent);
+            color: var(--accent-foreground);
+        }
+
+        .badge-ed {
+            background: var(--warning-light);
+            color: var(--warning-foreground);
+        }
+
+        /* === INPUTS === */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .input-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .input {
+            width: 100%;
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: 0.875rem;
+            font-family: var(--font-sans);
+            color: var(--foreground);
+            background: var(--background);
+            border: 1px solid var(--input);
+            border-radius: var(--radius-md);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .input::placeholder {
+            color: var(--muted-foreground);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-sm {
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.75rem;
+        }
+
+        select.input {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 8px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: var(--spacing-8);
+        }
+
+        textarea.input {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* === COLLAPSIBLE SECTIONS === */
+        .collapsible-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: var(--spacing-4);
+            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-3) var(--spacing-4);
+            background: #eff6ff;
+            border-bottom: 1px solid #bfdbfe;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            background: #dbeafe;
+        }
+
+        /* Drag handle */
+        .section-drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            padding: 0 var(--spacing-2);
+            margin-right: var(--spacing-2);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            transition: color 0.15s;
+        }
+
+        .section-drag-handle:hover {
+            color: var(--primary);
+        }
+
+        .section-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* SortableJS drag states */
+        .collapsible-section.sortable-ghost {
+            opacity: 0.4;
+            background: #dbeafe;
+        }
+
+        .collapsible-section.sortable-chosen {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .collapsible-section.sortable-drag {
+            opacity: 1 !important;
+            box-shadow: var(--shadow-lg);
+            transform: scale(1.02);
+        }
+
+        .collapsible-header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .collapsible-header-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+            color: #3b82f6;
+        }
+
+        .collapsible-header-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .collapsible-header-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--spacing-1) var(--spacing-2);
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--success-light);
+            color: var(--success-foreground);
+            border-radius: var(--radius-full);
+            margin-left: var(--spacing-2);
+        }
+
+        .collapsible-header-badge.pending {
+            background: var(--warning-light);
+            color: var(--warning-foreground);
+        }
+
+        .collapsible-chevron {
+            color: #3b82f6;
+            font-size: 0.75rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .collapsible-body {
+            padding: var(--spacing-4);
+        }
+
+        .collapsible-section.collapsed .collapsible-body {
+            display: none;
+        }
+
+        .collapsible-section.collapsed .collapsible-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* === CHECKLIST STYLES === */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .checklist-card {
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+        }
+
+        .checklist-card-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-3);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-2);
+            padding: var(--spacing-2) 0;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--input);
+            border-radius: var(--radius-sm);
+            background: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .checkbox.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox.checked::after {
+            content: '\2713';
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .checklist-label {
+            font-size: 0.875rem;
+            color: var(--foreground);
+            flex: 1;
+        }
+
+        .checklist-label.completed {
+            color: var(--muted-foreground);
+            text-decoration: line-through;
+        }
+
+        .checklist-sublabel {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-top: var(--spacing-1);
+        }
+
+        /* === FIELD GRID === */
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-4);
+        }
+
+        .field-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .field-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .field-grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* === SECTION DIVIDER === */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            margin: var(--spacing-4) 0;
+        }
+
+        .section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .section-divider-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* === SUPPLY CHECKLIST === */
+        .supply-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: var(--spacing-3);
+        }
+
+        .supply-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            padding: var(--spacing-2) var(--spacing-3);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+        }
+
+        .supply-item.gathered {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .supply-name {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .supply-location {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* === WATER QUALITY CARD === */
+        .water-quality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-3);
+        }
+
+        .water-quality-item {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-3);
+            text-align: center;
+        }
+
+        .water-quality-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-1);
+        }
+
+        .water-quality-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--foreground);
+        }
+
+        .water-quality-value.pass {
+            color: var(--success);
+        }
+
+        .water-quality-value.fail {
+            color: var(--destructive);
+        }
+
+        /* === TREATMENT SELECTOR (No active treatment) === */
+        .no-treatment-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+            padding: var(--spacing-8);
+        }
+
+        .no-treatment-icon {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-4);
+            opacity: 0.5;
+        }
+
+        .no-treatment-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .no-treatment-text {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-6);
+            max-width: 400px;
+        }
+
+        .treatment-history {
+            margin-top: var(--spacing-8);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .treatment-history-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--foreground);
+            margin-bottom: var(--spacing-3);
+            text-align: left;
+        }
+
+        .treatment-history-list {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .treatment-history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-3) var(--spacing-4);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .treatment-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .treatment-history-item:hover {
+            background: var(--muted);
+        }
+
+        .treatment-info {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-1);
+        }
+
+        .treatment-date {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--foreground);
+        }
+
+        .treatment-details {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .treatment-status {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: var(--spacing-1) var(--spacing-2);
+            border-radius: var(--radius-full);
+        }
+
+        .treatment-status.completed {
+            background: var(--success-light);
+            color: var(--success-foreground);
+        }
+
+        .treatment-status.in-progress {
+            background: var(--accent);
+            color: var(--accent-foreground);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .top-nav-bar {
+                padding: var(--spacing-2) var(--spacing-3);
+                flex-wrap: wrap;
+                gap: var(--spacing-2);
+            }
+
+            .nav-left {
+                gap: var(--spacing-3);
+            }
+
+            .nav-tabs {
+                order: 3;
+                width: 100%;
+            }
+
+            .inpatient-header {
+                flex-direction: column;
+                gap: var(--spacing-3);
+                align-items: flex-start;
+            }
+
+            .field-grid-2,
+            .field-grid-3,
+            .field-grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* === DEMO TOGGLE === */
+        .demo-toggle {
+            position: fixed;
+            bottom: var(--spacing-4);
+            right: var(--spacing-4);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-3);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+        }
+
+        .demo-toggle-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted-foreground);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .demo-toggle-buttons {
+            display: flex;
+            gap: var(--spacing-2);
+        }
+
+        .demo-btn {
+            padding: var(--spacing-1) var(--spacing-3);
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            background: var(--background);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .demo-btn:hover {
+            background: var(--muted);
+        }
+
+        .demo-btn.active {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Bar (shared across all pages) -->
+        <nav class="top-nav-bar">
+            <div class="nav-left">
+                <div class="app-logo">HDFlowsheet</div>
+                <div class="nav-tabs">
+                    <button class="nav-tab" data-page="pt-charting" onclick="switchPage('pt-charting')">Pt Charting</button>
+                    <button class="nav-tab active" data-page="inpatient" onclick="switchPage('inpatient')">Inpatient</button>
+                    <button class="nav-tab" data-page="operations" onclick="switchPage('operations')">Operations</button>
+                    <button class="nav-tab" data-page="reports" onclick="switchPage('reports')">Reports</button>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="sync-status">
+                    <span class="sync-dot"></span>
+                    <span>Synced</span>
+                </div>
+                <button class="btn btn-ghost btn-sm">Settings</button>
+                <div class="user-avatar">JM</div>
+            </div>
+        </nav>
+
+        <!-- Pt Charting Page (placeholder) -->
+        <div class="page pt-charting-page" id="pt-charting-page">
+            <div class="placeholder-content">
+                <div class="placeholder-icon">📋</div>
+                <div class="placeholder-title">Pt Charting</div>
+                <div class="placeholder-text">
+                    Outpatient chronic dialysis flowsheet with multiple patients, pods, and shifts.
+                    <br><br>
+                    <em>(Current main app functionality)</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inpatient Page (full design) -->
+        <div class="page inpatient-page active" id="inpatient-page">
+            <!-- Inpatient Header -->
+            <div class="inpatient-header">
+                <div class="inpatient-title-section">
+                    <h1 class="inpatient-title">Inpatient Dialysis Flowsheet</h1>
+                    <span class="treatment-badge">
+                        <span>In Progress</span>
+                    </span>
+                </div>
+                <div class="inpatient-actions">
+                    <button class="btn btn-outline" onclick="toggleTreatmentState()">
+                        <span>📄</span> New Treatment
+                    </button>
+                    <button class="btn btn-primary">
+                        <span>💾</span> Save Progress
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inpatient Content (scrollable) -->
+            <div class="inpatient-content" id="inpatient-content">
+                <!-- Active Treatment View -->
+                <div id="active-treatment-view">
+                    <!-- Patient Info Card -->
+                    <div class="patient-info-card">
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">Location</span>
+                            <span class="patient-info-value badge badge-inpatient">INPT - Room 1218</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">Charge Code</span>
+                            <span class="patient-info-value">1771</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">Primary RN</span>
+                            <span class="patient-info-value">Tiffany Landis</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">Home Clinic</span>
+                            <span class="patient-info-value">DaVita - Sells</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">Access Type</span>
+                            <span class="patient-info-value">LCVC</span>
+                        </div>
+                        <div class="patient-info-item">
+                            <span class="patient-info-label">A&Ox4</span>
+                            <span class="patient-info-value">Yes</span>
+                        </div>
+                    </div>
+
+                    <!-- Sortable Sections Container -->
+                    <div id="sortable-sections">
+
+                    <!-- Section 1: Dialysis Requested -->
+                    <div class="collapsible-section" data-section-id="dialysis">
+                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <div class="collapsible-header-left">
+                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
+                                <span class="collapsible-header-icon">&#128222;</span>
+                                <span class="collapsible-header-title">Dialysis Requested</span>
+                                <span class="collapsible-header-badge">5/6 Complete</span>
+                            </div>
+                            <span class="collapsible-chevron">&#9660;</span>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="checklist-grid">
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">CERNER Tasks</div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Check CERNER</div>
+                                            <div class="checklist-sublabel">ED or INPT? Labs available?</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Enter orders in CERNER</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Text & Email Sahani for orders</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">Call Floor</div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Identify Primary RN</div>
+                                            <div class="checklist-sublabel">Tiffany Landis</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox"></div>
+                                        <div>
+                                            <div class="checklist-label">Confirm patient ready</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">Call Pt HD Clinic</div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Fax Hep B & Rounding</div>
+                                            <div class="checklist-sublabel">GRHC Fax: 602-271-7970</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox"></div>
+                                        <div>
+                                            <div class="checklist-label">Add clinic to list (if new)</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">Rounding Report Orders</div>
+                                    <div class="field-grid" style="gap: var(--spacing-2);">
+                                        <div class="input-group">
+                                            <label class="input-label">DW</label>
+                                            <input type="text" class="input input-sm" placeholder="kg">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-label">Dialyzer</label>
+                                            <input type="text" class="input input-sm" placeholder="">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-label">BFR/DFR</label>
+                                            <input type="text" class="input input-sm" placeholder="">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-label">NA/Bicarb</label>
+                                            <input type="text" class="input input-sm" placeholder="">
+                                        </div>
+                                        <div class="input-group">
+                                            <label class="input-label">Heparin?</label>
+                                            <select class="input input-sm">
+                                                <option>Select...</option>
+                                                <option>Yes</option>
+                                                <option>No</option>
+                                                <option>Saline Flush</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Visit Patient -->
+                    <div class="collapsible-section" data-section-id="visit">
+                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <div class="collapsible-header-left">
+                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
+                                <span class="collapsible-header-icon">&#128100;</span>
+                                <span class="collapsible-header-title">Visit Patient</span>
+                                <span class="collapsible-header-badge">8/8 Complete</span>
+                            </div>
+                            <span class="collapsible-chevron">&#9660;</span>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="checklist-grid">
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">Initial Assessment</div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div class="checklist-label completed">Introduce self</div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div class="checklist-label completed">Assess patient</div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div class="checklist-label completed">Verify access & location (LCVC)</div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div class="checklist-label completed">Check if pt needs restroom</div>
+                                    </div>
+                                </div>
+
+                                <div class="checklist-card">
+                                    <div class="checklist-card-header">Clinical Assessment</div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">A&O Status</div>
+                                            <div class="checklist-sublabel">A&Ox4: Yes</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Vitals trends</div>
+                                            <div class="checklist-sublabel">BP Low side</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Pain assessment</div>
+                                            <div class="checklist-sublabel">Pain: 0/10</div>
+                                        </div>
+                                    </div>
+                                    <div class="checklist-item">
+                                        <div class="checkbox checked"></div>
+                                        <div>
+                                            <div class="checklist-label completed">Code Status confirmed</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Setup & RO Log -->
+                    <div class="collapsible-section" data-section-id="setup">
+                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <div class="collapsible-header-left">
+                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
+                                <span class="collapsible-header-icon">&#128295;</span>
+                                <span class="collapsible-header-title">Setup Machine & RO Log</span>
+                                <span class="collapsible-header-badge">Complete</span>
+                            </div>
+                            <span class="collapsible-chevron">&#9660;</span>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="section-divider">
+                                <div class="section-divider-line"></div>
+                                <span class="section-divider-text">Water Quality Readings</span>
+                                <div class="section-divider-line"></div>
+                            </div>
+
+                            <div class="water-quality-grid">
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Chlorine</div>
+                                    <div class="water-quality-value pass">0</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">pH</div>
+                                    <div class="water-quality-value pass">7.6</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Water Hardness</div>
+                                    <div class="water-quality-value pass">0</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Rejection Rate</div>
+                                    <div class="water-quality-value">91.2%</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Permeate Conductivity</div>
+                                    <div class="water-quality-value">46.6</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Feed Water Conductivity</div>
+                                    <div class="water-quality-value">530.4</div>
+                                </div>
+                                <div class="water-quality-item">
+                                    <div class="water-quality-label">Feed Water Temp</div>
+                                    <div class="water-quality-value">23&deg;C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Gather Supplies (collapsed by default for demo) -->
+                    <div class="collapsible-section collapsed" data-section-id="supplies">
+                        <div class="collapsible-header" onclick="handleSectionClick(event, this.parentElement)">
+                            <div class="collapsible-header-left">
+                                <span class="section-drag-handle" title="Drag to reorder">&#8942;&#8942;</span>
+                                <span class="collapsible-header-icon">&#128230;</span>
+                                <span class="collapsible-header-title">Gather Supplies</span>
+                                <span class="collapsible-header-badge">9/12 Gathered</span>
+                            </div>
+                            <span class="collapsible-chevron">&#9660;</span>
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="supply-grid">
+                                <div class="supply-item gathered">
+                                    <div class="checkbox checked"></div>
+                                    <div class="supply-name">Dialyzer</div>
+                                    <div class="supply-location">Small & large storage</div>
+                                </div>
+                                <div class="supply-item gathered">
+                                    <div class="checkbox checked"></div>
+                                    <div class="supply-name">Bicarb</div>
+                                    <div class="supply-location">Water room</div>
+                                </div>
+                                <div class="supply-item gathered">
+                                    <div class="checkbox checked"></div>
+                                    <div class="supply-name">Lines</div>
+                                    <div class="supply-location">Small & large storage</div>
+                                </div>
+                                <div class="supply-item">
+                                    <div class="checkbox"></div>
+                                    <div class="supply-name">(ED) Red biohazard bag</div>
+                                    <div class="supply-location">Small storage room</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- More sections would follow... -->
+                    <!-- CERNER Notes, Pre/Post Assessment, Treatment Tracking, etc. -->
+
+                    </div><!-- End sortable-sections -->
+                </div>
+
+                <!-- No Active Treatment View (hidden by default) -->
+                <div id="no-treatment-view" style="display: none;">
+                    <div class="no-treatment-state">
+                        <div class="no-treatment-icon">&#127973;</div>
+                        <div class="no-treatment-title">No Active Treatment</div>
+                        <div class="no-treatment-text">
+                            Start a new inpatient treatment or continue a previous session.
+                            Data syncs automatically to the cloud.
+                        </div>
+                        <button class="btn btn-primary" onclick="toggleTreatmentState()">
+                            <span>&#10133;</span> Start New Treatment
+                        </button>
+
+                        <div class="treatment-history">
+                            <div class="treatment-history-title">Recent Treatments</div>
+                            <div class="treatment-history-list">
+                                <div class="treatment-history-item" onclick="toggleTreatmentState()">
+                                    <div class="treatment-info">
+                                        <div class="treatment-date">January 22, 2026 - Room 1218</div>
+                                        <div class="treatment-details">INPT - 3hr treatment - UF 2.5L removed</div>
+                                    </div>
+                                    <span class="treatment-status completed">Completed</span>
+                                </div>
+                                <div class="treatment-history-item">
+                                    <div class="treatment-info">
+                                        <div class="treatment-date">January 20, 2026 - ED Bay 4</div>
+                                        <div class="treatment-details">ED - 2.5hr treatment - UF 1.8L removed</div>
+                                    </div>
+                                    <span class="treatment-status completed">Completed</span>
+                                </div>
+                                <div class="treatment-history-item">
+                                    <div class="treatment-info">
+                                        <div class="treatment-date">January 18, 2026 - Room 915</div>
+                                        <div class="treatment-details">INPT - 3hr treatment - UF 2.2L removed</div>
+                                    </div>
+                                    <span class="treatment-status completed">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations Page (placeholder) -->
+        <div class="page" id="operations-page">
+            <div class="placeholder-content">
+                <div class="placeholder-icon">&#9881;</div>
+                <div class="placeholder-title">Operations</div>
+                <div class="placeholder-text">
+                    Checklists, Labs, and Snippets management.
+                    <br><br>
+                    <em>(Existing Operations functionality)</em>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Page (placeholder) -->
+        <div class="page" id="reports-page">
+            <div class="placeholder-content">
+                <div class="placeholder-icon">&#128202;</div>
+                <div class="placeholder-title">Reports</div>
+                <div class="placeholder-text">
+                    End of Shift Report and other reports.
+                    <br><br>
+                    <em>(Existing Reports functionality)</em>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Toggle Panel -->
+    <div class="demo-toggle">
+        <div class="demo-toggle-title">Demo: Toggle View</div>
+        <div class="demo-toggle-buttons">
+            <button class="demo-btn active" id="demo-active" onclick="setTreatmentState(true)">Active Treatment</button>
+            <button class="demo-btn" id="demo-empty" onclick="setTreatmentState(false)">No Treatment</button>
+        </div>
+    </div>
+
+    <!-- SortableJS CDN -->
+    <script src="https://unpkg.com/sortablejs@1.15.2/Sortable.min.js"></script>
+    <script>
+        // Page switching
+        function switchPage(pageId) {
+            // Update tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.page === pageId);
+            });
+
+            // Update pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.toggle('active', page.id === pageId + '-page');
+            });
+        }
+
+        // Treatment state toggle
+        let hasActiveTreatment = true;
+
+        function toggleTreatmentState() {
+            setTreatmentState(!hasActiveTreatment);
+        }
+
+        function setTreatmentState(active) {
+            hasActiveTreatment = active;
+            document.getElementById('active-treatment-view').style.display = active ? 'block' : 'none';
+            document.getElementById('no-treatment-view').style.display = active ? 'none' : 'block';
+
+            // Update demo buttons
+            document.getElementById('demo-active').classList.toggle('active', active);
+            document.getElementById('demo-empty').classList.toggle('active', !active);
+
+            // Update header badge
+            const badge = document.querySelector('.treatment-badge');
+            if (badge) {
+                badge.style.display = active ? 'inline-flex' : 'none';
+            }
+        }
+
+        // Simple toggle functionality for checkboxes
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+
+                // Update the label if it exists
+                const label = this.nextElementSibling;
+                if (label && label.classList.contains('checklist-label')) {
+                    label.classList.toggle('completed');
+                }
+
+                // Or check within a parent div
+                const parentDiv = this.nextElementSibling;
+                if (parentDiv && parentDiv.querySelector) {
+                    const nestedLabel = parentDiv.querySelector('.checklist-label');
+                    if (nestedLabel) {
+                        nestedLabel.classList.toggle('completed');
+                    }
+                }
+
+                // Update supply item background
+                const supplyItem = this.closest('.supply-item');
+                if (supplyItem) {
+                    supplyItem.classList.toggle('gathered');
+                }
+            });
+        });
+
+        // Track if user is dragging to prevent accidental collapse
+        let isDragging = false;
+
+        // Handle section header clicks - only toggle if not dragging and not clicking drag handle
+        function handleSectionClick(event, section) {
+            // Don't toggle if clicking the drag handle
+            if (event.target.closest('.section-drag-handle')) {
+                return;
+            }
+            // Don't toggle if we just finished dragging
+            if (isDragging) {
+                return;
+            }
+            section.classList.toggle('collapsed');
+        }
+
+        // Initialize SortableJS for section reordering
+        const sortableContainer = document.getElementById('sortable-sections');
+        if (sortableContainer && typeof Sortable !== 'undefined') {
+            const sortable = new Sortable(sortableContainer, {
+                animation: 200,
+                easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+                handle: '.section-drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                forceFallback: false,
+
+                onStart: function(evt) {
+                    isDragging = true;
+                    document.body.style.cursor = 'grabbing';
+                },
+
+                onEnd: function(evt) {
+                    document.body.style.cursor = '';
+                    // Small delay to prevent click event from firing
+                    setTimeout(() => {
+                        isDragging = false;
+                    }, 100);
+
+                    // Save section order to localStorage
+                    saveSectionOrder();
+                }
+            });
+        }
+
+        // Save section order to localStorage
+        function saveSectionOrder() {
+            const sections = document.querySelectorAll('#sortable-sections .collapsible-section');
+            const order = Array.from(sections).map(section => section.dataset.sectionId);
+            localStorage.setItem('inpatient-section-order', JSON.stringify(order));
+        }
+
+        // Load and apply saved section order
+        function loadSectionOrder() {
+            const savedOrder = localStorage.getItem('inpatient-section-order');
+            if (!savedOrder) return;
+
+            try {
+                const order = JSON.parse(savedOrder);
+                const container = document.getElementById('sortable-sections');
+                if (!container) return;
+
+                order.forEach(sectionId => {
+                    const section = container.querySelector(`[data-section-id="${sectionId}"]`);
+                    if (section) {
+                        container.appendChild(section);
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load section order:', e);
+            }
+        }
+
+        // Load saved order on page load
+        loadSectionOrder();
+    </script>
+</body>
+</html>
