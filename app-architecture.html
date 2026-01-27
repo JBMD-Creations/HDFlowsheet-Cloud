@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFlowsheet Architecture & Data Relationships</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --accent-cyan: #39c5cf;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1f35 0%, #2d1f47 100%);
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .version {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .nav-tab:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-blue);
+        }
+
+        /* Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .overview-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .overview-card h3 {
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .overview-card .icon {
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Data Flow Diagram */
+        .diagram-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .data-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-width: 800px;
+            gap: 20px;
+        }
+
+        .flow-node {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            min-width: 150px;
+            position: relative;
+        }
+
+        .flow-node.frontend { border-color: var(--accent-blue); }
+        .flow-node.api { border-color: var(--accent-purple); }
+        .flow-node.database { border-color: var(--accent-green); }
+
+        .flow-node h4 {
+            margin-bottom: 10px;
+        }
+
+        .flow-arrow {
+            color: var(--accent-orange);
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        /* Entity Relationship Diagram */
+        .er-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .entity-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .entity-header {
+            padding: 15px 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .entity-header.patient { background: linear-gradient(90deg, #1a3a5c, #1a2a4c); }
+        .entity-header.checklist { background: linear-gradient(90deg, #3a1a5c, #2a1a4c); }
+        .entity-header.ops { background: linear-gradient(90deg, #1a5c3a, #1a4c2a); }
+        .entity-header.auth { background: linear-gradient(90deg, #5c3a1a, #4c2a1a); }
+
+        .entity-fields {
+            padding: 15px 20px;
+        }
+
+        .field-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .field-item:last-child {
+            border-bottom: none;
+        }
+
+        .field-name {
+            color: var(--accent-cyan);
+            font-family: monospace;
+        }
+
+        .field-type {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .field-key {
+            color: var(--accent-orange);
+            font-size: 0.8rem;
+        }
+
+        /* Relationships */
+        .relationship-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .relationship-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .relationship-card h4 {
+            color: var(--accent-purple);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rel-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .rel-entity {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .rel-entity.left { background: var(--accent-blue); }
+        .rel-entity.right { background: var(--accent-green); }
+
+        .rel-connector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--accent-orange);
+        }
+
+        .rel-type {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .feature-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .feature-icon.charting { background: linear-gradient(135deg, #1a5c9c, #1a3c6c); }
+        .feature-icon.ops { background: linear-gradient(135deg, #5c1a9c, #3c1a6c); }
+        .feature-icon.reports { background: linear-gradient(135deg, #1a9c5c, #1a6c3c); }
+        .feature-icon.qa { background: linear-gradient(135deg, #9c5c1a, #6c3c1a); }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .feature-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .feature-body {
+            padding: 20px;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "→";
+            color: var(--accent-blue);
+            flex-shrink: 0;
+        }
+
+        /* State Objects */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .state-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .state-header {
+            padding: 15px 20px;
+            background: var(--bg-tertiary);
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .state-badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--accent-purple);
+            color: white;
+            font-family: sans-serif;
+        }
+
+        .state-body {
+            padding: 15px 20px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .state-prop {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .state-prop:last-child {
+            border-bottom: none;
+        }
+
+        .prop-name {
+            color: var(--accent-green);
+        }
+
+        .prop-type {
+            color: var(--text-secondary);
+        }
+
+        .prop-desc {
+            color: var(--text-secondary);
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            margin-top: 3px;
+        }
+
+        /* API Endpoints */
+        .api-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .api-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .api-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-method {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .api-method.get { background: var(--accent-green); color: #000; }
+        .api-method.post { background: var(--accent-blue); color: white; }
+        .api-method.delete { background: var(--accent-red); color: white; }
+
+        .api-path {
+            font-family: monospace;
+            color: var(--accent-cyan);
+        }
+
+        .api-body {
+            padding: 15px 20px;
+        }
+
+        .api-desc {
+            margin-bottom: 15px;
+        }
+
+        .api-params {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .api-params h5 {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+
+        .param-item {
+            font-family: monospace;
+            font-size: 0.85rem;
+            padding: 5px 0;
+        }
+
+        .param-name {
+            color: var(--accent-orange);
+        }
+
+        /* Database Schema */
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .db-table {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .db-table-header {
+            padding: 15px 20px;
+            background: linear-gradient(90deg, #1a2a4c, #2a1a4c);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .db-table-name {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        .db-table-desc {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .db-columns {
+            padding: 10px;
+        }
+
+        .db-column {
+            display: grid;
+            grid-template-columns: 120px 100px 1fr;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .db-column:nth-child(odd) {
+            background: var(--bg-tertiary);
+        }
+
+        .db-col-name {
+            font-family: monospace;
+            color: var(--accent-green);
+        }
+
+        .db-col-type {
+            font-family: monospace;
+            color: var(--accent-purple);
+        }
+
+        .db-col-constraint {
+            color: var(--accent-orange);
+            font-size: 0.75rem;
+        }
+
+        /* Local Storage */
+        .storage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .storage-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+        }
+
+        .storage-key {
+            font-family: monospace;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .storage-purpose {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .storage-type {
+            margin-top: 8px;
+            padding: 3px 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: inline-block;
+            color: var(--accent-orange);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 20px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            border: 2px solid var(--bg-primary);
+        }
+
+        .timeline-version {
+            color: var(--accent-green);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timeline-feature {
+            color: var(--text-primary);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 15px 0;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: linear-gradient(90deg, rgba(88, 166, 255, 0.1), transparent);
+            border-left: 4px solid var(--accent-blue);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box.warning {
+            background: linear-gradient(90deg, rgba(210, 153, 34, 0.1), transparent);
+            border-left-color: var(--accent-orange);
+        }
+
+        .info-box.success {
+            background: linear-gradient(90deg, rgba(63, 185, 80, 0.1), transparent);
+            border-left-color: var(--accent-green);
+        }
+
+        /* Print Styles */
+        @media print {
+            .nav-tabs { display: none; }
+            .section { display: block !important; page-break-after: always; }
+            body { background: white; color: black; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8rem; }
+            .nav-tab { padding: 8px 15px; font-size: 0.8rem; }
+            .data-flow { flex-direction: column; min-width: auto; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HDFlowsheet Architecture</h1>
+        <div class="version">Version 1.9.16 | Complete Data & Feature Documentation</div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('overview')">Overview</button>
+        <button class="nav-tab" onclick="showSection('data-flow')">Data Flow</button>
+        <button class="nav-tab" onclick="showSection('entities')">Data Entities</button>
+        <button class="nav-tab" onclick="showSection('relationships')">Relationships</button>
+        <button class="nav-tab" onclick="showSection('features')">Features</button>
+        <button class="nav-tab" onclick="showSection('state')">State Objects</button>
+        <button class="nav-tab" onclick="showSection('api')">API Endpoints</button>
+        <button class="nav-tab" onclick="showSection('database')">Database Schema</button>
+        <button class="nav-tab" onclick="showSection('storage')">Local Storage</button>
+        <button class="nav-tab" onclick="showSection('changelog')">Changelog</button>
+    </div>
+
+    <div class="content">
+        <!-- OVERVIEW SECTION -->
+        <div id="overview" class="section active">
+            <h2 class="section-title">Application Overview</h2>
+
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3><span class="icon">🏥</span> Purpose</h3>
+                    <p>HD (hemodialysis) patient management and QA tracking system for dialysis clinics. Manages patient flowsheets, operations checklists, reporting, and quality assurance tracking.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">🛠️</span> Tech Stack</h3>
+                    <p><strong>Frontend:</strong> Vanilla JavaScript, Single HTML file<br>
+                    <strong>Backend:</strong> Vercel Serverless Functions<br>
+                    <strong>Database:</strong> Supabase PostgreSQL<br>
+                    <strong>Auth:</strong> Supabase Auth (JWT)</p>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">📊</span> Key Stats</h3>
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">Database Tables</div>
+                    <div style="margin-top: 10px">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">API Endpoints</div>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">📦</span> Data Types</h3>
+                    <p><strong>5 Main Types:</strong><br>
+                    flowsheet, operations (checklists), snippets, labs, timestamp_logs, wheelchair_profiles</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Architecture Pattern:</strong> Offline-first with cloud sync. LocalStorage provides immediate access, Supabase provides persistence and multi-device sync via JWT authentication.
+            </div>
+
+            <h3 style="margin: 30px 0 20px">Core Modules</h3>
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3><span class="icon">📋</span> Patient Charting</h3>
+                    <p>Import patients from Excel, assign technicians/pods, manage QA checklists, track treatments, document notes.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">✅</span> Operations</h3>
+                    <p>Daily checklists with folders, lab tracking, snippet templates. Supports drag-reorder and URL links.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">📈</span> Reports</h3>
+                    <p>End of Shift Reports (EOSR) with editable summaries. Drag-reorderable patient sections.</p>
+                </div>
+                <div class="overview-card">
+                    <h3><span class="icon">⚙️</span> Settings</h3>
+                    <p>Theme selection, section management, technician setup, developer tools, import/export.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA FLOW SECTION -->
+        <div id="data-flow" class="section">
+            <h2 class="section-title">Data Flow Architecture</h2>
+
+            <div class="diagram-container">
+                <h3 style="margin-bottom: 20px">Primary Data Flow</h3>
+                <div class="data-flow">
+                    <div class="flow-node frontend">
+                        <h4>Browser</h4>
+                        <p>index.html<br>JavaScript<br>LocalStorage</p>
+                    </div>
+                    <div class="flow-arrow">→ fetch() →</div>
+                    <div class="flow-node api">
+                        <h4>Vercel API</h4>
+                        <p>/api/load<br>/api/save<br>/api/checklists<br>/api/labs</p>
+                    </div>
+                    <div class="flow-arrow">→ SQL →</div>
+                    <div class="flow-node database">
+                        <h4>Supabase</h4>
+                        <p>PostgreSQL<br>Auth Service<br>RLS Policies</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 30px 0 20px">Authentication Flow</h3>
+            <div class="code-block">User Login
+    ↓
+Supabase Auth → JWT Token
+    ↓
+Token stored in browser session
+    ↓
+API calls include: Authorization: Bearer &lt;jwt_token&gt;
+    ↓
+Server verifies via supabase.auth.getUser(token)
+    ↓
+Extracts user.id → All queries filtered by user_id</div>
+
+            <h3 style="margin: 30px 0 20px">Save Flow (Debounced)</h3>
+            <div class="code-block">User makes change
+    ↓
+updatePatient() / saveOpsData()
+    ↓
+LocalStorage updated immediately
+    ↓
+markDataChanged() → clearTimeout → setTimeout(1000ms)
+    ↓
+performDebouncedSave()
+    ↓
+saveAll(isAutoSave=true)
+    ├── saveToServer() → POST /api/save (flowsheet)
+    ├── saveOpsToServerAsync() → POST /api/checklists
+    ├── saveSnippetsToServerAsync() → POST /api/save (snippets)
+    ├── saveLabsToServerAsync() → POST /api/labs
+    ├── saveTimestampLogsToServerAsync() → POST /api/save (timestamp_logs)
+    └── saveWheelchairProfilesToServerAsync() → POST /api/save (wheelchair_profiles)</div>
+
+            <h3 style="margin: 30px 0 20px">Load Flow (On Login)</h3>
+            <div class="code-block">supabase.auth.onAuthStateChange('SIGNED_IN')
+    ↓
+setTimeout(500ms) → stability delay
+    ↓
+autoLoadFromServer()
+    ├── GET /api/load?type=flowsheet
+    ├── GET /api/checklists
+    ├── GET /api/load?type=snippets
+    ├── GET /api/labs
+    ├── GET /api/load?type=timestamp_logs
+    └── GET /api/load?type=wheelchair_profiles
+    ↓
+Merge server data with localStorage (server wins)
+    ↓
+opsState.loadedFromServer = true (safety flag)
+    ↓
+renderAll() → UI updated</div>
+
+            <div class="info-box warning">
+                <strong>Critical Safety:</strong> The <code>loadedFromServer</code> flag prevents empty local state from overwriting server data during the race condition window at login.
+            </div>
+        </div>
+
+        <!-- ENTITIES SECTION -->
+        <div id="entities" class="section">
+            <h2 class="section-title">Data Entities</h2>
+
+            <div class="er-diagram">
+                <div class="entity-card">
+                    <div class="entity-header patient">📋 Patient</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">name</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">section</span><span class="field-type">B1|B2|A1|A2|TCH</span></div>
+                        <div class="field-item"><span class="field-name">shift</span><span class="field-type">1st|2nd|3rd</span></div>
+                        <div class="field-item"><span class="field-name">technician</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">pod</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">chair</span><span class="field-type">number|string</span></div>
+                        <div class="field-item"><span class="field-name">rxTime</span><span class="field-type">HH:MM</span></div>
+                        <div class="field-item"><span class="field-name">dialyzer</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">dryWeight</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">preWeight</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">postWeight</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">goalUF</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">startTime</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">endTime</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">quickNotes</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">selectedSnippets</span><span class="field-type">array</span></div>
+                        <div class="field-item"><span class="field-name">miscTodos</span><span class="field-type">array</span></div>
+                        <div class="field-item"><span class="field-name">labs</span><span class="field-type">array</span></div>
+                        <div class="field-item"><span class="field-name">techCheck</span><span class="field-type">object</span></div>
+                        <div class="field-item"><span class="field-name">wheelchairItems</span><span class="field-type">array</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header checklist">✅ Checklist</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">name</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">position</span><span class="field-type">number</span></div>
+                        <div class="field-item"><span class="field-name">role</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">folders</span><span class="field-type">array</span></div>
+                        <div class="field-item"><span class="field-name">items</span><span class="field-type">array</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header checklist">📁 ChecklistFolder</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">checklist_id</span><span class="field-type">number</span><span class="field-key">FK</span></div>
+                        <div class="field-item"><span class="field-name">name</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">sort_order</span><span class="field-type">number</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header checklist">📝 ChecklistItem</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">checklist_id</span><span class="field-type">number</span><span class="field-key">FK</span></div>
+                        <div class="field-item"><span class="field-name">folder_id</span><span class="field-type">number|null</span><span class="field-key">FK</span></div>
+                        <div class="field-item"><span class="field-name">item_text</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">url</span><span class="field-type">string|null</span></div>
+                        <div class="field-item"><span class="field-name">sort_order</span><span class="field-type">number</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header ops">🧪 LabEntry</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">patient_name</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">lab_result</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">date_time</span><span class="field-type">timestamp</span></div>
+                        <div class="field-item"><span class="field-name">user_id</span><span class="field-type">uuid</span><span class="field-key">FK</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header ops">📝 Snippet</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">number</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">text</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">tags</span><span class="field-type">array</span></div>
+                        <div class="field-item"><span class="field-name">order</span><span class="field-type">number</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header ops">⏱️ TimestampLog</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">string</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">time</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">timestamp</span><span class="field-type">number</span></div>
+                        <div class="field-item"><span class="field-name">patientId</span><span class="field-type">number</span></div>
+                        <div class="field-item"><span class="field-name">chair</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">patientName</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">event</span><span class="field-type">string</span></div>
+                    </div>
+                </div>
+
+                <div class="entity-card">
+                    <div class="entity-header auth">🔐 User</div>
+                    <div class="entity-fields">
+                        <div class="field-item"><span class="field-name">id</span><span class="field-type">uuid</span><span class="field-key">PK</span></div>
+                        <div class="field-item"><span class="field-name">email</span><span class="field-type">string</span></div>
+                        <div class="field-item"><span class="field-name">created_at</span><span class="field-type">timestamp</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 40px 0 20px">Patient QA Checkboxes (Nested Structure)</h3>
+            <div class="code-block">{
+  preCheck: boolean,
+  preCheckSubs: { machineCheck, preDialysis, orderVerify },
+  thirtyMinCheck: boolean,
+  medsComplete: boolean,
+  medsSubs: { medsGiven, medsSheetSigned },
+  abxIDPN: boolean,
+  statLabs: boolean,
+  emailSent: boolean,
+  ettSigned: boolean,
+  missedTx: boolean,
+  missedTxSubs: { rescheduled, calledOff, noCallNoShow },
+  hospitalization: boolean,
+  hospitalizationHospital: string,
+  hospitalizationSubs: { hhPrep, hospEntered, whiteboard, eosrReport },
+  misc: boolean,
+  miscSubs: { thirtyMinCheck, abxIDPN, statLabs, labsPrep },
+  chartClosed: boolean
+}</div>
+
+            <h3 style="margin: 40px 0 20px">Tech Check Structure</h3>
+            <div class="code-block">{
+  techCheck: {
+    initiationTime: boolean,      // Missing initiation time
+    orderVerification: boolean,   // Missing order verification
+    txInitiated: boolean,         // TX not initiated
+    txEnded: boolean,             // TX not ended
+    blankVitalsNotes: boolean,    // Blank vitals/notes
+    heparinBolus: boolean,        // Missing heparin bolus
+    lidocaine: boolean,           // Missing lidocaine
+    postWeight: boolean           // Missing post weight
+  }
+}</div>
+        </div>
+
+        <!-- RELATIONSHIPS SECTION -->
+        <div id="relationships" class="section">
+            <h2 class="section-title">Data Relationships</h2>
+
+            <div class="relationship-grid">
+                <div class="relationship-card">
+                    <h4>🔗 User → All Data</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">User</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">All Tables</span>
+                    </div>
+                    <p>Every data record is scoped to a user_id. RLS policies enforce isolation at database level.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Checklist → Folders</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Checklist</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Folders</span>
+                    </div>
+                    <p>Each checklist can have multiple folders for organizing items. ON DELETE CASCADE.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Checklist → Items</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Checklist</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Items</span>
+                    </div>
+                    <p>Items belong to a checklist, optionally to a folder. ON DELETE CASCADE.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Item → Folder (Optional)</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Item</span>
+                        <div class="rel-connector">
+                            <span>*</span>
+                            <span>- - -</span>
+                            <span>0..1</span>
+                        </div>
+                        <span class="rel-entity right">Folder</span>
+                    </div>
+                    <p>Items can optionally belong to a folder (folder_id nullable).</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Patient → Labs</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Patient</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Labs</span>
+                    </div>
+                    <p>Each patient can have multiple STAT lab entries (embedded in patient.labs array).</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Patient → Wheelchair Items</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Patient</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">WheelchairItems</span>
+                    </div>
+                    <p>TCH patients have wheelchair equipment items for weight calculation.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 SnippetConfig → Sections</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Config</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Sections</span>
+                    </div>
+                    <p>Snippet configurations contain multiple sections (e.g., Pre Dialysis, Weight Management).</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Section → Snippets</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Section</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Snippets</span>
+                    </div>
+                    <p>Each section contains multiple reusable text snippets.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Technician → Patients</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Technician</span>
+                        <div class="rel-connector">
+                            <span>1</span>
+                            <span>━━━━</span>
+                            <span>*</span>
+                        </div>
+                        <span class="rel-entity right">Patients</span>
+                    </div>
+                    <p>Technicians are assigned to patients. Pod grouping controls navigation tabs.</p>
+                </div>
+
+                <div class="relationship-card">
+                    <h4>🔗 Completion → Checklist + Item + Date</h4>
+                    <div class="rel-visual">
+                        <span class="rel-entity left">Completion</span>
+                        <div class="rel-connector">
+                            <span>*</span>
+                            <span>━━━━</span>
+                            <span>1</span>
+                        </div>
+                        <span class="rel-entity right">Item</span>
+                    </div>
+                    <p>Completions track which items are done per day. Composite key: date + checklist + item.</p>
+                </div>
+            </div>
+
+            <h3 style="margin: 40px 0 20px">Entity Relationship Overview</h3>
+            <div class="code-block">                                    ┌─────────────────┐
+                                    │     User        │
+                                    │   (Supabase)    │
+                                    └────────┬────────┘
+                                             │ user_id (all tables)
+          ┌──────────────────────────────────┼──────────────────────────────────┐
+          │                                  │                                  │
+          ▼                                  ▼                                  ▼
+┌─────────────────┐               ┌─────────────────┐               ┌─────────────────┐
+│   app_data      │               │   checklists    │               │     labs        │
+│   (JSONB)       │               │                 │               │                 │
+├─────────────────┤               ├─────────────────┤               ├─────────────────┤
+│ - flowsheet     │               │ id, name,       │               │ id, patient_name│
+│ - snippets      │               │ position, role  │               │ lab_result,     │
+│ - timestamp_logs│               └────────┬────────┘               │ date_time       │
+│ - wheelchair_   │                        │                        └─────────────────┘
+│   profiles      │               ┌────────┴────────┐
+└─────────────────┘               │                 │
+                                  ▼                 ▼
+                       ┌─────────────────┐ ┌─────────────────┐
+                       │ checklist_      │ │ checklist_items │
+                       │ folders         │ │                 │
+                       ├─────────────────┤ ├─────────────────┤
+                       │ id, name,       │ │ id, item_text,  │
+                       │ checklist_id,   │ │ checklist_id,   │
+                       │ sort_order      │ │ folder_id (opt),│
+                       └─────────────────┘ │ url, sort_order │
+                                           └────────┬────────┘
+                                                    │
+                                                    ▼
+                                        ┌─────────────────────┐
+                                        │checklist_completions│
+                                        ├─────────────────────┤
+                                        │ id, checklist_id,   │
+                                        │ item_id,            │
+                                        │ completion_date,    │
+                                        │ completed_at        │
+                                        └─────────────────────┘</div>
+        </div>
+
+        <!-- FEATURES SECTION -->
+        <div id="features" class="section">
+            <h2 class="section-title">Feature Modules</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon charting">📋</div>
+                        <div>
+                            <div class="feature-title">Patient Charting</div>
+                            <div class="feature-subtitle">Core flowsheet management</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Excel/CSV import with column mapping</li>
+                            <li>Pod-based patient tabs (grouped by technician)</li>
+                            <li>Section selector (B1, B2, A1, A2, TCH)</li>
+                            <li>Quick Assign modal for bulk tech assignment</li>
+                            <li>Quick Chart modal for fast data entry</li>
+                            <li>Quick Notes modal per patient</li>
+                            <li>Expandable/collapsible chart sections</li>
+                            <li>Multi-shift support (1st, 2nd, 3rd)</li>
+                            <li>Treatment parameters (BFR, DFR, dialyzer, etc.)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon qa">✓</div>
+                        <div>
+                            <div class="feature-title">QA Checklist</div>
+                            <div class="feature-subtitle">Per-patient quality tracking</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Pre Check (machine check, pre-dialysis, order verify)</li>
+                            <li>30-Minute Check</li>
+                            <li>Medications Complete (meds given, sheet signed)</li>
+                            <li>Abx/IDPN, STAT Labs, Email Sent, ETT Signed</li>
+                            <li>Misc (30 min check, abx/IDPN, STAT labs, labs prep)</li>
+                            <li>Missed Tx (rescheduled, called off, no-call-no-show)</li>
+                            <li>Hospitalization tracking with hospital name</li>
+                            <li>Tech Check with 8 missing item categories</li>
+                            <li>Alert badge for incomplete items</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon ops">✅</div>
+                        <div>
+                            <div class="feature-title">Operations Checklists</div>
+                            <div class="feature-subtitle">Daily routine tracking</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Multiple named checklists per user</li>
+                            <li>Folder organization within checklists</li>
+                            <li>Drag-and-drop reordering</li>
+                            <li>URL links for resources</li>
+                            <li>Daily completion tracking (resets each day)</li>
+                            <li>Automatic backup before save</li>
+                            <li>Backup restore with history</li>
+                            <li>Orphaned item recovery</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon ops">🧪</div>
+                        <div>
+                            <div class="feature-title">Labs Tracking</div>
+                            <div class="feature-subtitle">STAT lab management</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Per-patient STAT lab entries</li>
+                            <li>Multi-field form (drawn, ordered, results sent)</li>
+                            <li>Operations Labs tab for global entries</li>
+                            <li>Result text and action taken tracking</li>
+                            <li>Distributed, drawn, order in NextGen flags</li>
+                            <li>Results sent email, results entered Renvio</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon ops">📝</div>
+                        <div>
+                            <div class="feature-title">Snippets</div>
+                            <div class="feature-subtitle">Pre-configured note templates</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>User-configurable snippet configurations</li>
+                            <li>Sections (Pre Dialysis, Weight Management, etc.)</li>
+                            <li>Tagged snippets for filtering</li>
+                            <li>Drag-reorderable sections and snippets</li>
+                            <li>Full CRUD support via UI</li>
+                            <li>Snippet drawer in patient chart</li>
+                            <li>Click-to-apply snippets to notes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon charting">⚖️</div>
+                        <div>
+                            <div class="feature-title">Weight & UF Management</div>
+                            <div class="feature-subtitle">Weight calculation tools</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Pre/Post weight tracking</li>
+                            <li>Goal UF calculation</li>
+                            <li>Wheelchair weight calculator (TCH patients)</li>
+                            <li>Equipment itemization with checkboxes</li>
+                            <li>Pre/post column totals</li>
+                            <li>Equipment profiles saved by patient initials</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon charting">⏱️</div>
+                        <div>
+                            <div class="feature-title">Timestamp Logger</div>
+                            <div class="feature-subtitle">Quick event logging</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Select patient by chair + name</li>
+                            <li>Log events with Phoenix, AZ timezone</li>
+                            <li>Click-to-copy timestamp</li>
+                            <li>Auto-saves to Supabase</li>
+                            <li>Persistent log history</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon reports">📈</div>
+                        <div>
+                            <div class="feature-title">End of Shift Reports</div>
+                            <div class="feature-subtitle">EOSR generation</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Summarizes completed treatments</li>
+                            <li>Early-terminated patient notes</li>
+                            <li>Weight tracking summary</li>
+                            <li>In-place editing of notes</li>
+                            <li>Drag-reorderable patient sections</li>
+                            <li>Persists edits via eosrState</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon qa">🧭</div>
+                        <div>
+                            <div class="feature-title">Floating Navigation</div>
+                            <div class="feature-subtitle">Quick access sidebar</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Collapsible sidebar</li>
+                            <li>Context-aware buttons</li>
+                            <li>Quick actions (add patient, quick chart)</li>
+                            <li>Section navigation</li>
+                            <li>State persists in localStorage</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon ops">🎨</div>
+                        <div>
+                            <div class="feature-title">Themes & Customization</div>
+                            <div class="feature-subtitle">UI personalization</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>6 color themes (Clinical Blue, Slate, Sage, etc.)</li>
+                            <li>Dark mode support</li>
+                            <li>Section reordering (drag-and-drop)</li>
+                            <li>Technician management</li>
+                            <li>Developer tools toggle</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon auth">🔐</div>
+                        <div>
+                            <div class="feature-title">Authentication</div>
+                            <div class="feature-subtitle">Multi-user support</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>Supabase Auth (email/password)</li>
+                            <li>JWT token-based API access</li>
+                            <li>Row Level Security enforcement</li>
+                            <li>Multi-device sync</li>
+                            <li>Automatic session management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon auth">💾</div>
+                        <div>
+                            <div class="feature-title">Data Persistence</div>
+                            <div class="feature-subtitle">Offline-first architecture</div>
+                        </div>
+                    </div>
+                    <div class="feature-body">
+                        <ul class="feature-list">
+                            <li>LocalStorage for immediate access</li>
+                            <li>Debounced auto-save (1 second)</li>
+                            <li>Automatic backup before destructive ops</li>
+                            <li>5 backup history per user</li>
+                            <li>Safety flag prevents empty overwrites</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATE SECTION -->
+        <div id="state" class="section">
+            <h2 class="section-title">State Objects</h2>
+
+            <div class="info-box">
+                <strong>Architecture:</strong> All state is stored in global JavaScript objects with localStorage persistence. Changes trigger debounced saves to Supabase.
+            </div>
+
+            <div class="state-grid">
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>state</span>
+                        <span class="state-badge">Patient Charting</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">patients</span>: <span class="prop-type">Patient[]</span>
+                            <div class="prop-desc">Array of all patient objects</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activePatientId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Currently viewed patient ID</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activePod</span>: <span class="prop-type">string | null</span>
+                            <div class="prop-desc">Selected technician's pod</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activeShift</span>: <span class="prop-type">'1st' | '2nd' | '3rd'</span>
+                            <div class="prop-desc">Current shift being viewed</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">selectedShifts</span>: <span class="prop-type">string[]</span>
+                            <div class="prop-desc">Shifts user is working</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">technicians</span>: <span class="prop-type">{name, pod}[]</span>
+                            <div class="prop-desc">List of technicians</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">currentSection</span>: <span class="prop-type">string</span>
+                            <div class="prop-desc">Current section: B1, B2, A1, A2, TCH</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">sectionOrder</span>: <span class="prop-type">string[]</span>
+                            <div class="prop-desc">User-defined section order</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">sections</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">Section definitions with name, chairs, info</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">selectedPatients</span>: <span class="prop-type">Set&lt;number&gt;</span>
+                            <div class="prop-desc">Multi-select for bulk operations</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">collapsedSections</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{patientId_sectionName: boolean}</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">nextId</span>: <span class="prop-type">number</span>
+                            <div class="prop-desc">Patient ID counter</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>opsState</span>
+                        <span class="state-badge">Operations</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">checklists</span>: <span class="prop-type">Checklist[]</span>
+                            <div class="prop-desc">Array of checklist objects</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activeChecklistId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Currently selected checklist</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">completions</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{date_checklistId: {completedItems, timestamp}}</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">editingChecklistId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Checklist being edited</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activeFolders</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{checklistId: folderId}</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">loadedFromServer</span>: <span class="prop-type">boolean</span>
+                            <div class="prop-desc">Safety flag to prevent empty overwrites</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>snippetState</span>
+                        <span class="state-badge">Snippets</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">configurations</span>: <span class="prop-type">SnippetConfig[]</span>
+                            <div class="prop-desc">Array of snippet configurations</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activeConfigId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Currently active configuration</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">editingConfigId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Configuration being edited</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">editingSectionId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Section being edited</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">editingSnippetId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Snippet being edited</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">selectedTags</span>: <span class="prop-type">Set&lt;string&gt;</span>
+                            <div class="prop-desc">Currently selected filter tags</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">allTags</span>: <span class="prop-type">string[]</span>
+                            <div class="prop-desc">All available tags</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>labsState</span>
+                        <span class="state-badge">Operations Labs</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">entries</span>: <span class="prop-type">LabEntry[]</span>
+                            <div class="prop-desc">Array of lab entries</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">activeOpsSubTab</span>: <span class="prop-type">'checklists' | 'labs'</span>
+                            <div class="prop-desc">Active sub-tab in Operations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>timestampState</span>
+                        <span class="state-badge">Timestamp Logs</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">selectedPatientId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Patient for timestamp logging</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">logs</span>: <span class="prop-type">TimestampLog[]</span>
+                            <div class="prop-desc">Array of timestamp log entries</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>eosrState</span>
+                        <span class="state-badge">End of Shift Reports</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">completeEdits</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{patientId: editedText}</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">earlyTermEdits</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{patientId: editedText}</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">weightEdits</span>: <span class="prop-type">object</span>
+                            <div class="prop-desc">{patientId: editedText}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>dragState</span>
+                        <span class="state-badge">Drag & Drop</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">draggedItem</span>: <span class="prop-type">HTMLElement | null</span>
+                            <div class="prop-desc">Currently dragged item</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">draggedItemId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">ID of dragged item</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">checklistId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">Checklist being reordered</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">dropPosition</span>: <span class="prop-type">'before' | 'after'</span>
+                            <div class="prop-desc">Drop position indicator</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="state-card">
+                    <div class="state-header">
+                        <span>drawerState</span>
+                        <span class="state-badge">Snippet Drawer</span>
+                    </div>
+                    <div class="state-body">
+                        <div class="state-prop">
+                            <span class="prop-name">draggedTab</span>: <span class="prop-type">HTMLElement | null</span>
+                            <div class="prop-desc">Currently dragged tab</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">draggedTabId</span>: <span class="prop-type">number | null</span>
+                            <div class="prop-desc">ID of dragged tab</div>
+                        </div>
+                        <div class="state-prop">
+                            <span class="prop-name">dropPosition</span>: <span class="prop-type">string | null</span>
+                            <div class="prop-desc">Drop position for reordering</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API SECTION -->
+        <div id="api" class="section">
+            <h2 class="section-title">API Endpoints</h2>
+
+            <div class="info-box">
+                <strong>Authentication:</strong> All endpoints require JWT token via <code>Authorization: Bearer &lt;token&gt;</code> header. Tokens are verified server-side via Supabase.
+            </div>
+
+            <div class="api-grid">
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method get">GET</span>
+                        <span class="api-path">/api/load</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Load data by type from app_data table.</div>
+                        <div class="api-params">
+                            <h5>Query Parameters</h5>
+                            <div class="param-item"><span class="param-name">type</span>: flowsheet | snippets | timestamp_logs | wheelchair_profiles</div>
+                        </div>
+                        <div class="code-block" style="margin-top: 15px">Response: { success: true, data: { ... } }</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method post">POST</span>
+                        <span class="api-path">/api/save</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Generic save endpoint. Upserts to app_data table with composite key (type, user_id).</div>
+                        <div class="api-params">
+                            <h5>Request Body</h5>
+                            <div class="param-item"><span class="param-name">type</span>: string - Data type identifier</div>
+                            <div class="param-item"><span class="param-name">data</span>: object - JSON data to save</div>
+                        </div>
+                        <div class="code-block" style="margin-top: 15px">Response: { success: true, message: "Data saved successfully" }</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method get">GET</span>
+                        <span class="api-path">/api/checklists</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Load all checklists with folders, items, and today's completions.</div>
+                        <div class="code-block" style="margin-top: 15px">Response: {
+  success: true,
+  data: {
+    checklists: [...],
+    completions: { "2026-01-27_123": { completedItems: [...] } }
+  }
+}</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method post">POST</span>
+                        <span class="api-path">/api/checklists</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Save checklists with auto-backup. Creates backup before overwriting.</div>
+                        <div class="api-params">
+                            <h5>Request Body</h5>
+                            <div class="param-item"><span class="param-name">checklists</span>: array - Checklist definitions</div>
+                            <div class="param-item"><span class="param-name">completions</span>: object - Completion data</div>
+                            <div class="param-item"><span class="param-name">action</span>: string (optional) - list_backups | restore_backup | recover_orphaned</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method get">GET</span>
+                        <span class="api-path">/api/labs</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Load all lab entries for user.</div>
+                        <div class="code-block" style="margin-top: 15px">Response: {
+  success: true,
+  data: {
+    entries: [{ id, patientName, labResult, dateTime }]
+  }
+}</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method post">POST</span>
+                        <span class="api-path">/api/labs</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Upsert lab entries. Deletes all existing, then inserts new.</div>
+                        <div class="api-params">
+                            <h5>Request Body</h5>
+                            <div class="param-item"><span class="param-name">entries</span>: array - Lab entry objects</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="api-method delete">DELETE</span>
+                        <span class="api-path">/api/labs</span>
+                    </div>
+                    <div class="api-body">
+                        <div class="api-desc">Clear all labs for user.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATABASE SECTION -->
+        <div id="database" class="section">
+            <h2 class="section-title">Database Schema (Supabase PostgreSQL)</h2>
+
+            <div class="info-box success">
+                <strong>Security:</strong> All tables have Row Level Security (RLS) enabled. Policies ensure users can only access their own data via <code>auth.uid() = user_id</code>.
+            </div>
+
+            <div class="db-grid">
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">app_data</span>
+                        <span class="db-table-desc">JSONB storage for various data types</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">type</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">PK (composite)</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">user_id</span>
+                            <span class="db-col-type">UUID</span>
+                            <span class="db-col-constraint">PK (composite)</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">data</span>
+                            <span class="db-col-type">JSONB</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">updated_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">app_data_backups</span>
+                        <span class="db-table-desc">Backup history</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">type</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">user_id</span>
+                            <span class="db-col-type">UUID</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">data</span>
+                            <span class="db-col-type">JSONB</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">created_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">checklists</span>
+                        <span class="db-table-desc">Checklist definitions</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">name</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">position</span>
+                            <span class="db-col-type">INTEGER</span>
+                            <span class="db-col-constraint">DEFAULT 0</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">role</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">user_id</span>
+                            <span class="db-col-type">UUID</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">created_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">checklist_folders</span>
+                        <span class="db-table-desc">Folder organization</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">checklist_id</span>
+                            <span class="db-col-type">BIGINT</span>
+                            <span class="db-col-constraint">FK → checklists(id) CASCADE</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">name</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">sort_order</span>
+                            <span class="db-col-type">INTEGER</span>
+                            <span class="db-col-constraint">DEFAULT 0</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">created_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">checklist_items</span>
+                        <span class="db-table-desc">Individual items</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">checklist_id</span>
+                            <span class="db-col-type">BIGINT</span>
+                            <span class="db-col-constraint">FK → checklists(id) CASCADE</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">folder_id</span>
+                            <span class="db-col-type">BIGINT</span>
+                            <span class="db-col-constraint">FK → folders(id) CASCADE (nullable)</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">item_text</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">url</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">sort_order</span>
+                            <span class="db-col-type">INTEGER</span>
+                            <span class="db-col-constraint">DEFAULT 0</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">created_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">checklist_completions</span>
+                        <span class="db-table-desc">Daily completion tracking</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">checklist_id</span>
+                            <span class="db-col-type">BIGINT</span>
+                            <span class="db-col-constraint">FK → checklists(id) CASCADE</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">item_id</span>
+                            <span class="db-col-type">BIGINT</span>
+                            <span class="db-col-constraint">FK → items(id) CASCADE</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">completion_date</span>
+                            <span class="db-col-type">DATE</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">completed_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="db-table">
+                    <div class="db-table-header">
+                        <span class="db-table-name">labs</span>
+                        <span class="db-table-desc">Lab entries (normalized)</span>
+                    </div>
+                    <div class="db-columns">
+                        <div class="db-column">
+                            <span class="db-col-name">id</span>
+                            <span class="db-col-type">BIGSERIAL</span>
+                            <span class="db-col-constraint">PK</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">patient_name</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint">NOT NULL</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">lab_result</span>
+                            <span class="db-col-type">TEXT</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">date_time</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint"></span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">user_id</span>
+                            <span class="db-col-type">UUID</span>
+                            <span class="db-col-constraint">NOT NULL, INDEXED</span>
+                        </div>
+                        <div class="db-column">
+                            <span class="db-col-name">created_at</span>
+                            <span class="db-col-type">TIMESTAMPTZ</span>
+                            <span class="db-col-constraint">DEFAULT now()</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin: 40px 0 20px">Data Types Stored in app_data</h3>
+            <div class="storage-grid">
+                <div class="storage-item">
+                    <div class="storage-key">flowsheet</div>
+                    <div class="storage-purpose">Complete patient data array with all charting fields</div>
+                    <span class="storage-type">Patient[]</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">snippets</div>
+                    <div class="storage-purpose">Snippet configurations with sections and templates</div>
+                    <span class="storage-type">SnippetConfig[]</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">timestamp_logs</div>
+                    <div class="storage-purpose">Quick timestamp log entries</div>
+                    <span class="storage-type">TimestampLog[]</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">wheelchair_profiles</div>
+                    <div class="storage-purpose">Equipment profiles by patient initials</div>
+                    <span class="storage-type">{ [initials]: WheelchairItem[] }</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STORAGE SECTION -->
+        <div id="storage" class="section">
+            <h2 class="section-title">LocalStorage Keys</h2>
+
+            <div class="info-box">
+                <strong>Offline-First:</strong> All data is persisted in localStorage for immediate access. Cloud sync happens via debounced auto-save to Supabase.
+            </div>
+
+            <div class="storage-grid">
+                <div class="storage-item">
+                    <div class="storage-key">hd_operations_data</div>
+                    <div class="storage-purpose">Checklists, completions, active folders, loadedFromServer flag</div>
+                    <span class="storage-type">JSON (opsState)</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_labs_data</div>
+                    <div class="storage-purpose">Operations lab entries</div>
+                    <span class="storage-type">JSON (labsState)</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_snippet_data</div>
+                    <div class="storage-purpose">Snippet configurations with sections and templates</div>
+                    <span class="storage-type">JSON (snippetState)</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_technicians</div>
+                    <div class="storage-purpose">List of technicians with name and pod</div>
+                    <span class="storage-type">JSON ({ name, pod }[])</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_current_section</div>
+                    <div class="storage-purpose">Last viewed section (B1, B2, A1, A2, TCH)</div>
+                    <span class="storage-type">String</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_section_order</div>
+                    <div class="storage-purpose">User-defined section order preference</div>
+                    <span class="storage-type">JSON (string[])</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_theme</div>
+                    <div class="storage-purpose">Selected color theme name</div>
+                    <span class="storage-type">String</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_selected_shifts</div>
+                    <div class="storage-purpose">Shifts user is currently working</div>
+                    <span class="storage-type">JSON (string[])</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_timestamp_logs</div>
+                    <div class="storage-purpose">Timestamp quick notes log entries</div>
+                    <span class="storage-type">JSON (timestampState)</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_floating_nav_collapsed</div>
+                    <div class="storage-purpose">Floating navigation sidebar state</div>
+                    <span class="storage-type">Boolean string</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_dev_mode</div>
+                    <div class="storage-purpose">Developer tools toggle state</div>
+                    <span class="storage-type">Boolean string</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">wheelchair_profiles</div>
+                    <div class="storage-purpose">Equipment profiles by patient initials for TCH</div>
+                    <span class="storage-type">JSON ({ [initials]: items[] })</span>
+                </div>
+                <div class="storage-item">
+                    <div class="storage-key">hd_pending_server_load</div>
+                    <div class="storage-purpose">Flag indicating pending server sync on login</div>
+                    <span class="storage-type">Boolean string</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHANGELOG SECTION -->
+        <div id="changelog" class="section">
+            <h2 class="section-title">Version History</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.16</div>
+                    <div class="timeline-feature">Floating Navigation Sidebar - collapsible sidebar with context-aware quick actions</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.15</div>
+                    <div class="timeline-feature">BUG-001 Fix - Checklist persistence across computers, loadedFromServer safety flag</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.12</div>
+                    <div class="timeline-feature">Wheelchair Weight Calculation for TCH patients with equipment profiles</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.11</div>
+                    <div class="timeline-feature">Theme-Aware Snippet Sections with color-coded icons</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.10</div>
+                    <div class="timeline-feature">Patient Chart Section Reordering via drag-and-drop</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.9</div>
+                    <div class="timeline-feature">Checklist Folders & URL Links for resource organization</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.8</div>
+                    <div class="timeline-feature">Operations Tab with user-editable daily checklists</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.7</div>
+                    <div class="timeline-feature">Quick Notes & Timestamp Logger for event tracking</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.6</div>
+                    <div class="timeline-feature">QA Checklist 5-Column Grid layout</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.9.5</div>
+                    <div class="timeline-feature">Misc To-Do List per patient</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.8</div>
+                    <div class="timeline-feature">Pod-Based Navigation with technician grouping</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.5</div>
+                    <div class="timeline-feature">Smart Shift Assignment based on treatment times</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.4</div>
+                    <div class="timeline-feature">Multi-Shift Support (1st, 2nd, 3rd shifts)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.3</div>
+                    <div class="timeline-feature">Theme Selector with 6 color themes + dark mode</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.2</div>
+                    <div class="timeline-feature">Quick Chart Modal for fast data entry</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-version">v1.8.1</div>
+                    <div class="timeline-feature">Quick Notes Modal per patient</div>
+                </div>
+            </div>
+
+            <h3 style="margin: 40px 0 20px">Known Issues & Fixes</h3>
+            <div class="info-box warning">
+                <strong>BUG-001: Checklist Data Loss (FIXED in v1.9.15)</strong><br><br>
+                <strong>Symptoms:</strong> Checklists disappeared when logging in from different computer or after "Reset Patients"<br><br>
+                <strong>Root Causes:</strong>
+                <ol style="margin: 10px 0 0 20px">
+                    <li>Early return on 404 in autoLoadFromServer() before loading checklists</li>
+                    <li>Same issue in manual loadFromServer()</li>
+                    <li>Race condition: empty local checklists overwrite server data during login</li>
+                </ol><br>
+                <strong>Solution:</strong> Always load checklists regardless of patient data. Added opsState.loadedFromServer safety flag to skip save if not set.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Print functionality
+        function printAll() {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('active'));
+            window.print();
+        }
+    </script>
+</body>
+</html>
