@@ -90,16 +90,25 @@ Supabase (PostgreSQL + Auth + RLS Policies)
 
 ## 4. Database Schema
 
-### Tables (6 total)
+### Physical Tables
 
 | Table | Purpose |
 |-------|---------|
-| `flowsheet` | Patient data, assignments, QA checklists |
+| `app_data` | JSONB document storage for flowsheet/patient data per user |
 | `checklists` | Operations checklist definitions |
+| `checklist_folders` | Folders for organizing checklists |
 | `checklist_items` | Individual items within checklists |
-| `snippets` | Quick-insert text templates |
+| `checklist_completions` | Completion status tracking by date |
 | `labs` | Lab tracking entries |
-| `timestamp_logs` | Audit trail for changes |
+
+### Data Types (stored in `app_data` JSONB)
+
+The `app_data` table stores a JSONB column containing:
+- `patients[]` - Patient records with assignments and QA checklists
+- `technicians[]` - Technician definitions
+- `snippets[]` - Quick-insert text templates
+- `timestamp_logs[]` - Audit trail for changes
+- `section_order[]` - UI section ordering preferences
 
 ---
 
@@ -173,8 +182,9 @@ while (el && el !== document.body) {
     el = el.parentElement;
 }
 
-// 4. Check computed styles
-const styles = window.getComputedStyle(element);
+// 4. Check computed styles for a specific element
+const targetEl = document.querySelector('.target-element');
+const styles = window.getComputedStyle(targetEl);
 console.log('display:', styles.display, 'visibility:', styles.visibility, 'height:', styles.height);
 ```
 
@@ -296,11 +306,18 @@ Full-width widgets (`.widget-full`, `.widget-divider`, `.widget-reminder`) autom
 
 | Key | Purpose |
 |-----|---------|
-| `hdFlowsheetData` | Patient flowsheet data |
-| `opsChecklists` | Operations checklists |
-| `opsCompletions` | Checklist completion status |
-| `hdFlowsheetTheme` | User theme preference |
-| `hdTechs` | Technician list |
+| `hd_operations_data` | Operations data (contains `checklists` and `completions` as nested properties) |
+| `hd_labs_data` | Lab tracking entries |
+| `hd_snippet_data` | Snippet templates |
+| `hd_technicians` | Technician list |
+| `hd_theme` | User theme preference |
+| `hd_current_section` | Currently active section |
+| `hd_section_order` | UI section ordering |
+| `hd_selected_shifts` | Selected shift filters |
+| `hd_timestamp_logs` | Audit trail logs |
+| `hd_dev_mode` | Developer mode toggle |
+| `hd_floating_nav_collapsed` | Floating nav collapsed state |
+| `wheelchair_profiles` | Wheelchair patient profiles |
 
 ---
 
