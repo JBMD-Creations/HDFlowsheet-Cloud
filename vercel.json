@@ -2,9 +2,5 @@
   "framework": null,
   "installCommand": "npm install",
   "buildCommand": "",
-  "outputDirectory": ".",
-  "env": {
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key"
-  }
+  "outputDirectory": "."
 }
