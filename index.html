@@ -8637,13 +8637,11 @@
                 })
                 .subscribe((status) => {
                     console.log('Realtime subscription status:', status);
-                    // Update sync indicator based on connection status
+                    // Only show positive status from Realtime; let save/load drive errors
                     if (status === 'SUBSCRIBED') {
                         updateSyncStatus('synced', 'Live');
-                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-                        updateSyncStatus('offline', 'Offline');
-                    } else if (status === 'CLOSED') {
-                        updateSyncStatus('offline', 'Disconnected');
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                        console.warn('Realtime unavailable:', status, '(saves still work via REST)');
                     }
                 });
         }
